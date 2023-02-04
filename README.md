@@ -4,6 +4,7 @@ Getting Started:
         $ pip install -r requirements.txt
     3. run app:
         $ ./api.py
+    4. create and copy .env file (in the discord)
 
     **Notes**
     When installing any new external modules via pip, run:
