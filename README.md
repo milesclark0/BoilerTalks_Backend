@@ -9,4 +9,5 @@ Getting Started:
     When installing any new external modules via pip, run:
         $ pip freeze > requirements.txt
         
-        test
+    Running Tests:
+        $ python3 -m unittest <testfilename.py>
