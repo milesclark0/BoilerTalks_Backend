@@ -1,8 +1,9 @@
-import crypt
 from app.models.Database import db, DBreturn, ObjectId
 import datetime, re
+from app import logger
 
 class User:
+    #None mutable
     _id: ObjectId
     _username: str
     _password: str
@@ -12,12 +13,15 @@ class User:
     _courses: list
     _profilePicture: str
     _blockedUsers: list
+    #None mutable
     _creationDate: datetime
 
+
+    # Database collection
     collection = db.Users
 
 
-    def __init__(self, username: str, password: str, email: str, firstName: str, lastName: str, courses: list, profilePicture: str, blockedUsers: list) -> None:
+    def __init__(self, username: str, password: str, email: str, firstName: str, lastName: str, courses: list, profilePicture: str, blockedUsers: list, id=None, creationDate=None) -> None:
         self._username = username
         self._password = password
         self._email = email
@@ -26,20 +30,31 @@ class User:
         self._courses = courses
         self._profilePicture = profilePicture
         self._blockedUsers = blockedUsers
-        self._creationDate = datetime.datetime.now()
+        if id is not None: self._id = id
         
+        if creationDate is not None: self._creationDate = creationDate 
+        else: self._creationDate = datetime.datetime.utcnow()
 
-
-    
+    # Throws exception if any fields are invalid
     def fromDict(data: dict):
-        return User(*data.values())
+        newDict = {}
+        if not User.hasAllRequiredFields(data):
+            logger.warning(UserMessages.MISSING_FIELDS)
+            return None
+        #reorder dict to match constructor
+        for k in ('username', 'password', 'email', 'firstName', 'lastName', 'courses', 'profilePicture', 'blockedUsers', '_id', 'creationDate'):
+            item = data.pop(k, None)
+            if item is not None:
+                newDict[k] = item
+        return User(*newDict.values())
+
 
     def save(self):
         isValid = self.validateFields(True)
         if not isValid[0]:
             return DBreturn(False, UserMessages.SAVE_ERROR + UserMessages.FIELDS_INVALID, isValid[1])
         #hash password before saving
-        self._password = self.hashPassword(self._password)
+        self._password = User.hashPassword(self._password)
         try:
             #check if username is taken
             if self.collection.find_one({"username": self._username}) != None:
@@ -247,16 +262,24 @@ class User:
 
 
     # Other methods
-
-    def hashPassword(self, password):
+    @staticmethod
+    def hashPassword(password):
         #TODO: hash password
         return password
 
-    def formatDict(self):
-        # remove the underscore from the keys
-        return {k[1:]: v for k, v in self.__dict__.items()}
-    
+    @staticmethod
+    def hasAllRequiredFields(data: dict):
+        return all (k in data for k in ("username", "password", "email", "firstName", "lastName", "courses", "profilePicture", "blockedUsers"))
 
+    def formatDict(self):
+        # remove the underscore from the keys except for _id field
+        newDict = {}
+        for key, value in self.__dict__.items():
+            if key == "_id":
+                newDict[key] = value
+            else:
+                newDict[key[1:]] = value
+        return newDict
 
     def __str__(self):
         return str(self.formatDict())
@@ -269,6 +292,7 @@ class UserMessages():
     NOT_FOUND = "User not found"
 
     FIELDS_INVALID = "Fields invalid"
+    MISSING_FIELDS = "Missing required fields for user"
 
     USERNAME_NULL= "Username cannot be null"
     USERNAME_LENGTH = "Username must be between 4 and 30 characters"

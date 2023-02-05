@@ -9,6 +9,8 @@ client = MongoClient(Config.DB_CONN_STR)
 # get the database
 db = client[Config.DB_NAME]
 
+
+
 # class returned by database methods and queries
 class DBreturn:
     success: bool

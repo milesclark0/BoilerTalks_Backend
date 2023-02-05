@@ -130,12 +130,61 @@ class UserTests(unittest.TestCase):
         # should not allow delete of user that has not been saved
         self.assertFalse(result.success)
         self.assertTrue(result.message == UserMessages.DELETE_ERROR + UserMessages.NOT_FOUND)
+
+    def test_from_dict_valid(self):
+        # testing with only required fields
+        user1_dict = {
+            "username": "user1",
+            "password": "Password1!",
+            "email": 'email@purdue.edu',
+            "firstName": "firstName",
+            "lastName": "lastName",
+            "courses": ['CS408'],
+            "profilePicture": 'https:/imgur.com/abcd.jpg',
+            "blockedUsers": ['user2']
+        }
+
+        user1 = User.fromDict(user1_dict)
+        self.assertTrue(user1 is not None)
+
+        # testing with all fields
+        user2_dict = {
+            "_id": "5f5f5f5f5f5f5f5f5f5f5f5f",
+            "username": "user1",
+            "password": "Password1!",
+            "email": 'email@purdue.edu',
+            "firstName": "firstName",
+            "lastName": "lastName",
+            "courses": ['CS408'],
+            "profilePicture": 'https:/imgur.com/abcd.jpg',
+            "blockedUsers": ['user2'],
+            "creationDate": "2020-09-09 00:00:00",
+        }
+
+        user2 = User.fromDict(user2_dict)
+        self.assertTrue(user2 is not None)
+
+    def test_from_dict_invalid(self):
+        # testing with missing required fields
+        user1_dict = {
+            "username": "user1",
+            "password": "Password1!",
+            "email": 'email@purdue.edu',
+        }
+
+        user1 = User.fromDict(user1_dict)
+        self.assertTrue(user1 is None)
+
+
+        
     
     
 
     # clear database after each test
     def tearDown(self):
         User.collection.delete_many({})
+
+    
 
     
 

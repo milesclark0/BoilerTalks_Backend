@@ -2,10 +2,21 @@
 from flask import Flask
 from flask_cors import CORS
 from flask_socketio import SocketIO
-
 from config import Config
+import logging
 
 socketIo = SocketIO(cors_allowed_origins="http://localhost:5173")
+
+
+# Configure logging for the application
+logger = logging.getLogger(__name__)
+formatter = logging.Formatter('%(filename)s:%(lineno)d: %(message)s')
+_consoleHandler = logging.StreamHandler()
+_consoleHandler.setFormatter(formatter)
+logger.addHandler(_consoleHandler)
+
+# Set the logging level for the application here: DEBUG -> INFO -> WARNING -> ERROR -> CRITICAL
+logger.setLevel(logging.ERROR)
 
 def create_app(config_class=Config, debug=int(Config.FLASK_DEBUG)):
     app = Flask(__name__)
