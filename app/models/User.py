@@ -2,9 +2,47 @@ from app.models.Database import db, DBreturn, ObjectId
 import datetime, re
 from app import logger
 
+class UserMessages:
+    SAVE_ERROR = "User Save error: "
+    DELETE_ERROR = "User Delete error: "
+    UPDATE_ERROR = "User Update error: "
+    NOT_FOUND = "User not found"
+
+    FIELDS_INVALID = "Fields invalid"
+    MISSING_FIELDS = "Missing required fields for user"
+
+    USERNAME_NULL= "Username cannot be null"
+    USERNAME_LENGTH = "Username must be between 4 and 30 characters"
+
+    PASS_NULL = "Password cannot be null"
+    PASS_LENGTH = "Password must be between 8 and 30 characters"
+    PASS_NUMBER = "Password must contain at least one number"
+    PASS_UPPER = "Password must contain at least one uppercase letter"
+    PASS_LOWER = "Password must contain at least one lowercase letter"
+    PASS_SPECIAL = "Password must contain at least one special character"
+
+    EMAIL_NULL = "Email cannot be null"
+    EMAIL_INVALID = "Email is invalid"
+
+    FIRSTNAME_NULL = "First name cannot be null"
+    FIRSTNAME_LENGTH = "First name must be at least 2 characters and less than 30"
+
+    LASTNAME_NULL = "Last name cannot be null"
+    LASTNAME_LENGTH = "Last name must be at least 2 characters and less than 30"
+
+    COURSE_NULL = "A course specified cannot be empty"
+    PROFILE_PICTURE_INVALID = "Profile picture must be a valid url"
+    BLOCKED_USER_NULL = "A user blocked cannot be empty"
+    
+    USERNAME_TAKEN = SAVE_ERROR + "Username already taken"
+    EMAIL_TAKEN = SAVE_ERROR + "Email already taken"
+
+    USER_CREATED = "User created successfully"
+    USER_DELETED = "User deleted successfully"
+    USER_UPDATED = "User updated successfully"
+
+
 class User:
-    #None mutable
-    _id: ObjectId
     _username: str
     _password: str
     _email: str
@@ -13,7 +51,9 @@ class User:
     _courses: list
     _profilePicture: str
     _blockedUsers: list
-    #None mutable
+
+    #non mutable
+    _id: ObjectId
     _creationDate: datetime
 
 
@@ -21,21 +61,28 @@ class User:
     collection = db.Users
 
 
-    def __init__(self, username: str, password: str, email: str, firstName: str, lastName: str, courses: list, profilePicture: str, blockedUsers: list, id=None, creationDate=None) -> None:
+    def __init__(self, username: str, password: str, email: str, firstName: str, lastName: str, courses: list = None, profilePicture: str = None,\
+                 blockedUsers: list = None, id: ObjectId = None, creationDate:datetime.datetime = None):
+        #required fields
         self._username = username
         self._password = password
         self._email = email
         self._firstName = firstName
         self._lastName = lastName
-        self._courses = courses
-        self._profilePicture = profilePicture
-        self._blockedUsers = blockedUsers
+
+        #optional fields
         if id is not None: self._id = id
+        if courses is not None: self._courses = courses
+        else: self._courses = []
+        #TODO: add default profile picture link
+        if profilePicture is not None: self._profilePicture = profilePicture
+        else: self._profilePicture = "https://imgur.com/gallery/mCHMpLT"
+        if blockedUsers is not None: self._blockedUsers = blockedUsers
+        else: self._blockedUsers = []
         
         if creationDate is not None: self._creationDate = creationDate 
         else: self._creationDate = datetime.datetime.utcnow()
 
-    # Throws exception if any fields are invalid
     def fromDict(data: dict):
         newDict = {}
         if not User.hasAllRequiredFields(data):
@@ -44,8 +91,7 @@ class User:
         #reorder dict to match constructor
         for k in ('username', 'password', 'email', 'firstName', 'lastName', 'courses', 'profilePicture', 'blockedUsers', '_id', 'creationDate'):
             item = data.pop(k, None)
-            if item is not None:
-                newDict[k] = item
+            newDict[k] = item
         return User(*newDict.values())
 
 
@@ -67,7 +113,7 @@ class User:
             #save user
             result = self.collection.insert_one(self.formatDict())
             self._id = result.inserted_id
-            return DBreturn(True, UserMessages.USER_CREATED, self)
+            return DBreturn(True, UserMessages.USER_CREATED, self.formatDict())
         except Exception as e:
             return DBreturn(False, UserMessages.SAVE_ERROR + str(e), None)
 
@@ -84,8 +130,8 @@ class User:
             result = self.collection.update_one({"username": self._username}, {"$set": self.formatDict()})
 
             #add id and creation date back to dict
-            self.__dict__['_id'] = id
-            self.__dict__['_creationDate'] = creationDate
+            self._id = id
+            self._creationDate = creationDate
 
             #check if user was updated
             if result.modified_count == 0:
@@ -104,6 +150,7 @@ class User:
                 return DBreturn(False, UserMessages.DELETE_ERROR + UserMessages.NOT_FOUND, None)
             return DBreturn(True, UserMessages.USER_DELETED, None)
         except Exception as e:
+            logger.error(e)
             return DBreturn(False, UserMessages.DELETE_ERROR + str(e), None)
 
 
@@ -111,23 +158,13 @@ class User:
         
     def validateFields(self, isSave):
         errors = []
-        if not self.validateUsername()[0]:
-            errors.append(self.validateUsername()[1])
-        # only validate password if it is being saved
-        if isSave and not self.validatePassword()[0]:
-            errors.append(self.validatePassword()[1])
-        if not self.validateEmail()[0]:
-            errors.append(self.validateEmail()[1])
-        if not self.validateFirstName()[0]:
-            errors.append(self.validateFirstName()[1])
-        if not self.validateLastName()[0]:
-            errors.append(self.validateLastName()[1])
-        if not self.validateCourses()[0]:
-            errors.append(self.validateCourses()[1])
-        if not self.validateProfilePicture()[0]:
-            errors.append(self.validateProfilePicture()[1]) 
-        if not self.validateBlockedUsers()[0]:
-            errors.append(self.validateBlockedUsers()[1])
+        for validateFunc in [method for method in dir(self) if callable(getattr(self, method)) and method.startswith("validate") and method != "validateFields"]:
+            result = getattr(self, validateFunc)()
+            if not result[0]:
+                #only validate password if saving
+                if validateFunc == "validatePassword" and not isSave:
+                    continue
+                errors.extend(result[1])
         return (len(errors) == 0, errors)
 
     def validateUsername(self):
@@ -179,27 +216,32 @@ class User:
         return (len(errors) == 0, errors)
 
     def validateCourses(self):
+        errors = []
         for course in self._courses:
             if course == "" or course == None:
-                return (False, UserMessages.COURSE_NULL)
-        return (True, None)
+                errors.append(UserMessages.COURSE_NULL)
+        return (len(errors) == 0, errors)
 
     def validateProfilePicture(self):
+        errors = []
         if not (self._profilePicture == "" or self._profilePicture == None):
-            if re.match(r"(https:)([/|.|\w|\s|-])*\.(?:jpg|gif|png)", self._profilePicture) == None:
-                return (False, UserMessages.PROFILE_PICTURE_INVALID)
-        return (True, None)
+            if re.match(r"(https:)([/|.|\w|\s|-])*", self._profilePicture) == None:
+                errors.append(UserMessages.PROFILE_PICTURE_INVALID)
+        return (len(errors) == 0, errors)
 
     def validateBlockedUsers(self):
+        errors = []
         for user in self._blockedUsers:
             if user == "" or user == None:
-                return (False, UserMessages.BLOCKED_USER_NULL)
-        return (True, None)
+                errors.append(UserMessages.BLOCKED_USER_NULL)
+        return (len(errors) == 0, errors)
+
 
     #getters
 
     def getId(self):
-        return self._id
+        #id may not be set yet
+        return self.__dict__.get("_id", None)
 
     def getUsername(self):
         return self._username
@@ -231,7 +273,11 @@ class User:
     #setters
 
     def setId(self, id):
-        self._id = id
+        #id may not be set yet
+        try:
+            return self._id
+        except:
+            return None
 
     def setUsername(self, username):
         self._username = username
@@ -269,8 +315,7 @@ class User:
 
     @staticmethod
     def hasAllRequiredFields(data: dict):
-        return all (k in data for k in ("username", "password", "email", "firstName", "lastName", "courses", "profilePicture", "blockedUsers"))
-
+        return all(k in data for k in ("username", "password", "email", "firstName", "lastName"))
     def formatDict(self):
         # remove the underscore from the keys except for _id field
         newDict = {}
@@ -285,43 +330,6 @@ class User:
         return str(self.formatDict())
 
         
-class UserMessages():
-    SAVE_ERROR = "Save error: "
-    DELETE_ERROR = "Delete error: "
-    UPDATE_ERROR = "Update error: "
-    NOT_FOUND = "User not found"
 
-    FIELDS_INVALID = "Fields invalid"
-    MISSING_FIELDS = "Missing required fields for user"
-
-    USERNAME_NULL= "Username cannot be null"
-    USERNAME_LENGTH = "Username must be between 4 and 30 characters"
-
-    PASS_NULL = "Password cannot be null"
-    PASS_LENGTH = "Password must be between 8 and 30 characters"
-    PASS_NUMBER = "Password must contain at least one number"
-    PASS_UPPER = "Password must contain at least one uppercase letter"
-    PASS_LOWER = "Password must contain at least one lowercase letter"
-    PASS_SPECIAL = "Password must contain at least one special character"
-
-    EMAIL_NULL = "Email cannot be null"
-    EMAIL_INVALID = "Email is invalid"
-
-    FIRSTNAME_NULL = "First name cannot be null"
-    FIRSTNAME_LENGTH = "First name must be at least 2 characters and less than 30"
-
-    LASTNAME_NULL = "Last name cannot be null"
-    LASTNAME_LENGTH = "Last name must be at least 2 characters and less than 30"
-
-    COURSE_NULL = "A course specified cannot be empty"
-    PROFILE_PICTURE_INVALID = "Profile picture must be a valid url"
-    BLOCKED_USER_NULL = "A user blocked cannot be empty"
-    
-    USERNAME_TAKEN = SAVE_ERROR + "Username already taken"
-    EMAIL_TAKEN = SAVE_ERROR + "Email already taken"
-
-    USER_CREATED = "User created successfully"
-    USER_DELETED = "User deleted successfully"
-    USER_UPDATED = "User updated successfully"
 
 

@@ -1,6 +1,5 @@
 import unittest, certifi
 from app.models.User import User, UserMessages
-import datetime
 from pymongo import MongoClient
 from config import Config
 
@@ -41,20 +40,20 @@ class UserTests(unittest.TestCase):
         self.assertTrue(result.message == UserMessages.SAVE_ERROR + UserMessages.FIELDS_INVALID)
 
         #check for all errors
-        self.assertTrue(UserMessages.USERNAME_LENGTH in result.data[0])
+        self.assertTrue(UserMessages.USERNAME_LENGTH in result.data)
 
-        self.assertTrue(UserMessages.PASS_NUMBER in result.data[1])
-        self.assertTrue(UserMessages.PASS_UPPER in result.data[1])
-        self.assertTrue(UserMessages.PASS_SPECIAL in result.data[1])
+        self.assertTrue(UserMessages.PASS_NUMBER in result.data)
+        self.assertTrue(UserMessages.PASS_UPPER in result.data)
+        self.assertTrue(UserMessages.PASS_SPECIAL in result.data)
 
-        self.assertTrue(UserMessages.EMAIL_INVALID in result.data[2])
+        self.assertTrue(UserMessages.EMAIL_INVALID in result.data)
 
-        self.assertTrue(UserMessages.FIRSTNAME_LENGTH in result.data[3])
-        self.assertTrue(UserMessages.LASTNAME_LENGTH in result.data[4])
+        self.assertTrue(UserMessages.FIRSTNAME_LENGTH in result.data)
+        self.assertTrue(UserMessages.LASTNAME_LENGTH in result.data)
 
-        self.assertTrue(UserMessages.COURSE_NULL in result.data[5])
-        self.assertTrue(UserMessages.PROFILE_PICTURE_INVALID in result.data[6])
-        self.assertTrue(UserMessages.BLOCKED_USER_NULL in result.data[7])
+        self.assertTrue(UserMessages.COURSE_NULL in result.data)
+        self.assertTrue(UserMessages.PROFILE_PICTURE_INVALID in result.data)
+        self.assertTrue(UserMessages.BLOCKED_USER_NULL in result.data)
 
     def test_save_duplicate(self):
         user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS408'], 'https:/imgur.com/abcd.jpg', ['user2'])
