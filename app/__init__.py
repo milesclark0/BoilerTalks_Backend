@@ -10,7 +10,7 @@ socketIo = SocketIO(cors_allowed_origins="http://localhost:5173")
 
 # Configure logging for the application
 logger = logging.getLogger(__name__)
-formatter = logging.Formatter('%(filename)s:%(lineno)d: %(message)s')
+formatter = logging.Formatter('\n%(filename)s:%(lineno)d: %(message)s')
 _consoleHandler = logging.StreamHandler()
 _consoleHandler.setFormatter(formatter)
 logger.addHandler(_consoleHandler)

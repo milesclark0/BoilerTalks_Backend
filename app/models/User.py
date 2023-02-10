@@ -13,6 +13,7 @@ class UserMessages:
 
     USERNAME_NULL= "Username cannot be null"
     USERNAME_LENGTH = "Username must be between 4 and 30 characters"
+    USERNAME_INVALID = "Username is invalid"
 
     PASS_NULL = "Password cannot be null"
     PASS_LENGTH = "Password must be between 8 and 30 characters"
@@ -20,19 +21,28 @@ class UserMessages:
     PASS_UPPER = "Password must contain at least one uppercase letter"
     PASS_LOWER = "Password must contain at least one lowercase letter"
     PASS_SPECIAL = "Password must contain at least one special character"
+    PASS_INVALID = "Password is invalid"
 
     EMAIL_NULL = "Email cannot be null"
     EMAIL_INVALID = "Email is invalid"
 
     FIRSTNAME_NULL = "First name cannot be null"
     FIRSTNAME_LENGTH = "First name must be at least 2 characters and less than 30"
+    FIRSTNAME_INVALID = "First name is invalid"
 
     LASTNAME_NULL = "Last name cannot be null"
     LASTNAME_LENGTH = "Last name must be at least 2 characters and less than 30"
+    LASTNAME_INVALID = "First name is invalid"
+
 
     COURSE_NULL = "A course specified cannot be empty"
-    PROFILE_PICTURE_INVALID = "Profile picture must be a valid url"
+    COURSES_INVALID = "A course specified is invalid"
+
+    PROFILE_PICTURE_INVALID = "Profile picture is invalid"
+    PROFILE_PICTURE_INVALID_LINK = "Profile picture must be a valid url"
+
     BLOCKED_USER_NULL = "A user blocked cannot be empty"
+    BLOCKED_USERS_INVALID = "A user blocked is invalid"
     
     USERNAME_TAKEN = SAVE_ERROR + "Username already taken"
     EMAIL_TAKEN = SAVE_ERROR + "Email already taken"
@@ -40,6 +50,9 @@ class UserMessages:
     USER_CREATED = "User created successfully"
     USER_DELETED = "User deleted successfully"
     USER_UPDATED = "User updated successfully"
+
+    CREATION_DATE_INVALID = "Creation date must be a valid datetime object"
+
 
 
 class User:
@@ -90,7 +103,7 @@ class User:
             return None
         #reorder dict to match constructor
         for k in ('username', 'password', 'email', 'firstName', 'lastName', 'courses', 'profilePicture', 'blockedUsers', '_id', 'creationDate'):
-            item = data.pop(k, None)
+            item = data.get(k, None)
             newDict[k] = item
         return User(*newDict.values())
 
@@ -130,8 +143,8 @@ class User:
             result = self.collection.update_one({"username": self._username}, {"$set": self.formatDict()})
 
             #add id and creation date back to dict
-            self._id = id
-            self._creationDate = creationDate
+            self.__dict__['_id'] = id
+            self.__dict__['_creationDate'] = creationDate
 
             #check if user was updated
             if result.modified_count == 0:
@@ -169,6 +182,9 @@ class User:
 
     def validateUsername(self):
         errors = []
+        if not isinstance(self._username, str):
+            errors.append(UserMessages.USERNAME_INVALID)
+            return (False, errors)
         if self._username == "" or self._username == None:
             errors.append(UserMessages.USERNAME_NULL)
         if len(self._username) < 4 or len(self._username) > 30:
@@ -177,6 +193,9 @@ class User:
 
     def validatePassword(self):
         errors = []
+        if not isinstance(self._password, str):
+            errors.append(UserMessages.PASS_INVALID)
+            return (False, errors)
         if self._password == "" or self._password == None:
             errors.append(UserMessages.PASS_NULL)
         if len(self._password) < 8 or len(self._password) > 30:
@@ -193,6 +212,9 @@ class User:
 
     def validateEmail(self):
         errors = []
+        if not isinstance(self._email, str):
+            errors.append(UserMessages.EMAIL_INVALID)
+            return (False, errors)
         if self._email == "" or self._email == None:
             errors.append(UserMessages.EMAIL_NULL)
         if re.match(r"(^[a-zA-Z0-9_.+-]+@purdue.edu)$", self._email) == None:
@@ -201,6 +223,9 @@ class User:
 
     def validateFirstName(self):
         errors = []
+        if not isinstance(self._firstName, str):
+            errors.append(UserMessages.FIRSTNAME_INVALID)
+            return (False, errors)
         if self._firstName == "" or self._firstName == None:
             errors.append(UserMessages.FIRSTNAME_NULL)
         if len(self._firstName) > 30 or len(self._firstName) < 2:
@@ -209,6 +234,9 @@ class User:
 
     def validateLastName(self):
         errors = []
+        if not isinstance(self._lastName, str):
+            errors.append(UserMessages.LASTNAME_INVALID)
+            return (False, errors)
         if self._lastName == "" or self._lastName == None:
             errors.append(UserMessages.LASTNAME_NULL)
         if len(self._lastName) > 30 or len(self._lastName) < 2:
@@ -217,6 +245,9 @@ class User:
 
     def validateCourses(self):
         errors = []
+        if not isinstance(self._courses, list):
+            errors.append(UserMessages.COURSES_INVALID)
+            return (False, errors)
         for course in self._courses:
             if course == "" or course == None:
                 errors.append(UserMessages.COURSE_NULL)
@@ -224,16 +255,34 @@ class User:
 
     def validateProfilePicture(self):
         errors = []
+        if not isinstance(self._profilePicture, str):
+            errors.append(UserMessages.PROFILE_PICTURE_INVALID)
+            return (False, errors)
         if not (self._profilePicture == "" or self._profilePicture == None):
             if re.match(r"(https:)([/|.|\w|\s|-])*", self._profilePicture) == None:
-                errors.append(UserMessages.PROFILE_PICTURE_INVALID)
+                errors.append(UserMessages.PROFILE_PICTURE_INVALID_LINK)
         return (len(errors) == 0, errors)
 
     def validateBlockedUsers(self):
         errors = []
+        if not isinstance(self._blockedUsers, list):
+            errors.append(UserMessages.BLOCKED_USERS_INVALID)
+            return (False, errors)
         for user in self._blockedUsers:
             if user == "" or user == None:
                 errors.append(UserMessages.BLOCKED_USER_NULL)
+        return (len(errors) == 0, errors)
+    
+    def validateCreationDate(self):
+        #try to parse the date if it is a string
+        errors = []
+        if isinstance(self._creationDate, str):
+            try:
+                self._creationDate = datetime.datetime.strptime(self._creationDate, "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                errors.append(UserMessages.CREATION_DATE_INVALID)
+        if not isinstance(self._creationDate, datetime.datetime):
+            errors.append(UserMessages.CREATION_DATE_INVALID)
         return (len(errors) == 0, errors)
 
 
@@ -315,7 +364,9 @@ class User:
 
     @staticmethod
     def hasAllRequiredFields(data: dict):
-        return all(k in data for k in ("username", "password", "email", "firstName", "lastName"))
+        if data is None:
+            return False
+        return all(k in data for k in ["username", "password", "email", "firstName", "lastName"])
     def formatDict(self):
         # remove the underscore from the keys except for _id field
         newDict = {}
@@ -328,8 +379,4 @@ class User:
 
     def __str__(self):
         return str(self.formatDict())
-
-        
-
-
 

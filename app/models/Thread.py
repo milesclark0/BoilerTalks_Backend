@@ -1,11 +1,10 @@
 from app.models.Database import db, DBreturn, ObjectId
-import datetime, re
 from app import logger
 
 class ThreadMessages:
-    SAVE_ERROR = "Error saving Thread"
-    UPDATE_ERROR = "Error updating Thread"
-    DELETE_ERROR = "Error deleting Thread"
+    SAVE_ERROR = "Error saving Thread: "
+    UPDATE_ERROR = "Error updating Thread: "
+    DELETE_ERROR = "Error deleting Thread: "
 
     INVALID_FIELDS = "Invalid fields"
     MISSING_FIELDS = "Missing fields"
@@ -19,12 +18,15 @@ class ThreadMessages:
 
     NAME_NULL = "Name cannot be null"
     NAME_TOO_LONG = "Name cannot be longer than 20 characters"
+    NAME_INVALID = "Name is invalid"
 
     INVALID_NUMBER_OF_POSTS = "Number of posts must be a positive integer"
 
     INVALID_COURSE_ID = "Invalid course id"
 
     THREAD_EXISTS = "Thread already exists"
+
+
 
 
 
@@ -44,7 +46,7 @@ class Thread:
 
     def __init__(self, name: str, courseId: ObjectId, numberOfPosts: int = None,  id: ObjectId = None):
         #required fields
-        self.name = name
+        self._name = name
         self._courseId = courseId
 
         #optional fields
@@ -53,13 +55,13 @@ class Thread:
         
         if id is not None: self._id = id
 
-    def fromDict(self, data: dict):
+    def fromDict(data: dict):
         newDict = {}
         if Thread.hasAllRequiredFields(data) is False:
             logger.warning(ThreadMessages.MISSING_FIELDS)
             return None
         for k in ("name", "courseId", "numberOfPosts", "_id"):
-            item = data.pop(k, None)
+            item = data.get(k, None)
             newDict[k] = item
         return Thread(*newDict.values())
 
@@ -79,7 +81,7 @@ class Thread:
             result = self.collection.insert_one(self.formatDict())
             self._id = result.inserted_id
             logger.info(ThreadMessages.THREAD_SAVED) 
-            return DBreturn(True, ThreadMessages.THREAD_SAVED, self)
+            return DBreturn(True, ThreadMessages.THREAD_SAVED, self.formatDict())
         except Exception as e:
             logger.error(e)
             return DBreturn(False, ThreadMessages.SAVE_ERROR + str(e), None)
@@ -88,7 +90,7 @@ class Thread:
         isValid = self.validateFields()
         if not isValid[0]:
             logger.warning(ThreadMessages.INVALID_FIELDS)
-            return DBreturn(False, ThreadMessages.UPDATE_ERROR + ThreadMessages.FIELDS_INVALID, isValid[1])
+            return DBreturn(False, ThreadMessages.UPDATE_ERROR + ThreadMessages.INVALID_FIELDS, isValid[1])
 
         try:
             #remove non mutable fields
@@ -96,11 +98,11 @@ class Thread:
             courseId = self.__dict__.pop("_courseId", None)
 
             #update the thread
-            result = self.collection.update_one({"courseId": id}, {"$set": self.formatDict()})
-
+            result = self.collection.update_one({"courseId": courseId}, {"$set": self.formatDict()})
+            
             #add non mutable fields back
-            self._id = id
-            self._courseId = courseId
+            self.__dict__["_id"] = id
+            self.__dict__["_courseId"] = courseId
 
             if result.modified_count == 0:
                 logger.warning(ThreadMessages.UPDATE_ERROR + ThreadMessages.NOT_FOUND)
@@ -135,6 +137,9 @@ class Thread:
     def validateName(self):
         # name must be between 1 and 20 characters and not null
         errors = []
+        if not isinstance(self._name, str):
+            errors.append(ThreadMessages.NAME_INVALID)
+            return (False, errors)
         if self._name is None or self._name == "":
             errors.append(ThreadMessages.NAME_NULL)
         if len(self._name) > 20:
@@ -151,7 +156,10 @@ class Thread:
     def validateNumberOfPosts(self):
         # numberOfPosts must be a positive integer
         errors = []
-        if self.numberOfPosts is None or self._numberOfPosts < 0:
+        if not isinstance(self._numberOfPosts, int):
+            errors.append(ThreadMessages.INVALID_NUMBER_OF_POSTS)
+            return (False, errors)
+        if self._numberOfPosts is None or self._numberOfPosts < 0:
             errors.append(ThreadMessages.INVALID_NUMBER_OF_POSTS)
         return (len(errors) == 0, errors)
 
@@ -171,6 +179,7 @@ class Thread:
             return self._courseId
 
 
+
     #setters
     def setName(self, name: str):
         self._name = name
@@ -188,7 +197,9 @@ class Thread:
 
     @staticmethod
     def hasAllRequiredFields(data: dict):
-        return all(k in data for k in ("name", "courseId"))
+        if data is None:
+            return False
+        return all(k in data for k in ["name", "courseId"])
 
     def formatDict(self):
         # remove the underscore from the beginning of the keys except for _id

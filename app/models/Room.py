@@ -1,12 +1,10 @@
 from app.models.Database import db, DBreturn, ObjectId
-from app.models.Room import Room
 from app import logger
-import datetime, re
 
 class RoomMessages:
-    SAVE_ERROR = "Error saving Room"
-    UPDATE_ERROR = "Error updating Room"
-    DELETE_ERROR = "Error deleting Room"
+    SAVE_ERROR = "Error saving Room: "
+    UPDATE_ERROR = "Error updating Room: "
+    DELETE_ERROR = "Error deleting Room: "
 
 
     INVALID_FIELDS = "Invalid fields"
@@ -14,12 +12,12 @@ class RoomMessages:
     ROOM_EXISTS = "Room already exists"
     NOT_FOUND = "Room not found"
 
-    CONNECTED_NOT_LIST = "Connected is not a list"
+    CONNECTED_INVALID = "Connected field is not a list"
     CONNECTED_NOT_DICT = "Connected is not a dict"
     CONNECTED_INVALID_FORMAT_SID = "Connected does not contain a valid sid"
     CONNECTED_INVALID_FORMAT_USERNAME = "Connected does not contain a valid username"
 
-    MESSAGES_NOT_LIST = "Messages is not a list"
+    MESSAGES_INVALID = "Messages is not a list"
     MESSAGES_NOT_DICT = "Messages is not a dict"
     MESSAGES_INVALID_FORMAT_USERNAME = "Messages does not contain a valid username"
     MESSAGES_INVALID_FORMAT_MESSAGE = "Messages does not contain a valid message"
@@ -27,12 +25,15 @@ class RoomMessages:
 
     NAME_TOO_LONG = "Name is too long"
     NAME_NULL = "Name is null"
+    NAME_INVALID = "Name is invalid"
 
     ROOM_CREATED = "Room successfully created"
     ROOM_UPDATED = "Room successfully updated"
     ROOM_DELETED = "Room successfully deleted"
 
     INVALID_COURSE_ID = "Invalid course id"
+
+
 
 
 class Room:
@@ -49,15 +50,15 @@ class Room:
 
     def __init__(self, name: str, courseId: ObjectId, connected: list[dict] = None, messages: list[dict] = None,  id: ObjectId = None ):
         #required fields
-        self.name = name
+        self._name = name
         self._courseId = courseId
 
         #optional fields
-        if connected is not None: self.connected = connected
-        else: self.connected = []
+        if connected is not None: self._connected = connected
+        else: self._connected = []
 
-        if messages is not None: self.messages = messages
-        else: self.messages = []
+        if messages is not None: self._messages = messages
+        else: self._messages = []
 
         if id is not None: self._id = id
 
@@ -68,7 +69,7 @@ class Room:
             return None
         #reorder the dict to match the order of the constructor
         for key in ("name", "courseId", "connected", "messages", "_id"):
-            item = data.pop(key, None)
+            item = data.get(key, None)
             newDict[key] = item
         return Room(*newDict.values())
 
@@ -80,7 +81,7 @@ class Room:
             return DBreturn(False, RoomMessages.SAVE_ERROR + RoomMessages.INVALID_FIELDS, isValid[1])
         try:
             #check if room already exists
-            ret = self.collection.find_one({'courseId': self._courseId})
+            ret = self.collection.find_one({'courseId': self._courseId, 'name': self._name})
             if ret is not None:
                 logger.warning(RoomMessages.ROOM_EXISTS)
                 return DBreturn(False, RoomMessages.ROOM_EXISTS, ret)
@@ -105,11 +106,12 @@ class Room:
             courseId = self.__dict__.pop("_courseId", None)
 
             #update the ROOM
-            result = self.collection.update_one({"courseId": id}, {"$set": self.formatDict()})
+            result = self.collection.update_one({"courseId": courseId}, {"$set": self.formatDict()})
 
             #add non mutable fields back
-            self._id = id
-            self._courseId = courseId
+            self.__dict__["_id"] = id
+            self.__dict__["_courseId"] = courseId
+
             if result.modified_count == 0:
                 logger.warning(RoomMessages.UPDATE_ERROR + RoomMessages.NOT_FOUND)
                 return DBreturn(False, RoomMessages.UPDATE_ERROR + RoomMessages.NOT_FOUND, None)
@@ -144,6 +146,9 @@ class Room:
     def validateName(self):
         # name must be between 1 and 20 characters and not null
         errors = []
+        if not isinstance(self._name, str):
+            errors.append(RoomMessages.NAME_INVALID)
+            return (False, errors)
         if self._name is None or self._name == "":
             errors.append(RoomMessages.NAME_NULL)
         if len(self._name) > 20:
@@ -154,7 +159,8 @@ class Room:
         # connected must be a list of dict and must have a sid and username
         errors = []
         if not isinstance(self._connected, list):
-            errors.append(RoomMessages.CONNECTED_NOT_LIST)
+            errors.append(RoomMessages.CONNECTED_INVALID)
+            return (False, errors)
         for item in self._connected:
             if not isinstance(item, dict):
                 errors.append(RoomMessages.CONNECTED_NOT_DICT)
@@ -168,7 +174,8 @@ class Room:
         # messages must be a list of dict and must have a username, message and timeSent
         errors = []
         if not isinstance(self._messages, list):
-            errors.append(RoomMessages.MESSAGES_NOT_LIST)
+            errors.append(RoomMessages.MESSAGES_INVALID)
+            return (False, errors)
         for item in self._messages:
             if not isinstance(item, dict):
                 errors.append(RoomMessages.MESSAGES_NOT_DICT)
@@ -186,8 +193,7 @@ class Room:
         if not ObjectId.is_valid(self._courseId):
             errors.append(RoomMessages.INVALID_COURSE_ID)
         return (len(errors) == 0, errors)
-
-
+    
 
 
     #getters
@@ -223,7 +229,9 @@ class Room:
     # other methods
     @staticmethod
     def hasAllRequiredFields(data: dict):
-        return all (key in data for key in ("name", "courseId"))
+        if data is None:
+            return False
+        return all (key in data for key in ["name", "courseId"])
 
     def __str__(self):
         return str(self.formatDict())

@@ -25,19 +25,26 @@ class CourseMessages:
 
     NAME_NULL = "Name cannot be null or empty"
     NAME_TOO_LONG = "Name cannot be longer than 20 characters"
+    INVALID_NAME = "Invalid name"
 
     INVALID_MEMBER_COUNT = "Member count must be a positive integer"
 
     DESCRIPTION_NULL = "Description cannot be null or empty"
     DESCRIPTION_TOO_LONG = "Description cannot be longer than 200 characters"
+    INVALID_DESCRIPTION = "Invalid description"
 
     OWNER_NULL = "Owner cannot be null or empty"
     OWNER_INVALID_LENGTH = "Owner must be between 4 and 20 characters"
+    INVALID_OWNER = "Invalid owner"
 
     INSTRUCTOR_INVALID_LENGTH = "Instructor must be between 4 and 20 characters"
+    INVALID_INSTRUCTOR = "Invalid instructor"
 
     DEPARTMENT_NULL = "Department cannot be null or empty"
     DEPARTMENT_INVALID_LENGTH = "Department must be between 4 and 20 characters"
+    INVALID_DEPARTMENT = "Invalid department"
+
+    CREATION_DATE_INVALID = "Creation date must be a valid datetime object"
 
     FOREIGN_KEYS_POPULATED = "Foreign keys successfully populated"
     FOREIGN_KEYS_DELETED = "Foreign keys successfully deleted"
@@ -78,18 +85,15 @@ class Course:
         self._semester = semester
 
         #optional fields
+        # Can be None
+        self._instructor = instructor
+        self._userThread = userThread
+        self._generalRoom = generalRoom
+        self._modRoom = modRoom
+        # Must be initialized
         if id is not None: self._id = id
-
-        if instructor is not None: self._instructor = instructor
-        else: self._instructor = ""
-
         if memberCount is not None: self._memberCount = memberCount
         else: self._memberCount = 0
-
-        if userThread is not None: self._userThread = userThread
-        if generalRoom is not None: self._generalRoom = generalRoom
-        if modRoom is not None: self._modRoom = modRoom
-
         if creationDate is not None: self._creationDate = creationDate
         else : self._creationDate = datetime.datetime.now()
 
@@ -100,7 +104,7 @@ class Course:
             return None
         # reorder the dictionary to match the order of the constructor
         for key in ('name', 'description', 'owner', 'department', 'semester', 'instructor', '_id', 'memberCount', 'userThread', 'generalRoom', 'modRoom', 'creationDate'):
-            item = data.pop(key, None)
+            item = data.get(key, None)
             newDict[key] = item
         return Course(*newDict.values())
 
@@ -127,7 +131,7 @@ class Course:
             if not ret.success:
                 return ret
             #update course with foreign keys
-            ret = self.update()
+            ret = self.update(True)
             if not ret.success:
                 return ret
             return DBreturn(True, CourseMessages.COURSE_CREATED, self.formatDict())
@@ -135,16 +139,18 @@ class Course:
             logger.error(e)
             return DBreturn(False, CourseMessages.SAVE_ERROR + str(e), None)
 
-    def update(self):
+    def update(self, isOnInit: bool = False):
         isValid = self.validateFields()
         if not isValid[0]:
             return DBreturn(False, CourseMessages.UPDATE_ERROR + CourseMessages.INVALID_FIELDS, isValid[1])
         try:
             #remove all non mutable fields
+            logger.debug(self.__dict__)
             id = self.__dict__.pop('_id', None)
-            userThread = self.__dict__.pop('_userThread', None)
-            generalRoom = self.__dict__.pop('_generalRoom', None)
-            modRoom = self.__dict__.pop('_modRoom', None)
+            if not isOnInit:
+                userThread = self.__dict__.pop('_userThread', None)
+                generalRoom = self.__dict__.pop('_generalRoom', None)
+                modRoom = self.__dict__.pop('_modRoom', None)
             creationDate = self.__dict__.pop('_creationDate', None)
 
             #update course
@@ -152,15 +158,16 @@ class Course:
             
             #add back non mutable fields
             self._id = id
-            self._userThread = userThread
-            self._generalRoom = generalRoom
-            self._modRoom = modRoom
+            if not isOnInit:
+                self.__dict__['_userThread'] = userThread
+                self.__dict__['_generalRoom'] = generalRoom
+                self.__dict__['_modRoom'] = modRoom
             self._creationDate = creationDate
 
             #check if course was updated
             if result.modified_count == 0:
                 logger.warning(CourseMessages.COURSE_NOT_FOUND)
-                return DBreturn(False, CourseMessages.COURSE_NOT_FOUND, None)
+                return DBreturn(False, CourseMessages.UPDATE_ERROR + CourseMessages.COURSE_NOT_FOUND, None)
             logger.info(CourseMessages.COURSE_UPDATED)
             return DBreturn(True, CourseMessages.COURSE_UPDATED, self.formatDict())
         except Exception as e:
@@ -177,7 +184,7 @@ class Course:
             result = self.collection.delete_one({'name': self._name, 'semester': self._semester})
             if result.deleted_count == 0:
                 logger.warning(CourseMessages.COURSE_NOT_FOUND)
-                return DBreturn(False, CourseMessages.COURSE_NOT_FOUND, None)
+                return DBreturn(False, CourseMessages.DELETE_ERROR + CourseMessages.COURSE_NOT_FOUND, None)
             return DBreturn(True, CourseMessages.COURSE_DELETED, None)
         except Exception as e:
             logger.error(e)
@@ -196,6 +203,9 @@ class Course:
     def validateSemester(self):
         # semester must be in the format "Fall|Spring|Summer|Winter YYYY" and not null
         errors = []
+        if not isinstance(self._semester, str):
+            errors.append(CourseMessages.INVALID_SEMESTER)
+            return (False, errors)
         term, year = None, None
         if self._semester is None or self._semester == "":
             errors.append(CourseMessages.SEMESTER_NULL)
@@ -204,15 +214,19 @@ class Course:
             errors.append(CourseMessages.INVALID_SEMESTER)
         else:
             term, year = splitVal
-        if term not in ("Fall", "Spring", "Summer", "Winter") and term is not None:
+        if term is not None and term not in ("Fall", "Spring", "Summer", "Winter"):
             errors.append(CourseMessages.INVALID_TERM)
-        if not year.isdigit() and year is not None:
+        if year is not None and not year.isdigit():
             errors.append(CourseMessages.INVALID_YEAR)
         return (len(errors) == 0, errors)
 
     def validateMemberCount(self):
         # memberCount must be a positive integer
         errors = []
+        if not isinstance(self._memberCount, int):
+            errors.append(CourseMessages.INVALID_MEMBER_COUNT)
+            return (False, errors)
+        
         if self._memberCount is None or self._memberCount < 0:
             errors.append(CourseMessages.INVALID_MEMBER_COUNT)
         return (len(errors) == 0, errors)
@@ -220,6 +234,9 @@ class Course:
     def validateName(self):
         # name must be between 1 and 20 characters and not null
         errors = []
+        if not isinstance(self._name, str):
+            errors.append(CourseMessages.INVALID_NAME)
+            return (False, errors)
         if self._name is None or self._name == "":
             errors.append(CourseMessages.NAME_NULL)
         if len(self._name) > 20:
@@ -229,6 +246,9 @@ class Course:
     def validateDescription(self):
         # description must be between 1 and 200 characters and not null
         errors = []
+        if not isinstance(self._description, str):
+            errors.append(CourseMessages.INVALID_DESCRIPTION)
+            return (False, errors)
         if self._description is None or self._description == "":
             errors.append(CourseMessages.DESCRIPTION_NULL)
         if len(self._description) > 200:
@@ -238,6 +258,9 @@ class Course:
     def validateOwner(self):
         # owner must be between 4 and 20 characters and not null
         errors = []
+        if not isinstance(self._owner, str):
+            errors.append(CourseMessages.INVALID_OWNER)
+            return (False, errors)
         if self._owner == "" or self._owner == None:
             errors.append(CourseMessages.OWNER_NULL)
         if len(self._owner) < 4 or len(self._owner) > 20:
@@ -247,6 +270,9 @@ class Course:
     def validateInstructor(self):
         # instructor must be between 4 and 20 or null
         errors = []
+        if not isinstance(self._instructor, str) and self._instructor != None:
+            errors.append(CourseMessages.INVALID_INSTRUCTOR)
+            return (False, errors)
         #only check if instructor is not null or empty
         if self._instructor != "" and self._instructor != None:
             if len(self._instructor) < 4 or len(self._instructor) > 20:
@@ -256,10 +282,25 @@ class Course:
     def validateDepartment(self):
         # department must be between 4 and 20 characters and not null
         errors = []
+        if not isinstance(self._department, str):
+            errors.append(CourseMessages.INVALID_DEPARTMENT)
+            return (False, errors)
         if self._department == "" or self._department == None:
             errors.append(CourseMessages.DEPARTMENT_NULL)
         if len(self._department) < 4 or len(self._department) > 20:
             errors.append(CourseMessages.DEPARTMENT_INVALID_LENGTH)
+        return (len(errors) == 0, errors)
+    
+    def validateCreationDate(self):
+        #try to parse the date if it is a string
+        errors = []
+        if isinstance(self._creationDate, str):
+            try:
+                self._creationDate = datetime.datetime.strptime(self._creationDate, "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                errors.append(CourseMessages.CREATION_DATE_INVALID)
+        if not isinstance(self._creationDate, datetime.datetime):
+            errors.append(CourseMessages.CREATION_DATE_INVALID)
         return (len(errors) == 0, errors)
 
 
@@ -346,32 +387,45 @@ class Course:
         if not threadRet.success:
             logger.error(CourseMessages.FOREIGN_KEYS_ERROR)            
             return threadRet
-        self._userThread = threadRet.data['_id']
 
         generalRoom = Room(name=self._name + " General Room", courseId=self._id)
         generalRoomRet = generalRoom.save()
         if not generalRoomRet.success:
             logger.error(CourseMessages.FOREIGN_KEYS_ERROR)
             return generalRoomRet
-        self._generalRoom = generalRoomRet.data['_id']
 
-        modRoom = Room(name=self._name + " Mod Room", courseId=self._id, isModRoom=True)
+        modRoom = Room(name=self._name + " Mod Room", courseId=self._id)
         modRoomRet = modRoom.save()
         if not modRoomRet.success:
             logger.error(CourseMessages.FOREIGN_KEYS_ERROR)
             return modRoomRet
-        self._modRoom = modRoomRet.data['_id']
+        try:
+            self._userThread = threadRet.data["_id"]
+            self._generalRoom = generalRoomRet.data["_id"]
+            self._modRoom = modRoomRet.data["_id"]
+        except KeyError as e:
+            logger.error(CourseMessages.FOREIGN_KEYS_ERROR)
+            return DBreturn(False, CourseMessages.FOREIGN_KEYS_ERROR, None)
         return DBreturn(True, CourseMessages.FOREIGN_KEYS_POPULATED, self.formatDict())
 
     def deleteForeignKeys(self):
         # delete the thread and rooms for the course
-        threadRet = Thread.delete(self._userThread)
+        userThread = Thread.fromDict(Thread.collection.find_one({"_id": self._userThread}))
+        if not isinstance(userThread, Thread):
+            return DBreturn(False, CourseMessages.FOREIGN_KEYS_ERROR, None)
+        threadRet = userThread.delete()
         if not threadRet.success:
             return threadRet
-        generalRoomRet = Room.delete(self._generalRoom)
+        generalRoom = Room.fromDict(Room.collection.find_one({"_id": self._generalRoom}))
+        if not isinstance(generalRoom, Room):
+            return DBreturn(False, CourseMessages.FOREIGN_KEYS_ERROR, None)
+        generalRoomRet = generalRoom.delete()
         if not generalRoomRet.success:
             return generalRoomRet
-        modRoomRet = Room.delete(self._modRoom)
+        modRoom = Room.fromDict(Room.collection.find_one({"_id": self._modRoom}))
+        if not isinstance(modRoom, Room):
+            return DBreturn(False, CourseMessages.FOREIGN_KEYS_ERROR, None)
+        modRoomRet = modRoom.delete()
         if not modRoomRet.success:
             return modRoomRet
         return DBreturn(True, CourseMessages.FOREIGN_KEYS_DELETED, self.formatDict())
@@ -379,7 +433,9 @@ class Course:
 
     @staticmethod
     def hasAllRequiredFields(data: dict):
-        return all (key in data for key in ("name", "description", "owner", "department", "semester"))
+        if data is None:
+            return False
+        return all (key in data for key in ["name", "description", "owner", "department", "semester"])
 
     def __str__(self):
         return str(self.formatDict())

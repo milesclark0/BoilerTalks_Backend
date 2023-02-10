@@ -33,7 +33,7 @@ class UserTests(unittest.TestCase):
         self.assertTrue(found != None)
 
     def test_save_invalid(self):
-        #create user invalid password, save user
+        #create user with some invalid fields
         user = User('use', 'password', 'email@iu.edu', 'f', 'l', [''], 'invalidURL', [''])
         result = user.save()
         self.assertFalse(result.success)
@@ -52,7 +52,7 @@ class UserTests(unittest.TestCase):
         self.assertTrue(UserMessages.LASTNAME_LENGTH in result.data)
 
         self.assertTrue(UserMessages.COURSE_NULL in result.data)
-        self.assertTrue(UserMessages.PROFILE_PICTURE_INVALID in result.data)
+        self.assertTrue(UserMessages.PROFILE_PICTURE_INVALID_LINK in result.data)
         self.assertTrue(UserMessages.BLOCKED_USER_NULL in result.data)
 
     def test_save_duplicate(self):
@@ -145,6 +145,9 @@ class UserTests(unittest.TestCase):
 
         user1 = User.fromDict(user1_dict)
         self.assertTrue(user1 is not None)
+        self.assertTrue(user1.getId() is None)
+        # creation date should be set when user is if not provided
+        self.assertTrue(user1.getCreationDate() is not None)
 
         # testing with all fields
         user2_dict = {
@@ -162,6 +165,25 @@ class UserTests(unittest.TestCase):
 
         user2 = User.fromDict(user2_dict)
         self.assertTrue(user2 is not None)
+        self.assertTrue(user2.getId() == user2_dict["_id"])
+        self.assertTrue(user2.getCreationDate() == user2_dict["creationDate"])
+        #testing with required fields and optional fields
+        user3_dict = {
+            "username": "user1",
+            "password": "Password1!",
+            "email": 'email@purdue.edu',
+            "firstName": "firstName",
+            "lastName": "lastName",
+            "courses": ['CS408'],
+            "profilePicture": 'https:/imgur.com/abcd',
+            "blockedUsers": ['user2'],
+            "creationDate": "2020-09-09 00:00:00",
+        }
+
+        user3 = User.fromDict(user3_dict)
+        self.assertTrue(user3 is not None)
+        self.assertTrue(user3.getId() is None)
+        self.assertTrue(user3.getCreationDate() is not None)
 
     def test_from_dict_invalid(self):
         # testing with missing required fields
@@ -175,19 +197,9 @@ class UserTests(unittest.TestCase):
         self.assertTrue(user1 is None)
 
 
-        
-    
-    
-
     # clear database after each test
     def tearDown(self):
         User.collection.delete_many({})
-
-    
-
-    
-
-
 
 if __name__ == '__main__':
     unittest.main()
