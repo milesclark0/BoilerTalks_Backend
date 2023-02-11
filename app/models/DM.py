@@ -11,7 +11,7 @@ class DmMessages:
     INVALID_FIELDS = "Invalid fields"
 
     USER_NULL = "User cannot be null"
-    USER_LENGTH = "User must be between 3 and 30 characters"
+    USER_LENGTH = "User must be between 3 and 50 characters"
     USER_NOT_FOUND = "User not found"
     USERS_INVALID = "Users has invalid structure"
 
@@ -155,7 +155,7 @@ class DM:
                 if user == "" or user == None:
                     errors.append(DmMessages.USER_NULL)
                     continue
-                if len(user) < 3 or len(user) > 30:
+                if len(user) < 3 or len(user) > 50:
                     logger.warning(DmMessages.USER_LENGTH)
                     errors.append(DmMessages.USER_LENGTH)
         return (len(errors) == 0, errors)

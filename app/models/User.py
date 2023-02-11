@@ -12,11 +12,11 @@ class UserMessages:
     MISSING_FIELDS = "Missing required fields for user"
 
     USERNAME_NULL= "Username cannot be null"
-    USERNAME_LENGTH = "Username must be between 4 and 30 characters"
+    USERNAME_LENGTH = "Username must be between 3 and 50 characters"
     USERNAME_INVALID = "Username is invalid"
 
     PASS_NULL = "Password cannot be null"
-    PASS_LENGTH = "Password must be between 8 and 30 characters"
+    PASS_LENGTH = "Password must be between 8 and 100 characters"
     PASS_NUMBER = "Password must contain at least one number"
     PASS_UPPER = "Password must contain at least one uppercase letter"
     PASS_LOWER = "Password must contain at least one lowercase letter"
@@ -27,11 +27,11 @@ class UserMessages:
     EMAIL_INVALID = "Email is invalid"
 
     FIRSTNAME_NULL = "First name cannot be null"
-    FIRSTNAME_LENGTH = "First name must be at least 2 characters and less than 30"
+    FIRSTNAME_LENGTH = "First name must be at least 2 characters and less than 50"
     FIRSTNAME_INVALID = "First name is invalid"
 
     LASTNAME_NULL = "Last name cannot be null"
-    LASTNAME_LENGTH = "Last name must be at least 2 characters and less than 30"
+    LASTNAME_LENGTH = "Last name must be at least 2 characters and less than 50"
     LASTNAME_INVALID = "First name is invalid"
 
 
@@ -187,7 +187,7 @@ class User:
             return (False, errors)
         if self._username == "" or self._username == None:
             errors.append(UserMessages.USERNAME_NULL)
-        if len(self._username) < 4 or len(self._username) > 30:
+        if len(self._username) < 3 or len(self._username) > 50:
             errors.append(UserMessages.USERNAME_LENGTH)
         return (len(errors) == 0, errors)
 
@@ -198,7 +198,7 @@ class User:
             return (False, errors)
         if self._password == "" or self._password == None:
             errors.append(UserMessages.PASS_NULL)
-        if len(self._password) < 8 or len(self._password) > 30:
+        if len(self._password) < 8 or len(self._password) > 100:
             errors.append(UserMessages.PASS_LENGTH)
         if not any(char.isdigit() for char in self._password):
             errors.append(UserMessages.PASS_NUMBER)
@@ -228,7 +228,7 @@ class User:
             return (False, errors)
         if self._firstName == "" or self._firstName == None:
             errors.append(UserMessages.FIRSTNAME_NULL)
-        if len(self._firstName) > 30 or len(self._firstName) < 2:
+        if len(self._firstName) > 50 or len(self._firstName) < 2:
             errors.append(UserMessages.FIRSTNAME_LENGTH)
         return (len(errors) == 0, errors)
 
@@ -239,7 +239,7 @@ class User:
             return (False, errors)
         if self._lastName == "" or self._lastName == None:
             errors.append(UserMessages.LASTNAME_NULL)
-        if len(self._lastName) > 30 or len(self._lastName) < 2:
+        if len(self._lastName) > 50 or len(self._lastName) < 2:
             errors.append(UserMessages.LASTNAME_LENGTH)
         return (len(errors) == 0, errors)
 

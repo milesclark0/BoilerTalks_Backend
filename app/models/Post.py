@@ -21,13 +21,13 @@ class PostMessages:
     CONTENT_NULL = "Content cannot be null"
     THREAD_ID_NULL = "ThreadId cannot be null"
 
-    TITLE_LENGTH = "Title cannot be longer than 100 characters"
+    TITLE_LENGTH = "Title must be between 1 and 100 characters"
     TITLE_INVALID = "Title is invalid"
 
-    CONTENT_LENGTH = "Content cannot be longer than 1000 characters"
+    CONTENT_LENGTH = "Content cannot be longer than 3000 characters"
     CONTENT_INVALID = "Content is invalid"
 
-    AUTHOR_LENGTH = "Author cannot be longer than 20 characters"
+    AUTHOR_LENGTH = "Author cannot be longer than 50 characters"
     AUTHOR_INVALID = "Author is invalid"
 
     INVALID_THREAD_ID = "Invalid thread id"
@@ -182,7 +182,7 @@ class Post:
             return (False, errors)
         if self._author == "" or self._author == None:
             errors.append(PostMessages.AUTHOR_NULL)
-        if len(self._author) < 4 or len(self._author) > 30:
+        if len(self._author) < 4 or len(self._author) > 50:
             errors.append(PostMessages.AUTHOR_LENGTH)
         return (len(errors) == 0, errors)
     
@@ -193,7 +193,7 @@ class Post:
             return (False, errors)
         if self._title == "" or self._title == None:
             errors.append(PostMessages.TITLE_NULL)
-        if len(self._title) < 4 or len(self._title) > 30:
+        if len(self._title) < 2 or len(self._title) > 100:
             errors.append(PostMessages.TITLE_LENGTH)
         return (len(errors) == 0, errors)
 
@@ -204,7 +204,7 @@ class Post:
             return (False, errors)
         if self._content == "" or self._content == None:
             errors.append(PostMessages.CONTENT_NULL)
-        if len(self._content) < 4 or len(self._content) > 1000:
+        if len(self._content) < 4 or len(self._content) > 3000:
             errors.append(PostMessages.CONTENT_LENGTH)
         return (len(errors) == 0, errors)
 

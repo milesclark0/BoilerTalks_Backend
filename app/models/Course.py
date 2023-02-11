@@ -14,9 +14,9 @@ class CourseMessages:
     COURSE_UPDATED = "Course updated successfully"
     COURSE_DELETED = "Course deleted successfully"
 
-    SAVE_ERROR = "Course Save error:"
-    UPDATE_ERROR = "Course Update error:"
-    DELETE_ERROR = "Course Delete error:"   
+    SAVE_ERROR = "Course Save error: "
+    UPDATE_ERROR = "Course Update error: "
+    DELETE_ERROR = "Course Delete error: "   
 
     SEMESTER_NULL = "Semester cannot be null or empty"
     INVALID_TERM = "Invalid term"
@@ -41,7 +41,7 @@ class CourseMessages:
     INVALID_INSTRUCTOR = "Invalid instructor"
 
     DEPARTMENT_NULL = "Department cannot be null or empty"
-    DEPARTMENT_INVALID_LENGTH = "Department must be between 4 and 20 characters"
+    DEPARTMENT_INVALID_LENGTH = "Department must be between 2 and 10 characters"
     INVALID_DEPARTMENT = "Invalid department"
 
     CREATION_DATE_INVALID = "Creation date must be a valid datetime object"
@@ -120,7 +120,7 @@ class Course:
             ret = self.collection.find_one({'name': self._name, 'semester': self._semester})
             if ret is not None:
                 logger.warning(CourseMessages.COURSE_EXISTS)
-                return DBreturn(False, CourseMessages.COURSE_EXISTS, ret)
+                return DBreturn(False, CourseMessages.COURSE_EXISTS, None)
             #save course
             result = self.collection.insert_one(self.formatDict())
             self._id = result.inserted_id
@@ -263,7 +263,7 @@ class Course:
             return (False, errors)
         if self._owner == "" or self._owner == None:
             errors.append(CourseMessages.OWNER_NULL)
-        if len(self._owner) < 4 or len(self._owner) > 20:
+        if len(self._owner) < 4 or len(self._owner) > 50:
             errors.append(CourseMessages.OWNER_INVALID_LENGTH)
         return (len(errors) == 0, errors)
 
@@ -275,7 +275,7 @@ class Course:
             return (False, errors)
         #only check if instructor is not null or empty
         if self._instructor != "" and self._instructor != None:
-            if len(self._instructor) < 4 or len(self._instructor) > 20:
+            if len(self._instructor) < 4 or len(self._instructor) > 50:
                 errors.append(CourseMessages.INSTRUCTOR_INVALID_LENGTH)
         return (len(errors) == 0, errors)
 
@@ -287,7 +287,7 @@ class Course:
             return (False, errors)
         if self._department == "" or self._department == None:
             errors.append(CourseMessages.DEPARTMENT_NULL)
-        if len(self._department) < 4 or len(self._department) > 20:
+        if len(self._department) < 2 or len(self._department) > 10:
             errors.append(CourseMessages.DEPARTMENT_INVALID_LENGTH)
         return (len(errors) == 0, errors)
     
@@ -391,6 +391,7 @@ class Course:
         generalRoom = Room(name=self._name + " General Room", courseId=self._id)
         generalRoomRet = generalRoom.save()
         if not generalRoomRet.success:
+            logger.error(generalRoomRet.data)
             logger.error(CourseMessages.FOREIGN_KEYS_ERROR)
             return generalRoomRet
 
@@ -449,8 +450,4 @@ class Course:
             else:
                 newDict[key[1:]] = value
         return newDict
-
-
-
-
 

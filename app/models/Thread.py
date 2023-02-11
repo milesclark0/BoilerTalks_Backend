@@ -17,7 +17,7 @@ class ThreadMessages:
 
 
     NAME_NULL = "Name cannot be null"
-    NAME_TOO_LONG = "Name cannot be longer than 20 characters"
+    NAME_TOO_LONG = "Name cannot be longer than 110 characters"
     NAME_INVALID = "Name is invalid"
 
     INVALID_NUMBER_OF_POSTS = "Number of posts must be a positive integer"
@@ -142,7 +142,7 @@ class Thread:
             return (False, errors)
         if self._name is None or self._name == "":
             errors.append(ThreadMessages.NAME_NULL)
-        if len(self._name) > 20:
+        if len(self._name) > 110:
             errors.append(ThreadMessages.NAME_TOO_LONG)
         return (len(errors) == 0, errors)
 

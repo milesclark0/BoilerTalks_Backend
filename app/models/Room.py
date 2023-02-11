@@ -151,7 +151,7 @@ class Room:
             return (False, errors)
         if self._name is None or self._name == "":
             errors.append(RoomMessages.NAME_NULL)
-        if len(self._name) > 20:
+        if len(self._name) > 100:
             errors.append(RoomMessages.NAME_TOO_LONG)
         return (len(errors) == 0, errors)
 
