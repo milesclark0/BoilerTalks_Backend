@@ -3,8 +3,17 @@ from app.queries import *
 
 def login(username, password):
     #TODO: Implement login
-    return
+    userData = User.collection.find_one({ "username": username })
+    if not userData or userData.password != password: 
+        return "Error"
+    return "Success"
 
-def register():
+def register(jsonData):
     #TODO: Implement register
-    return
+    print(User.validatePassword(jsonData))
+    return "Success"
+
+def getCourses():
+    #TODO: Get courses
+    courses = Course.collection.find({}, {'_id': 0})
+    return json.loads(json_util.dumps(courses))
