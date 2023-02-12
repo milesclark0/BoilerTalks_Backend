@@ -4,12 +4,13 @@ routePrefix = '/auth'
 @bp.route(routePrefix + '/login', methods=['GET'])
 def login():
     #TODO: Implement login
-    return "Login"
+    return jsonify({"Login": "Login"})
 
 
-@bp.route(routePrefix + '/register', methods=['GET'])
+@bp.route(routePrefix + '/register', methods=['POST'])
 def register():
     #TODO: Implement register
-    return "Register"
+    # validate information fields
+    return jsonify({"Register": "Register"})
 
 
