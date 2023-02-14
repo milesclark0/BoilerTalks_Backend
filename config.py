@@ -22,11 +22,14 @@ class Config:
 
     # JWT
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
+    JWT_TOKEN_LOCATION = ['cookies', 'headers']
+    JWT_COOKIE_SAMESITE = 'None'
+    JWT_COOKIE_SECURE = True
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=30)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
 
 
-    env = [DB_CONN_STR, MODE, DB_NAME, SECRET_KEY, FLASK_ENV, FLASK_DEBUG]
+    env = [DB_CONN_STR, MODE, DB_NAME, SECRET_KEY, FLASK_ENV, FLASK_DEBUG, JWT_SECRET_KEY]
     for var in env:
         if var is None:
             raise ValueError('One or more environment variables are not set')

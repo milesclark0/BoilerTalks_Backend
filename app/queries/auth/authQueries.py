@@ -7,7 +7,7 @@ from app.queries import *
 def login(username, password):
     #TODO: Implement login
     userData = User.fromDict(User.collection.find_one({ "username": username }))
-    if not userData:
+    if userData is None:
         return DBreturn(False, "User not found", None)
     if userData.getPassword() != User.hashPassword(password):
         return DBreturn(False, "Invalid username or password", None)
