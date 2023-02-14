@@ -1,6 +1,7 @@
 from app.models.Database import db, DBreturn, ObjectId
 import datetime, re
 from app import logger
+import hashlib
 
 class UserMessages:
     SAVE_ERROR = "User Save error: "
@@ -106,7 +107,6 @@ class User:
             item = data.get(k, None)
             newDict[k] = item
         return User(*newDict.values())
-
 
     def save(self):
         isValid = self.validateFields(True)
@@ -359,8 +359,10 @@ class User:
     # Other methods
     @staticmethod
     def hashPassword(password):
-        #TODO: hash password
-        return password
+        salt = "5gz"
+        dataBase_password = password+salt
+        hashed = hashlib.md5(dataBase_password.encode())
+        return hashed.hexdigest()
 
     @staticmethod
     def hasAllRequiredFields(data: dict):
