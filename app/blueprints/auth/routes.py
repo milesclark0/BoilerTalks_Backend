@@ -27,7 +27,18 @@ def logout():
     return response
 
 
-@bp.route(routePrefix + '/register', methods=['POST'])
+# @bp.route(routePrefix + '/register', methods=['POST'])
+# def registerInfo():
+#     #TODO: check user information
+#     userInfo = queries.registerInfo(request.json)
+#     return jsonify({"data": userInfo})
+
+# @bp.route(routePrefix + '/register', methods=['PUT'])
+# def registerAccount():
+#     #TODO: Add new user into database
+#     return jsonify({"data": "data"})
+
+@bp.route(routePrefix + '/register', methods=['GET'])
 @jwt_required()
 def register():
     #TODO: Implement register
