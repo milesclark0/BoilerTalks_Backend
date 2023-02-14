@@ -9,10 +9,15 @@ def login():
 
 
 @bp.route(routePrefix + '/register', methods=['POST'])
-def register():
-    #TODO: Implement register
-    userInfo = queries.register(request.json)
+def registerInfo():
+    #TODO: check user information
+    userInfo = queries.registerInfo(request.json)
     return jsonify({"data": userInfo})
+
+@bp.route(routePrefix + '/register', methods=['PUT'])
+def registerAccount():
+    #TODO: Add new user into database
+    return jsonify({"data": "data"})
 
 @bp.route(routePrefix + '/register', methods=['GET'])
 def registerCourses():

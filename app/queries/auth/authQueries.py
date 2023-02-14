@@ -8,9 +8,9 @@ def login(username, password):
         return "Error"
     return "Success"
 
-def register(jsonData):
+def registerInfo(jsonData):
     #TODO: Implement register
-    print(User.validatePassword(jsonData))
+    # print(User.validatePassword(jsonData))
     return "Success"
 
 def getCourses():
