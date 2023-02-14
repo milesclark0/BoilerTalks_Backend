@@ -1,4 +1,4 @@
-
+from flask_jwt_extended import JWTManager
 from flask import Flask
 from flask_cors import CORS
 from flask_socketio import SocketIO
@@ -6,6 +6,7 @@ from config import Config
 import logging
 
 socketIo = SocketIO(cors_allowed_origins="http://localhost:5173")
+jwt = JWTManager()
 
 
 # Configure logging for the application
@@ -32,5 +33,6 @@ def create_app(config_class=Config, debug=int(Config.FLASK_DEBUG)):
 
     
     socketIo.init_app(app)
+    jwt.init_app(app)
 
     return app

@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from datetime import timedelta
 import os
 
 # Load environment variables from .env file
@@ -18,6 +19,12 @@ class Config:
 
     FLASK_ENV = os.environ.get('FLASK_ENV')
     FLASK_DEBUG = os.environ.get('FLASK_DEBUG')
+
+    # JWT
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=30)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
+
 
     env = [DB_CONN_STR, MODE, DB_NAME, SECRET_KEY, FLASK_ENV, FLASK_DEBUG]
     for var in env:
