@@ -16,16 +16,16 @@ def login():
     
     return jsonify({'data': {'accessToken': access_token, 'refreshToken': refresh_token}, 'statusCode': HTTPStatus.OK, 'message': res.message})   
 
-@bp.route(routePrefix + '/register', methods=['POST'])
-def registerInfo():
-    #TODO: check user information
-    userInfo = queries.registerInfo(request.json)
-    return jsonify({"data": userInfo})
+# @bp.route(routePrefix + '/register', methods=['POST'])
+# def registerInfo():
+#     #TODO: check user information
+#     userInfo = queries.registerInfo(request.json)
+#     return jsonify({"data": userInfo})
 
-@bp.route(routePrefix + '/register', methods=['PUT'])
-def registerAccount():
-    #TODO: Add new user into database
-    return jsonify({"data": "data"})
+# @bp.route(routePrefix + '/register', methods=['PUT'])
+# def registerAccount():
+#     #TODO: Add new user into database
+#     return jsonify({"data": "data"})
 
 @bp.route(routePrefix + '/register', methods=['GET'])
 @jwt_required()
