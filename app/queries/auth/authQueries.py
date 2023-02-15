@@ -1,7 +1,6 @@
 # This file will handle all the queries related to authentication
 from app.queries import *
 
-
 # all queries related to authentication
 # should return a DBreturn object
 def login(username, password):
