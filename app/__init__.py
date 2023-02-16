@@ -5,7 +5,7 @@ from flask_socketio import SocketIO
 from config import Config
 import logging
 
-socketIo = SocketIO(cors_allowed_origins="http://localhost:5173")
+socketIo = SocketIO(cors_allowed_origins="http://127.0.0.1:5173")
 jwt = JWTManager()
 
 
@@ -30,6 +30,9 @@ def create_app(config_class=Config, debug=int(Config.FLASK_DEBUG)):
     # Register blueprints here
     from app.blueprints.auth import bp as auth_bp
     app.register_blueprint(auth_bp)
+
+    from app.blueprints.courses import bp as courses_bp
+    app.register_blueprint(courses_bp)
 
     
     socketIo.init_app(app)
