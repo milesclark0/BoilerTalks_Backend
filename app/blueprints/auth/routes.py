@@ -26,24 +26,17 @@ def logout():
     unset_jwt_cookies(response) 
     return response
 
-
-# @bp.route(routePrefix + '/register', methods=['POST'])
-# def registerInfo():
-#     #TODO: check user information
-#     userInfo = queries.registerInfo(request.json)
-#     return jsonify({"data": userInfo})
-
-# @bp.route(routePrefix + '/register', methods=['PUT'])
-# def registerAccount():
-#     #TODO: Add new user into database
-#     return jsonify({"data": "data"})
-
-@bp.route(routePrefix + '/register', methods=['GET'])
+@bp.route(routePrefix + '/register', methods=['POST'])
 @jwt_required()
-def register():
-    #TODO: Implement register
-    #userInfo = queries.register(request.json)
-    return jsonify({"data": "hello"})
+def registerAccount():
+    #TODO: Add new user into database
+    return jsonify({"data": "data"})
+
+@bp.route('/courses/getAllCourses', methods=['GET'])
+def selectableCourses():
+    # returns courses to select in register
+    courses = queries.getCourses()
+    return jsonify({"data": courses})
 
 
 @bp.route(routePrefix + '/refresh', methods=['GET'])

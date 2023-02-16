@@ -1,7 +1,6 @@
 # This file will handle all the queries related to authentication
 from app.queries import *
 
-
 # all queries related to authentication
 # should return a DBreturn object
 def login(username, password):
@@ -16,7 +15,12 @@ def login(username, password):
         return DBreturn(False, "Invalid username or password", None)
     return DBreturn(True, "Login Successful", userData)
 
-def registerInfo(jsonData):
-    #TODO: Implement register
-    # print(User.validatePassword(jsonData))
-    return "Success"
+def register(userData):
+    newUser = User.fromDict(userData)
+    response = User.save(newUser)
+    return DBreturn(True, "Register Successful", response)
+
+def getCourses():
+    # Get all courses
+    courses = Course.collection.find({}, {'_id': 0})
+    return parse_json(courses)
