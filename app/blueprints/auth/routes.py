@@ -14,7 +14,7 @@ def login():
     access_token = create_access_token(identity = str(res.data.getId()))
     refresh_token = create_refresh_token(identity = str(res.data.getId()))
     
-    response = jsonify({'data': {'accessToken': access_token, 'refreshToken': refresh_token}, 'statusCode': HTTPStatus.OK, 'message': res.message})   
+    response = jsonify({'data': {'accessToken': access_token, 'refreshToken': refresh_token, 'user': parse_json(res.data.formatDict())}, 'statusCode': HTTPStatus.OK, 'message': res.message})   
     set_access_cookies(response, access_token)
     set_refresh_cookies(response, refresh_token)
     return response
@@ -27,16 +27,9 @@ def logout():
     return response
 
 @bp.route(routePrefix + '/register', methods=['POST'])
-@jwt_required()
 def registerAccount():
     #TODO: Add new user into database
     return jsonify({"data": "data"})
-
-@bp.route('/courses/getAllCourses', methods=['GET'])
-def selectableCourses():
-    # returns courses to select in register
-    courses = queries.getCourses()
-    return jsonify({"data": courses})
 
 
 @bp.route(routePrefix + '/refresh', methods=['GET'])
@@ -44,7 +37,13 @@ def selectableCourses():
 def refresh():
     identity = get_jwt_identity()
     access_token = create_access_token(identity=identity)
-    response =  jsonify({'data': {'accessToken': access_token}, 'statusCode': HTTPStatus.OK, 'message': 'Token refreshed'})
+    user = queries.getUserById(identity)
+    if user.success and isinstance(user.data, User):
+        user = user.data
+    else:
+        return jsonify({'data': None, 'statusCode': HTTPStatus.UNAUTHORIZED, 'message': user.data})
+    
+    response = jsonify({'data': {'accessToken': access_token, 'refreshToken': None, 'user': parse_json(user.formatDict())}, 'statusCode': HTTPStatus.OK, 'message': 'Refresh Successful'})
     set_access_cookies(response, access_token)
     return response
 
