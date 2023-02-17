@@ -27,10 +27,13 @@ def logout():
     return response
 
 @bp.route(routePrefix + '/register', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def registerAccount():
     #TODO: Add new user into database
-    return jsonify({"data": "data"})
+    res = queries.register(request.json)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.UNAUTHORIZED, 'message': res.message})
+    return jsonify({"data": "hello"})
 
 @bp.route('/courses/getAllCourses', methods=['GET'])
 def selectableCourses():

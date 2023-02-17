@@ -13,9 +13,13 @@ def login(username, password):
     return DBreturn(True, "Login Successful", userData)
 
 def register(userData):
+    print(userData)
     newUser = User.fromDict(userData)
-    response = User.save(newUser)
-    return DBreturn(True, "Register Successful", response)
+    res = User.save(newUser)
+    print(res.data)
+    if not res.success:
+        return DBreturn(False, "Register Unsuccessful", res.data)
+    return DBreturn(True, "Register Successful", res)
 
 def getCourses():
     # Get all courses
