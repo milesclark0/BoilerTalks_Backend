@@ -17,7 +17,7 @@ class DBreturn:
     message: str
     data: object
 
-    def __init__(self, success: bool, message: str, data: object):
+    def __init__(self, success: bool = False, message: str = "", data: object = None):
         self.success = success
         self.message = message
         self.data = data
