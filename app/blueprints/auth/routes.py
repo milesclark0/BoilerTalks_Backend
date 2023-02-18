@@ -33,7 +33,7 @@ def registerAccount():
     res = queries.register(request.json)
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.UNAUTHORIZED, 'message': res.message})
-    return jsonify({"data": "hello"})
+    return jsonify(jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message}))
 
 @bp.route('/courses/getAllCourses', methods=['GET'])
 def selectableCourses():

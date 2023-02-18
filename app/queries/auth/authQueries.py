@@ -16,10 +16,9 @@ def login(username, password):
     return DBreturn(True, "Login Successful", userData)
 
 def register(userData):
-    print(userData)
     newUser = User.fromDict(userData)
     res = User.save(newUser)
-    print(res.data)
+    print(res)
     if not res.success:
         return DBreturn(False, "Register Unsuccessful", res.data)
     return DBreturn(True, "Register Successful", res)
