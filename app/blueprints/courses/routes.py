@@ -7,5 +7,5 @@ routePrefix = '/courses'
 def getAllCourses():
     res = queries.getAllCourses()
     if not res.success:
-        return jsonify({'data': res.data, 'statusCode': HTTPStatus.UNAUTHORIZED, 'message': res.message})
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})

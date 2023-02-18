@@ -23,7 +23,3 @@ def register(userData):
         return DBreturn(False, "Register Unsuccessful", res.data)
     return DBreturn(True, "Register Successful", res)
 
-def getCourses():
-    # Get all courses
-    courses = Course.collection.find({}, {'_id': 0})
-    return parse_json(courses)
