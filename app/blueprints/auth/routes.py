@@ -40,14 +40,15 @@ def registerAccount():
 def refresh():
     identity = get_jwt_identity()
     access_token = create_access_token(identity=identity)
-    user = queries.getUserById(identity)
-    if user.success and isinstance(user.data, User):
-        user = user.data
+    res = queries.getUserById(identity)
+    if res.success and isinstance(res.data, User):
+        user = res.data
+        response = jsonify({'data': {'accessToken': access_token, 'refreshToken': None, 'user': parse_json(user.formatDict())}, 'statusCode': HTTPStatus.OK, 'message': 'Refresh Successful'})
+        set_access_cookies(response, access_token)
+        return response
     else:
-        return jsonify({'data': None, 'statusCode': HTTPStatus.UNAUTHORIZED, 'message': user.message})
+        return jsonify({'data': None, 'statusCode': HTTPStatus.UNAUTHORIZED, 'message': res.message})
     
-    response = jsonify({'data': {'accessToken': access_token, 'refreshToken': None, 'user': parse_json(user.formatDict())}, 'statusCode': HTTPStatus.OK, 'message': 'Refresh Successful'})
-    set_access_cookies(response, access_token)
-    return response
+
 
 

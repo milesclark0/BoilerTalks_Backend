@@ -31,30 +31,26 @@ def subscribeToCourse(courseName: str, username: str):
     try:
         user = User.fromDict(User.collection.find_one({"username": username}))
         if user is None:
-            res.success = False
             res.message = 'subscribe to course error: User not found'
             return res
         courses = Course.collection.find({"name": courseName})
         if courses is None:
-            res.success = False
             res.message = 'subscribe to course error: Course not found'
             return res
-        newCourses = courseName in user.getCourses()
-        if newCourses:
-            res.success = False
+        isAlreadySubscribed = courseName in user.getCourses()
+        if isAlreadySubscribed:
             res.message = 'subscribe to course error: Already subscribed to course'
             return res
-        user.setCourses(user.getCourses() + [courseName])
+        user.getCourses().append(courseName)
         userSaveResult = user.update()
         if not userSaveResult.success:
+            print(userSaveResult.message)
             return userSaveResult
         # subscribe to every course (all semesters)
-        for course in courses:
-            print("saving course", course)
-            course = Course.fromDict(course)
+        for courseDict in courses:
+            course = Course.fromDict(courseDict)
             if course is None:
-                res.success = False
-                res.message = "Unable to subscribe to course"
+                res.message = "Unable to subscribe to course: " + courseName
                 return res
             course.setMemberCount(course.getMemberCount() + 1)
             courseSaveResult = course.update()
@@ -64,9 +60,52 @@ def subscribeToCourse(courseName: str, username: str):
         res.message = 'Successfully subscribed to course'
     except Exception as e:
         res.success = False
-        res.message = 'Error occurred while subscribing to course'
+        res.message = 'Error occurred while subscribing to course ' + courseName
         res.data = str(e)
         print(res.data)
     return res
+
+def unsubscribeFromCourse(courseName: str, username: str):
+    res = DBreturn()
+    try:
+        user = User.fromDict(User.collection.find_one({"username": username}))
+        if user is None:
+            res.message = 'unsubscribe from course error: User not found'
+            return res
+        courses = Course.collection.find({"name": courseName})
+        if courses is None:
+            res.message = 'unsubscribe from course error: Course not found'
+            return res
+        isNotSubscribed = courseName not in user.getCourses()
+        if isNotSubscribed:
+            res.message = 'unsubscribe from course error: Not subscribed to course'
+            return res
+        user.getCourses().remove(courseName)
+        userSaveResult = user.update()
+        if not userSaveResult.success:
+            return userSaveResult
+        # unsubscribe from every course (all semesters)
+        for courseDict in courses:
+            course = Course.fromDict(courseDict)
+            if course is None:
+                res.message = "Unable to unsubscribe from course: " + courseName
+                return res
+            course.setMemberCount(course.getMemberCount() - 1 if course.getMemberCount() > 0 else 0)
+            courseSaveResult = course.update()
+            if not courseSaveResult.success:
+                return courseSaveResult
+        res.success = True
+        res.message = 'Successfully unsubscribed from course'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while unsubscribing from course ' + courseName
+        res.data = str(e)
+        print(res.data)
+    return res
+
+
+
+        
+        
 
 

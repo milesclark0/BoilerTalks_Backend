@@ -39,6 +39,9 @@ class UserMessages:
     COURSE_NULL = "A course specified cannot be empty"
     COURSES_INVALID = "A course specified is invalid"
 
+    ACTIVE_COURSE_NULL = "A active course specified cannot be empty"
+    ACTIVE_COURSES_INVALID = "A active course specified is invalid"
+
     PROFILE_PICTURE_INVALID = "Profile picture is invalid"
     PROFILE_PICTURE_INVALID_LINK = "Profile picture must be a valid url"
 
@@ -63,6 +66,7 @@ class User:
     _firstName: str
     _lastName: str
     _courses: list
+    _activeCourses: list
     _profilePicture: str
     _blockedUsers: list
 
@@ -75,7 +79,7 @@ class User:
     collection = db.Users
 
 
-    def __init__(self, username: str, password: str, email: str, firstName: str, lastName: str, courses: list = None, profilePicture: str = None,\
+    def __init__(self, username: str, password: str, email: str, firstName: str, lastName: str, courses: list = None, activeCourses: list = None, profilePicture: str = None,\
                  blockedUsers: list = None, id: ObjectId = None, creationDate:datetime.datetime = None):
         #required fields
         self._username = username
@@ -88,6 +92,8 @@ class User:
         if id is not None: self._id = id
         if courses is not None: self._courses = courses
         else: self._courses = []
+        if activeCourses is not None: self._activeCourses = activeCourses
+        else: self._activeCourses = []
         #TODO: add default profile picture link
         if profilePicture is not None: self._profilePicture = profilePicture
         else: self._profilePicture = "https://imgur.com/gallery/mCHMpLT"
@@ -103,7 +109,7 @@ class User:
             logger.warning(UserMessages.MISSING_FIELDS)
             return None
         #reorder dict to match constructor
-        for k in ('username', 'password', 'email', 'firstName', 'lastName', 'courses', 'profilePicture', 'blockedUsers', '_id', 'creationDate'):
+        for k in ('username', 'password', 'email', 'firstName', 'lastName', 'courses', 'activeCourses', 'profilePicture', 'blockedUsers', '_id', 'creationDate'):
             item = data.get(k, None)
             newDict[k] = item
         return User(*newDict.values())
@@ -252,6 +258,16 @@ class User:
             if course == "" or course == None:
                 errors.append(UserMessages.COURSE_NULL)
         return (len(errors) == 0, errors)
+    
+    def validateActiveCourses(self):
+        errors = []
+        if not isinstance(self._activeCourses, list):
+            errors.append(UserMessages.ACTIVE_COURSES_INVALID)
+            return (False, errors)
+        for activeCourse in self._activeCourses:
+            if activeCourse == "" or activeCourse == None:
+                errors.append(UserMessages.ACTIVE_COURSE_NULL)
+        return (len(errors) == 0, errors)
 
     def validateProfilePicture(self):
         errors = []
@@ -309,6 +325,9 @@ class User:
 
     def getCourses(self):
         return self._courses
+    
+    def getActiveCourses(self):
+        return self._activeCourses
 
     def getProfilePicture(self):
         return self._profilePicture
@@ -345,6 +364,9 @@ class User:
 
     def setCourses(self, courses):
         self._courses = courses
+
+    def setActiveCourses(self, activeCourses):
+        self._activeCourses = activeCourses
 
     def setProfilePicture(self, profilePicture):
         self._profilePicture = profilePicture
