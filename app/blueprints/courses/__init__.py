@@ -4,6 +4,7 @@ from http import HTTPStatus
 #from functools import wraps
 import app.queries.courses.courseQueries as queries
 from app.models.Course import Course
+from app.models.Database import db, DBreturn, parse_json, ObjectId
 
 bp = Blueprint('courses', __name__)
 

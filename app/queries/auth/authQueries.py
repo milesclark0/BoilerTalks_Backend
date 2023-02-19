@@ -20,3 +20,11 @@ def register(userData):
     response = User.save(newUser)
     return DBreturn(True, "Register Successful", response)
 
+def getUserById(id):
+    try:
+        userData = User.fromDict(User.collection.find_one({ "_id": ObjectId(id)}))
+    except Exception as e:
+        return DBreturn(False, "Error occurred while retrieving user", str(e))
+    if userData is None:
+        return DBreturn(False, "User not found", None)
+    return DBreturn(True, "User found", userData)
