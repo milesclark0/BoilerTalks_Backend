@@ -32,7 +32,7 @@ def registerAccount():
     res = queries.register(request.json)
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.UNAUTHORIZED, 'message': res.message})
-    return jsonify(jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message}))
+    return jsonify({'data': None, 'statusCode': HTTPStatus.OK, 'message': res.message})
 
 
 @bp.route(routePrefix + '/refresh', methods=['GET'])
