@@ -17,8 +17,11 @@ def login(username, password):
 
 def register(userData):
     newUser = User.fromDict(userData)
-    response = User.save(newUser)
-    return DBreturn(True, "Register Successful", response)
+    res = User.save(newUser)
+    print(res)
+    if not res.success:
+        return DBreturn(False, "Register Unsuccessful", res.data)
+    return DBreturn(True, "Register Successful", res)
 
 def getUserById(id):
     try:
