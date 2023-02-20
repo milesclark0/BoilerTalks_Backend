@@ -38,9 +38,11 @@ class UserMessages:
 
     COURSE_NULL = "A course specified cannot be empty"
     COURSES_INVALID = "A course specified is invalid"
+    COURSE_STRING = "A course specified must be a string"
 
     ACTIVE_COURSE_NULL = "A active course specified cannot be empty"
     ACTIVE_COURSES_INVALID = "A active course specified is invalid"
+    ACTIVE_COURSE_STRING = "A active course specified must be a string"
 
     PROFILE_PICTURE_INVALID = "Profile picture is invalid"
     PROFILE_PICTURE_INVALID_LINK = "Profile picture must be a valid url"
@@ -255,6 +257,9 @@ class User:
             errors.append(UserMessages.COURSES_INVALID)
             return (False, errors)
         for course in self._courses:
+            if not isinstance(course, str):
+                errors.append(UserMessages.COURSE_STRING)
+                return (False, errors)
             if course == "" or course == None:
                 errors.append(UserMessages.COURSE_NULL)
         return (len(errors) == 0, errors)
@@ -265,6 +270,9 @@ class User:
             errors.append(UserMessages.ACTIVE_COURSES_INVALID)
             return (False, errors)
         for activeCourse in self._activeCourses:
+            if not isinstance(activeCourse, str):
+                errors.append(UserMessages.ACTIVE_COURSE_STRING)
+                return (False, errors)
             if activeCourse == "" or activeCourse == None:
                 errors.append(UserMessages.ACTIVE_COURSE_NULL)
         return (len(errors) == 0, errors)
