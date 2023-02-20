@@ -14,6 +14,39 @@ def getAllCourses():
         res.data = str(e)
     return res
 
+def setCourseActive(courseName: str, username: str):
+    res = DBreturn()
+    try:
+        user = User.collection.find_one({"username": username})
+        if user is None:
+            res.message = 'set Course Active error: User not found'
+            return res
+        course = Course.collection.find_one({"name": courseName})
+        if course is None:
+            res.message = 'set Course Active error: Course not found'
+            return res
+        user = User.fromDict(user)
+        isAlreadyActive = courseName in user.getActiveCourses()
+        if isAlreadyActive:
+            user.getActiveCourses().remove(courseName)
+            userSaveResult = user.update()
+            res.data = 'removing'
+            if not userSaveResult.success:
+                return userSaveResult
+        else:
+            user.getActiveCourses().append(courseName)
+            userSaveResult = user.update()
+            res.data = 'adding'
+            if not userSaveResult.success:
+                return userSaveResult
+        res.success = True
+        res.message = 'Successfully switched courses active state'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while setting course to active'
+        res.data = str(e)
+    return res
+
 def getCourse(name: str):
     res = DBreturn()
     try:

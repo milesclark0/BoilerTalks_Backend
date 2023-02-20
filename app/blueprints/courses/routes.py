@@ -47,6 +47,20 @@ def subscribeToCourse():
             return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
 
+@bp.route(routePrefix + '/setActiveCourse', methods=['POST'])
+@jwt_required()
+def setCourseActive():
+    res = DBreturn(None, 'No course provided', True)
+    try:
+        courseName = request.json['courseName']
+        username = request.json['username']
+    except KeyError as e:
+        return jsonify({'data': str(e), 'statusCode': HTTPStatus.BAD_REQUEST, 'message': 'Course and username required'})
+    res = queries.setCourseActive(courseName, username)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
 
 @bp.route(routePrefix + '/unsubscribeFromCourse', methods=['POST'])
 @jwt_required()
