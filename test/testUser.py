@@ -22,7 +22,7 @@ class UserTests(unittest.TestCase):
 
     def test_save_valid(self):
         #create user, save user
-        user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS408'], 'https:/imgur.com/abcd.jpg', ['user2'])
+        user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS 40800'], ['CS 40800'], 'https:/imgur.com/abcd.jpg', ['user2'])
         result = user.save()
 
         #check if method returned success
@@ -34,7 +34,7 @@ class UserTests(unittest.TestCase):
 
     def test_save_invalid(self):
         #create user with some invalid fields
-        user = User('use', 'password', 'email@iu.edu', 'f', 'l', [''], 'invalidURL', [''])
+        user = User('us', 'password', 'email@iu.edu', 'f', 'l', [''], [''], 'invalidURL', [''])
         result = user.save()
         self.assertFalse(result.success)
         self.assertTrue(result.message == UserMessages.SAVE_ERROR + UserMessages.FIELDS_INVALID)
@@ -52,16 +52,18 @@ class UserTests(unittest.TestCase):
         self.assertTrue(UserMessages.LASTNAME_LENGTH in result.data)
 
         self.assertTrue(UserMessages.COURSE_NULL in result.data)
+        self.assertTrue(UserMessages.ACTIVE_COURSE_NULL in result.data)
         self.assertTrue(UserMessages.PROFILE_PICTURE_INVALID_LINK in result.data)
         self.assertTrue(UserMessages.BLOCKED_USER_NULL in result.data)
 
     def test_save_duplicate(self):
-        user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS408'], 'https:/imgur.com/abcd.jpg', ['user2'])
+        user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS 40800'], ['CS 40800'], 'https:/imgur.com/abcd.jpg', ['user2'])
         result = user.save()
         self.assertTrue(result.success)
 
         #create user with same username, save user
         user2 = user
+        user2.setPassword('Password1!')
         result = user2.save()
 
         # should not allow duplicate usernames
@@ -70,6 +72,7 @@ class UserTests(unittest.TestCase):
 
         # create user with same email, save user
         user2.setUsername('user2')
+        user2.setPassword('Password1!')
         result = user2.save()
 
         # should not allow duplicate emails
@@ -77,7 +80,7 @@ class UserTests(unittest.TestCase):
         self.assertTrue(result.message == UserMessages.EMAIL_TAKEN)
 
     def test_update_valid(self):
-        user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS408'], 'https:/imgur.com/abcd.jpg', ['user2'])
+        user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS408'], ['CS 40800'], 'https:/imgur.com/abcd.jpg', ['user2'])
         result = user.save()
         self.assertTrue(result.success)
 
@@ -98,7 +101,7 @@ class UserTests(unittest.TestCase):
         self.assertTrue(result.success)
 
     def test_update_invalid(self):
-        user = User('user has not been saved', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS408'], 'https:/imgur.com/abcd.jpg', ['user2'])
+        user = User('user has not been saved', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS408'], ['CS 40800'], 'https:/imgur.com/abcd.jpg', ['user2'])
    
         # update user
         result = user.update()
@@ -108,7 +111,7 @@ class UserTests(unittest.TestCase):
         self.assertTrue(result.message == UserMessages.UPDATE_ERROR + UserMessages.NOT_FOUND)
 
     def test_delete_valid(self):
-        user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS408'], 'https:/imgur.com/abcd.jpg', ['user2'])
+        user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS408'], ['CS 40800'], 'https:/imgur.com/abcd.jpg', ['user2'])
         result = user.save()
         self.assertTrue(result.success)
 
@@ -121,7 +124,7 @@ class UserTests(unittest.TestCase):
         self.assertTrue(found == None)
 
     def test_delete_invalid(self):
-        user = User('user has not been saved', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS408'], 'https:/imgur.com/abcd.jpg', ['user2'])
+        user = User('user has not been saved', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS408'], ['CS 40800'], 'https:/imgur.com/abcd.jpg', ['user2'])
 
         # delete user
         result = user.delete()
@@ -138,9 +141,6 @@ class UserTests(unittest.TestCase):
             "email": 'email@purdue.edu',
             "firstName": "firstName",
             "lastName": "lastName",
-            "courses": ['CS408'],
-            "profilePicture": 'https:/imgur.com/abcd.jpg',
-            "blockedUsers": ['user2']
         }
 
         user1 = User.fromDict(user1_dict)
@@ -157,7 +157,8 @@ class UserTests(unittest.TestCase):
             "email": 'email@purdue.edu',
             "firstName": "firstName",
             "lastName": "lastName",
-            "courses": ['CS408'],
+            "courses": ['CS 40800'],
+            "activeCourses": ['CS40800'],
             "profilePicture": 'https:/imgur.com/abcd.jpg',
             "blockedUsers": ['user2'],
             "creationDate": "2020-09-09 00:00:00",
@@ -174,7 +175,8 @@ class UserTests(unittest.TestCase):
             "email": 'email@purdue.edu',
             "firstName": "firstName",
             "lastName": "lastName",
-            "courses": ['CS408'],
+            "courses": ['CS 40800'],
+            "activeCourses": ['CS 40800'],
             "profilePicture": 'https:/imgur.com/abcd',
             "blockedUsers": ['user2'],
             "creationDate": "2020-09-09 00:00:00",

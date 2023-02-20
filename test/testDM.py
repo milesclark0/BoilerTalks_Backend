@@ -61,11 +61,11 @@ class DMTests(unittest.TestCase):
 
     def test_save_valid(self):
         #create 2 users for dm
-        user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS408'], 'https:/imgur.com/abcd.jpg', ['user2'])
+        user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS 40800'], ['CS 40800'], 'https:/imgur.com/abcd.jpg', ['user2'])
         result = user.save()
         self.assertTrue(result.success)
 
-        user2 = User("user2", "Password1!", 'email2@purdue.edu', 'firstName', 'lastName', ['CS408'], 'https:/imgur.com/abcd.jpg', ['user1'])
+        user2 = User("user2", "Password1!", 'email2@purdue.edu', 'firstName', 'lastName', ['CS 40800'], ['CS 40800'], 'https:/imgur.com/abcd.jpg', ['user1'])
         result = user2.save()
         self.assertTrue(result.success)
 
@@ -117,11 +117,11 @@ class DMTests(unittest.TestCase):
 
     def test_save_duplicate(self):
         #create 2 users for dm
-        user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS408'], 'https:/imgur.com/abcd.jpg', ['user2'])
+        user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS 40800'], ['CS 40800'], 'https:/imgur.com/abcd.jpg', ['user2'])
         result = user.save()
         self.assertTrue(result.success)
 
-        user2 = User("user2", "Password1!", 'email2@purdue.edu', 'firstName', 'lastName', ['CS408'], 'https:/imgur.com/abcd.jpg', ['user1'])
+        user2 = User("user2", "Password1!", 'email2@purdue.edu', 'firstName', 'lastName', ['CS 40800'], ['CS 40800'], 'https:/imgur.com/abcd.jpg', ['user1'])
         result = user2.save()
         self.assertTrue(result.success)
 
@@ -140,11 +140,11 @@ class DMTests(unittest.TestCase):
 
     def test_update_valid(self):
         #create 2 users for dm
-        user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS408'], 'https:/imgur.com/abcd.jpg', ['user2'])
+        user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS 40800'], ['CS 40800'], 'https:/imgur.com/abcd.jpg', ['user2'])
         result = user.save()
         self.assertTrue(result.success)
 
-        user2 = User("user2", "Password1!", 'email2@purdue.edu', 'firstName', 'lastName', ['CS408'], 'https:/imgur.com/abcd.jpg', ['user1'])
+        user2 = User("user2", "Password1!", 'email2@purdue.edu', 'firstName', 'lastName', ['CS 40800'], ['CS 40800'], 'https:/imgur.com/abcd.jpg', ['user1'])
         result = user2.save()
         self.assertTrue(result.success)
 
@@ -175,11 +175,11 @@ class DMTests(unittest.TestCase):
 
     def test_delete_valid(self):
         #create 2 users for dm
-        user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS408'], 'https:/imgur.com/abcd.jpg', ['user2'])
+        user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS 40800'],['CS 40800'], 'https:/imgur.com/abcd.jpg', ['user2'])
         result = user.save()
         self.assertTrue(result.success)
 
-        user2 = User("user2", "Password1!", 'email2@purdue.edu', 'firstName', 'lastName', ['CS408'], 'https:/imgur.com/abcd.jpg', ['user1'])
+        user2 = User("user2", "Password1!", 'email2@purdue.edu', 'firstName', 'lastName', ['CS 40800'],['CS 40800'], 'https:/imgur.com/abcd.jpg', ['user1'])
         result = user2.save()
         self.assertTrue(result.success)
 
