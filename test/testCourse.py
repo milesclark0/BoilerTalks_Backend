@@ -28,7 +28,7 @@ class CourseTests(unittest.TestCase):
             'name': 'CS408', 
             'description': 'Software Engineering', 
             'owner': 'user1', 
-            'department': 'Computer Science',
+            'department': 'CS',
             'semester': 'Spring 2020' 
         }
         course = Course.fromDict(course_dict)
@@ -43,7 +43,7 @@ class CourseTests(unittest.TestCase):
             'description': 'Software Engineering',
             'owner': 'user1',
             'instructor': 'Dr. Smith',
-            'department': 'Computer Science',
+            'department': 'CS',
             'semester': 'Spring 2020',
             'memberCount': 400,
             'userThread': '5f0b6a5a6c5a6f5d6c5a6f5d',
@@ -63,7 +63,7 @@ class CourseTests(unittest.TestCase):
             'description': 'Software Engineering',
             'owner': 'user1',
             'instructor': 'Dr. Smith',
-            'department': 'Computer Science',
+            'department': 'CS',
             'semester': 'Spring 2020',
             'memberCount': 400,
             'userThread': '5f0b6a5a6c5a6f5d6c5a6f5d',
@@ -89,7 +89,7 @@ class CourseTests(unittest.TestCase):
 
     def test_save_valid(self):
         #create course, save course, and check if course is in database
-        course = Course('CS408', 'Software Engineering', 'user1', 'Computer Science', 'Spring 2020')
+        course = Course('CS408', 'Software Engineering', 'user1', 'CS', 'Spring 2020')
         result = course.save()
         self.assertTrue(result.success)
 
@@ -118,23 +118,23 @@ class CourseTests(unittest.TestCase):
         self.assertTrue(CourseMessages.INVALID_FIELDS in result.message)
         
     def test_save_duplicate(self):
-        course = Course('CS408', 'Software Engineering', 'user1', 'Computer Science', 'Spring 2020')
+        course = Course('CS408', 'Software Engineering', 'user1', 'CS', 'Spring 2020')
         result = course.save()
         self.assertTrue(result.success)
 
         #save duplicate course
-        course = Course('CS408', 'Software Engineering', 'user1', 'Computer Science', 'Spring 2020')
+        course = Course('CS408', 'Software Engineering', 'user1', 'CS', 'Spring 2020')
         result = course.save()
         self.assertFalse(result.success)
         self.assertTrue(CourseMessages.COURSE_EXISTS in result.message)
 
         #save duplicate course with different different semester
-        course = Course('CS408', 'Software Engineering', 'user1', 'Computer Science', 'Spring 2021')
+        course = Course('CS408', 'Software Engineering', 'user1', 'CS', 'Spring 2021')
         result = course.save()
         self.assertTrue(result.success)
 
     def test_update_valid(self):
-        course = Course('CS408', 'Software Engineering', 'user1', 'Computer Science', 'Spring 2020')
+        course = Course('CS408', 'Software Engineering', 'user1', 'CS', 'Spring 2020')
         result = course.save()
         self.assertTrue(result.success)
         thread = course.getUserThread()
@@ -160,13 +160,13 @@ class CourseTests(unittest.TestCase):
 
     def test_update_invalid(self):
         #update before saving
-        course = Course('CS408', 'Software Engineering', 'user1', 'Computer Science', 'Spring 2020')
+        course = Course('CS408', 'Software Engineering', 'user1', 'CS', 'Spring 2020')
         result = course.update()
         self.assertFalse(result.success)
         self.assertTrue(result.message == CourseMessages.UPDATE_ERROR + CourseMessages.COURSE_NOT_FOUND)
 
     def test_delete_valid(self):
-        course = Course('CS408', 'Software Engineering', 'user1', 'Computer Science', 'Spring 2020')
+        course = Course('CS408', 'Software Engineering', 'user1', 'CS', 'Spring 2020')
         result = course.save()
         self.assertTrue(result.success)
 
@@ -190,7 +190,7 @@ class CourseTests(unittest.TestCase):
 
     def test_delete_invalid(self):
         #delete before saving
-        course = Course('CS408', 'Software Engineering', 'user1', 'Computer Science', 'Spring 2020')
+        course = Course('CS408', 'Software Engineering', 'user1', 'CS', 'Spring 2020')
         result = course.delete()
         self.assertFalse(result.success)
         #will fail because of foreign keys set to None cannot be deleted
