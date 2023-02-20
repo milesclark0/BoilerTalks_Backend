@@ -1,4 +1,5 @@
 from app.queries import *
+from app.queries.courses.aggregates import *
 
 def getAllCourses():
     res = DBreturn()
@@ -13,10 +14,10 @@ def getAllCourses():
         res.data = str(e)
     return res
 
-def getCourse(name: str, semester:str):
+def getCourse(name: str):
     res = DBreturn()
     try:
-        course = Course.collection.find_one({"name": name, "semester": semester})
+        course = Course.collection.find({"name": name})
         res.data = parse_json(course)
         res.success = True
         res.message = 'Successfully retrieved course'
@@ -26,6 +27,25 @@ def getCourse(name: str, semester:str):
         res.data = str(e)
     return res
  
+def getUserCourses(username: str):
+    res = DBreturn()
+    try:
+        user = User.collection.find_one({"username": username})
+        if user is None:
+            res.message = 'get user courses error: User not found'
+            return res
+        aggregate = get_course_aggregate(user)
+        courses = Course.collection.aggregate(aggregate)
+        res.data = parse_json(courses)
+        res.success = True
+        res.message = 'Successfully retrieved user courses'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while retrieving user courses'
+        res.data = str(e)
+    return res
+
+
 def subscribeToCourse(courseName: str, username: str):
     res = DBreturn()
     try:
