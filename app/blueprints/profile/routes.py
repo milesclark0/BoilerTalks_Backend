@@ -19,3 +19,9 @@ def editProfile():
     try:
         bio = request.json['bio']
         username = request.json['username']
+    except KeyError as e:
+        return jsonify({'data': str(e), 'statusCode': HTTPStatus.BAD_REQUEST, 'message': 'Courses and username are required'})
+    res = queries.editProfile(bio, username)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
