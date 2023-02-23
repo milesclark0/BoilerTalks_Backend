@@ -6,3 +6,4 @@ from app.models.Post import Post
 from app.models.Room import Room
 from app.models.Thread import Thread
 from app.models.Room import Room
+from app.models.Profile import Profile
