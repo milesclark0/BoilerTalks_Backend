@@ -1,5 +1,4 @@
 from app.models.Database import db, DBreturn, ObjectId
-from app.models.User import User
 import datetime, re
 from app import logger
 import hashlib
@@ -8,8 +7,6 @@ class ProfileMessages:
     MISSING_FIELDS = "Missing required fields for profile"
     NOT_FOUND = "Profile not found"
     INVALID_FIELDS = "Invalid fields: "
-
-    PROFILE_EXISTS = "A profile already exists for this user"
 
     PROFILE_CREATED = "Profile created successfuly"
     PROFILE_UPDATED = "Profile updated successfully"
@@ -32,7 +29,7 @@ class ProfileMessages:
     CREATION_DATE_INVALID = "Creation date must be a valid datetime object"
 
 class Profile:
-    _user: User
+    _username: str
     _bio: str
     _modThreads: list
 
@@ -43,9 +40,10 @@ class Profile:
     # DB collection
     collection = db.Profiles
 
-    def __init__(self, user: User, bio: str, modThreads: list, id: ObjectId = None, creationDate: datetime.datetime = None):
+    # TODO: make sure profile gets created on account creation
+    def __init__(self, username: str, bio: str = None, modThreads: list = None, id: ObjectId = None, creationDate: datetime.datetime = None):
         # required fields
-        self._user = user
+        self._username = username
         
         # optional fields
         if id is not None: self._id = id
@@ -61,22 +59,16 @@ class Profile:
         if not Profile.hasAllRequiredFields(data):
             logger.warning(ProfileMessages.MISSING_FIELDS)
             return None
-        for k in ('user', 'bio', 'modCourses', '_id', 'creationDate'):
+        for k in ('username', 'bio', 'modCourses', '_id', 'creationDate'):
             item = data.get(k, None)
             newDict[k] = item
         return Profile(*newDict.values())
 
-    # TODO: make sure this happens upon account creation
     def save(self):
-        isValid = self.validateFields(True)
+        isValid = self.validateFields()
         if not isValid[0]:
-            return DBreturn(False, ProfileMessages.SAVE_ERROR + ProfileMessages.FIELDS_INVALID, isValid[1])
+            return DBreturn(False, ProfileMessages.SAVE_ERROR + ProfileMessages.INVALID_FIELDS, isValid[1])
         try:
-            #check if profile under this username already exists
-            ret = self.collection.find_one({'user': self._user})
-            if ret is not None:
-                logger.warning(ProfileMessages.PROFILE_EXISTS)
-                return DBreturn(False, ProfileMessages.PROFILE_EXISTS, None)
             #save profile
             result = self.collection.insert_one(self.formatDict())
             self._id = result.inserted_id
@@ -87,7 +79,7 @@ class Profile:
             return DBreturn(False, ProfileMessages.SAVE_ERROR + str(e), None)
 
     def update(self):
-        isValid = self.validateFields(False)
+        isValid = self.validateFields()
         if not isValid[0]:
             return DBreturn(False, ProfileMessages.UPDATE_ERROR + ProfileMessages.INVALID_FIELDS, isValid[1])
         try:
@@ -95,8 +87,8 @@ class Profile:
             id = self.__dict__.pop('_id', None)
             creationDate = self.__dict__.pop('_creationDate', None)
 
-            #update user
-            result = self.collection.update_one({"user": self._user}, {"$set": self.formatDict()})
+            #update profile
+            result = self.collection.update_one({"username": self._username}, {"$set": self.formatDict()})
 
             #add id and creation date back to dict
             self.__dict__['_id'] = id
@@ -112,7 +104,7 @@ class Profile:
     def delete(self):
         try:
             #delete profile
-            result = self.collection.delete_one({"user": self._user})
+            result = self.collection.delete_one({"username": self._username})
 
             #check if profile was deleted
             if result.deleted_count == 0:
@@ -133,9 +125,9 @@ class Profile:
                 errors.extend(result[1])
         return (len(errors) == 0, errors)
 
-    def validateUser(self):
+    def validateUsername(self):
         errors = []
-        if not isinstance(self._user, User) or len(self._user.validateFields(False)) != 0:
+        if not isinstance(self._username, str):
             errors.append(ProfileMessages.INVALID_USER)
             return (False, errors)
         return (len(errors) == 0, errors)
@@ -180,8 +172,8 @@ class Profile:
         #id may not be set yet
         return self.__dict__.get("_id", None)
     
-    def getUser(self):
-        return self._user
+    def getUsername(self):
+        return self._username
 
     def getBio(self):
         return self._bio
@@ -199,8 +191,8 @@ class Profile:
         except:
             return None   
     
-    def setUser(self, user):
-        self._user = user
+    def setUsername(self, username):
+        self._username = username
     
     def setBio(self, bio):
         self._bio = bio
@@ -215,7 +207,7 @@ class Profile:
     def hasAllRequiredFields(data: dict):
         if data is None:
             return False
-        return all(k in data for k in ["user"])
+        return all(k in data for k in ["username"])
     
     def formatDict(self):
         # remove the underscore from the keys except for _id field

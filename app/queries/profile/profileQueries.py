@@ -3,12 +3,13 @@ from app.queries import *
 def getProfile(username: str):
     res = DBreturn()
     try:
-        user = User.fromDict(User.collection.find_one({"username": username}))
+        user = User.collection.find_one({"username": username}, {"password": 0, "email": 0})
         if user is None:
             res.message = 'error retrieving profile: user not found'
             return res
-        # search based on user object, eliminate credentials from result
-        profile = Profile.collection.find({ "user": user, {"user.password": 0, "user.email": 0}})
+        profile = Profile.collection.find({ "username": username})
+        # tack on user information
+        profile.append(user)
         res.data = parse_json(profile)
         res.success = True
         res.message = 'Successfully retrieved profile'
@@ -21,7 +22,7 @@ def getProfile(username: str):
 def editProfile(bio: str, username: str):
     res = DBreturn()
     try:
-        user = User.fromDict(User.collection.find_one({"username": username}))
+        user = User.collection.find_one({"username": username})
         if user is None:
             res.message = 'error editting profile: user not found'
             return res
@@ -30,7 +31,7 @@ def editProfile(bio: str, username: str):
             res.message = 'error editting profile: bio over 500 chars'
             return res
         
-        profile = Profile.fromDict(Profile.collection.find({ "user": user}))
+        profile = Profile.fromDict(Profile.collection.find({ "username": username}))
         profile.setBio(bio)
         profileSaveResult = profile.update()
         if not profileSaveResult.success:
