@@ -8,6 +8,8 @@ class ProfileMessages:
     NOT_FOUND = "Profile not found"
     INVALID_FIELDS = "Invalid fields: "
 
+    PROFILE_EXISTS = "Profile for this username already exists"
+
     PROFILE_CREATED = "Profile created successfuly"
     PROFILE_UPDATED = "Profile updated successfully"
     PROFILE_DELETED = "Profile deleted successfully"
@@ -69,6 +71,11 @@ class Profile:
         if not isValid[0]:
             return DBreturn(False, ProfileMessages.SAVE_ERROR + ProfileMessages.INVALID_FIELDS, isValid[1])
         try:
+            ret = self.collection.find_one({'username': self._username})
+            if ret is not None:
+                logger.warning(ProfileMessages.PROFILE_EXISTS)
+                return DBreturn(False, ProfileMessages.PROFILE_EXISTS, None)
+
             #save profile
             result = self.collection.insert_one(self.formatDict())
             self._id = result.inserted_id
@@ -105,7 +112,9 @@ class Profile:
         try:
             #delete profile
             result = self.collection.delete_one({"username": self._username})
-
+            if result.deleted_count == 0:
+                logger.warning(ProfileMessages.NOT_FOUND)
+                return DBreturn(False, ProfileMessages.DELETE_ERROR + ProfileMessages.NOT_FOUND, None)
             #check if profile was deleted
             if result.deleted_count == 0:
                 return DBreturn(False, ProfileMessages.DELETE_ERROR + ProfileMessages.NOT_FOUND, None)
@@ -127,7 +136,7 @@ class Profile:
 
     def validateUsername(self):
         errors = []
-        if not isinstance(self._username, str):
+        if not isinstance(self._username, str) or len(self._username) < 1:
             errors.append(ProfileMessages.INVALID_USER)
             return (False, errors)
         return (len(errors) == 0, errors)
