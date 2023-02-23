@@ -103,8 +103,9 @@ class CourseTests(unittest.TestCase):
         self.assertTrue(thread_dict['courseId'] == course.getId())
 
         #check if rooms are in database
-        room_dict = Room.collection.find_one({'_id': course.getGeneralRoom()})
-        self.assertTrue(room_dict is not None)
+        for room in course.getRooms():
+            room_dict = Room.collection.find_one({'_id': room[1]})
+            self.assertTrue(room_dict is not None)
         self.assertTrue(room_dict['courseId'] == course.getId())
         room_dict = Room.collection.find_one({'_id': course.getModRoom()})
         self.assertTrue(room_dict is not None)
@@ -138,7 +139,7 @@ class CourseTests(unittest.TestCase):
         result = course.save()
         self.assertTrue(result.success)
         thread = course.getUserThread()
-        general_room = course.getGeneralRoom()
+        room = course.getRooms()
         mod_room = course.getModRoom()
 
         #update course
@@ -155,7 +156,7 @@ class CourseTests(unittest.TestCase):
 
         #check thread and rooms are not changed
         self.assertTrue(course_dict['userThread'] == thread)
-        self.assertTrue(course_dict['generalRoom'] == general_room)
+        self.assertTrue(course_dict['rooms'] == room)
         self.assertTrue(course_dict['modRoom'] == mod_room)
 
     def test_update_invalid(self):
@@ -183,8 +184,9 @@ class CourseTests(unittest.TestCase):
         self.assertTrue(thread_dict is None)
 
         #check if rooms are in database
-        room_dict = Room.collection.find_one({'_id': course.getGeneralRoom()})
-        self.assertTrue(room_dict is None)
+        for room in course.getRooms():
+            room_dict = Room.collection.find_one({'_id': room[1]})
+            self.assertTrue(room_dict is None)
         room_dict = Room.collection.find_one({'_id': course.getModRoom()})
         self.assertTrue(room_dict is None)
 

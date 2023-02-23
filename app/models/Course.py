@@ -66,7 +66,7 @@ class Course:
     #non mutable
     _id: ObjectId
     _userThread: ObjectId
-    _generalRoom: ObjectId
+    _rooms: list[list]
     _modRoom: ObjectId
     _creationDate: datetime.datetime
 
@@ -76,7 +76,7 @@ class Course:
 
     def __init__(self, name: str, description: str, owner: str, department: str, semester: str, instructor: str = None, \
                 id: ObjectId = None, memberCount: int = None, userThread: ObjectId = None, \
-                generalRoom: ObjectId = None, modRoom: ObjectId = None, creationDate: datetime.datetime = None):
+                rooms: list = [["General Room", None]], modRoom: ObjectId = None, creationDate: datetime.datetime = None):
         #required fields
         self._name = name
         self._description = description
@@ -88,7 +88,7 @@ class Course:
         # Can be None
         self._instructor = instructor
         self._userThread = userThread
-        self._generalRoom = generalRoom
+        self._rooms = rooms
         self._modRoom = modRoom
         # Must be initialized
         if id is not None: self._id = id
@@ -103,7 +103,7 @@ class Course:
             logger.warning(CourseMessages.MISSING_FIELDS)
             return None
         # reorder the dictionary to match the order of the constructor
-        for key in ('name', 'description', 'owner', 'department', 'semester', 'instructor', '_id', 'memberCount', 'userThread', 'generalRoom', 'modRoom', 'creationDate'):
+        for key in ('name', 'description', 'owner', 'department', 'semester', 'instructor', '_id', 'memberCount', 'userThread', 'rooms', 'modRoom', 'creationDate'):
             item = data.get(key, None)
             newDict[key] = item
         return Course(*newDict.values())
@@ -149,7 +149,7 @@ class Course:
             id = self.__dict__.pop('_id', None)
             if not isOnInit:
                 userThread = self.__dict__.pop('_userThread', None)
-                generalRoom = self.__dict__.pop('_generalRoom', None)
+                generalRoom = self.__dict__.pop('_rooms', None)
                 modRoom = self.__dict__.pop('_modRoom', None)
             creationDate = self.__dict__.pop('_creationDate', None)
 
@@ -160,7 +160,7 @@ class Course:
             self._id = id
             if not isOnInit:
                 self.__dict__['_userThread'] = userThread
-                self.__dict__['_generalRoom'] = generalRoom
+                self.__dict__['_rooms'] = generalRoom
                 self.__dict__['_modRoom'] = modRoom
             self._creationDate = creationDate
 
@@ -331,9 +331,9 @@ class Course:
         if self._userThread is not None:
             return self._userThread
 
-    def getGeneralRoom(self):
-        if self._generalRoom is not None:
-            return self._generalRoom
+    def getRooms(self):
+        if self._rooms is not None:
+            return self._rooms
 
     def getModRoom(self):
         if self._modRoom is not None:
@@ -367,8 +367,8 @@ class Course:
     def setUserThread(self, userThread: ObjectId):
         self._userThread = userThread
 
-    def setGeneralRoom(self, generalRoom: ObjectId):
-        self._generalRoom = generalRoom
+    def setRooms(self, rooms: list[list]):
+        self._rooms = rooms
 
     def setModRoom(self, modRoom: ObjectId):
         self._modRoom = modRoom
@@ -387,13 +387,19 @@ class Course:
         if not threadRet.success:
             logger.error(CourseMessages.FOREIGN_KEYS_ERROR)            
             return threadRet
-
-        generalRoom = Room(name=self._name + " General Room", courseId=self._id)
-        generalRoomRet = generalRoom.save()
-        if not generalRoomRet.success:
-            logger.error(generalRoomRet.data)
-            logger.error(CourseMessages.FOREIGN_KEYS_ERROR)
-            return generalRoomRet
+        for i , room in enumerate(self._rooms):
+            roomName = room[0]
+            generalRoom = Room(name=self._name + " " + roomName, courseId=self._id)
+            roomRet = generalRoom.save()
+            if not roomRet.success:
+                logger.error(roomRet.data)
+                logger.error(CourseMessages.FOREIGN_KEYS_ERROR)
+                return roomRet
+            try:
+                self._rooms[i][1] = roomRet.data["_id"]
+            except KeyError as e:
+                logger.error(CourseMessages.FOREIGN_KEYS_ERROR)
+                return DBreturn(False, CourseMessages.FOREIGN_KEYS_ERROR, None)
 
         modRoom = Room(name=self._name + " Mod Room", courseId=self._id)
         modRoomRet = modRoom.save()
@@ -402,7 +408,6 @@ class Course:
             return modRoomRet
         try:
             self._userThread = threadRet.data["_id"]
-            self._generalRoom = generalRoomRet.data["_id"]
             self._modRoom = modRoomRet.data["_id"]
         except KeyError as e:
             logger.error(CourseMessages.FOREIGN_KEYS_ERROR)
@@ -417,12 +422,13 @@ class Course:
         threadRet = userThread.delete()
         if not threadRet.success:
             return threadRet
-        generalRoom = Room.fromDict(Room.collection.find_one({"_id": self._generalRoom}))
-        if not isinstance(generalRoom, Room):
-            return DBreturn(False, CourseMessages.FOREIGN_KEYS_ERROR, None)
-        generalRoomRet = generalRoom.delete()
-        if not generalRoomRet.success:
-            return generalRoomRet
+        for i, room in enumerate(self._rooms):
+            room = Room.fromDict(Room.collection.find_one({"_id": self._rooms[i][1]}))
+            if not isinstance(room, Room):
+                return DBreturn(False, CourseMessages.FOREIGN_KEYS_ERROR, None)
+            roomRet = room.delete()
+            if not roomRet.success:
+                return roomRet
         modRoom = Room.fromDict(Room.collection.find_one({"_id": self._modRoom}))
         if not isinstance(modRoom, Room):
             return DBreturn(False, CourseMessages.FOREIGN_KEYS_ERROR, None)

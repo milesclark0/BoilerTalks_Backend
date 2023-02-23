@@ -52,14 +52,13 @@ def populate_db_from_file(sample = False):
                     if not ret.success:
                         print(f"\tError: {ret.message}")
                         print(f"\tField Errors: {ret.data}")
-                        break
                 prev_abbr = class_abbr
             else:
                 ret = course.save()
                 if not ret.success:
                     print(f"\tError: {ret.message}")
-                    print(f"\tField Errors: {ret.data}")
-                    break
+                    #print(f"\tField Errors: {ret.data}")
+
 
 def clear_courses_threads_rooms():
     Course.collection.delete_many({})
@@ -67,6 +66,6 @@ def clear_courses_threads_rooms():
     Thread.collection.delete_many({})
 
 if __name__ == "__main__":
-    populate_db_from_file(sample=True)
-
+    populate_db_from_file()
+    #clear_courses_threads_rooms()
         
