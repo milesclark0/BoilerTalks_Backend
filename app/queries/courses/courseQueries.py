@@ -134,6 +134,10 @@ def unsubscribeFromCourse(courseName: str, username: str):
             res.message = 'unsubscribe from course error: Not subscribed to course'
             return res
         user.getCourses().remove(courseName)
+        isActiveCourse = courseName in user.getActiveCourses()
+        if isActiveCourse:
+            user.getActiveCourses().remove(courseName)
+        
         userSaveResult = user.update()
         if not userSaveResult.success:
             return userSaveResult
