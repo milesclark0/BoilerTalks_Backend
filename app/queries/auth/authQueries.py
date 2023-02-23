@@ -28,6 +28,23 @@ def register(userData):
         return DBreturn(False, "Register Unsuccessful", res.data)
     return DBreturn(True, "Register Successful", res)
 
+def resetPassword(username, password):
+    try:
+        userData = User.fromDict(User.collection.find_one({ "username": username }))
+    except Exception as e:
+        return DBreturn(False, "Error occured while resetting password", str(e))
+    if userData is None:
+        return DBreturn(False, "User not found", None)
+    else:
+        userData.setPassword(password)
+    try:
+        res = userData.update()
+    except Exception as e:
+        return DBreturn(False, "Error occured while saving user", str(e))
+    if not res.success:
+        return DBreturn(False, "Password Reset Unsuccessful", res.data)
+    return DBreturn(True, "Password Reset Successful", res)
+
 def getUserById(id):
     try:
         userData = User.fromDict(User.collection.find_one({ "_id": ObjectId(id)}))
