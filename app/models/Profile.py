@@ -96,7 +96,7 @@ class Profile:
             creationDate = self.__dict__.pop('_creationDate', None)
 
             #update user
-            result = self.collection.update_one({"bio": self._bio}, {"$set": self.formatDict()})
+            result = self.collection.update_one({"user": self._user}, {"$set": self.formatDict()})
 
             #add id and creation date back to dict
             self.__dict__['_id'] = id
