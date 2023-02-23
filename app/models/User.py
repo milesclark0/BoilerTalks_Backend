@@ -359,7 +359,7 @@ class User:
         self._username = username
 
     def setPassword(self, password):
-        self._password = password
+        self._password = User.hashPassword(password)
     
     def setEmail(self, email):
         self._email = email
