@@ -18,14 +18,18 @@ def login(username, password):
 def register(userData):
     try:
         newUser = User.fromDict(userData)
+        newProfile = Profile(newUser.getUsername())
     except Exception as e:
         return DBreturn(False, "Error occured while creating new user fields", str(e))
     try:
         res = User.save(newUser)
+        resP = Profile.save(newProfile)
     except Exception as e:
         return DBreturn(False, "Error occured while saving user", str(e))
     if not res.success:
         return DBreturn(False, "Register Unsuccessful", res.data)
+    if not resP.success:
+        return DBreturn(False, "Profile Creation Unsuccessful", res.data)
     return DBreturn(True, "Register Successful", res)
 
 def getUserById(id):

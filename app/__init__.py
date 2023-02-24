@@ -34,6 +34,9 @@ def create_app(config_class=Config, debug=int(Config.FLASK_DEBUG)):
     from app.blueprints.courses import bp as courses_bp
     app.register_blueprint(courses_bp)
 
+    from app.blueprints.profile import bp as profile_bp
+    app.register_blueprint(profile_bp)
+
     
     socketIo.init_app(app)
     jwt.init_app(app)
