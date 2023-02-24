@@ -27,6 +27,8 @@ def register(userData):
     except Exception as e:
         return DBreturn(False, "Error occured while saving user", str(e))
     if not res.success:
+        if "Username" or "Email" in res.message:
+            res.data = [res.message]
         return DBreturn(False, "Register Unsuccessful", res.data)
     if not resP.success:
         return DBreturn(False, "Profile Creation Unsuccessful", res.data)
