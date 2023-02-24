@@ -149,18 +149,17 @@ class Course:
             id = self.__dict__.pop('_id', None)
             if not isOnInit:
                 userThread = self.__dict__.pop('_userThread', None)
-                generalRoom = self.__dict__.pop('_rooms', None)
                 modRoom = self.__dict__.pop('_modRoom', None)
             creationDate = self.__dict__.pop('_creationDate', None)
 
             #update course
+            logger.warning(self.formatDict())
             result = self.collection.update_one({'name': self._name, 'semester': self._semester}, {'$set': self.formatDict()})
             
             #add back non mutable fields
             self._id = id
             if not isOnInit:
                 self.__dict__['_userThread'] = userThread
-                self.__dict__['_rooms'] = generalRoom
                 self.__dict__['_modRoom'] = modRoom
             self._creationDate = creationDate
 

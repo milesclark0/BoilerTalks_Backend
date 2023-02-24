@@ -17,7 +17,7 @@ _consoleHandler.setFormatter(formatter)
 logger.addHandler(_consoleHandler)
 
 # Set the logging level for the application here: DEBUG -> INFO -> WARNING -> ERROR -> CRITICAL
-logger.setLevel(logging.ERROR)
+logger.setLevel(logging.WARNING)
 
 def create_app(config_class=Config, debug=int(Config.FLASK_DEBUG)):
     app = Flask(__name__)

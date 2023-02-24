@@ -4,7 +4,7 @@ from app.queries.courses.aggregates import *
 def getAllCourses():
     res = DBreturn()
     try:
-        courses = Course.collection.find({})
+        courses = Course.collection.aggregate(get_all_courses_aggregate())
         res.data = parse_json(courses)
         res.success = True
         res.message = 'Successfully retrieved all courses'
@@ -161,25 +161,26 @@ def unsubscribeFromCourse(courseName: str, username: str):
     return res        
 
 
-def addRoom(courseName: str, roomName: str):
+def addRoomToCourse(courseName: str, roomName: str):
     res = DBreturn()
     try:
         course = Course.collection.find_one({"name": courseName})
         if course is None:
             res.message = 'subscribe to course error: Course not found'
             return res
-        newRoom = Room(name= courseName+" "+roomName, courseId= course["_id"])
+
+        newRoom = Room(name= courseName+" "+roomName, courseId=course["_id"])
         roomReturn = newRoom.save()
         if not roomReturn.success:
             return roomReturn
-        
         course = Course.fromDict(course)
         course.getRooms().append([newRoom.getName(), newRoom.getId()])
         courseReturn = course.update()
         if not courseReturn.success:
             return courseReturn
         res.success = True
-        res.message = 'Successfully added room to course'    
+        res.message = 'Successfully added room to course'
+        res.data = parse_json(roomReturn.data)
     except Exception as e:
         res.success = False
         res.message = 'Error occurred while adding room to course ' + courseName

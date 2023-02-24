@@ -25,7 +25,10 @@ class DBreturn:
     def __str__(self):
         string = self.__dict__
         if self.success:
-            string['data'] = string['data'].__dict__
+            if (isinstance(self.data, dict)):
+                string['data'] = string['data'].__dict__
+            else :
+                string['data'] = str(self.data)
         return str(string)
 
 # method to parse a database object into a json object

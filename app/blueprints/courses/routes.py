@@ -76,16 +76,17 @@ def unsubscribeFromCourse():
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
 
-@bp.route(routePrefix + '/addRoom', methods=['POST'])
+@bp.route(routePrefix + '/addRoomToCourse', methods=['POST'])
 @jwt_required()
-def addRoom():
+def addRoomToCourse():
     res = DBreturn(None, 'No new Courses Provided', True)
     try:
         courseName = request.json['courseName']
         roomName = request.json['roomName']
+        print(courseName, roomName)
     except KeyError as e:
         return jsonify({'data': str(e), 'statusCode': HTTPStatus.BAD_REQUEST, 'message': 'Courses and room name are required'})
-    res = queries.addRoom(courseName, roomName)
+    res = queries.addRoomToCourse(courseName, roomName)
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
