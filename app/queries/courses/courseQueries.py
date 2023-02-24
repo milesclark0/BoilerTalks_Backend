@@ -158,11 +158,47 @@ def unsubscribeFromCourse(courseName: str, username: str):
         res.message = 'Error occurred while unsubscribing from course ' + courseName
         res.data = str(e)
         print(res.data)
+    return res        
+
+
+def addRoom(courseName: str, roomName: str):
+    res = DBreturn()
+    try:
+        course = Course.collection.find_one({"name": courseName})
+        if course is None:
+            res.message = 'subscribe to course error: Course not found'
+            return res
+        newRoom = Room(name= courseName+" "+roomName, courseId= course["_id"])
+        roomReturn = newRoom.save()
+        if not roomReturn.success:
+            return roomReturn
+        
+        course = Course.fromDict(course)
+        course.getRooms().append([newRoom.getName(), newRoom.getId()])
+        courseReturn = course.update()
+        if not courseReturn.success:
+            return courseReturn
+        res.success = True
+        res.message = 'Successfully added room to course'    
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while adding room to course ' + courseName
+        res.data = str(e)
+        print(res.data)
     return res
 
-
-
-        
-        
-
-
+def getCourseUsers(courseName: str):
+    res = DBreturn()
+    try:
+        users = User.collection.aggregate(get_course_users_aggregate(courseName))
+        if users is None:
+            res.message = 'get users error: no users found'
+            return res
+        res.data = parse_json(users)
+        res.success = True
+        res.message = 'Successfully retrieved user courses'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while retrieving users'
+        res.data = str(e)
+    return res

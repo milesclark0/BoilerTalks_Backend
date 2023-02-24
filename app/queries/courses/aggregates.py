@@ -42,3 +42,18 @@ def get_course_aggregate(user):
         }
     }
 ]
+
+def get_course_users_aggregate(courseName):
+    return [
+        {
+            '$match': {
+                'courses': courseName
+            }
+        }, {
+            '$project': {
+                '_id': 0, 
+                'username': 1
+            }
+        }
+]
+   
