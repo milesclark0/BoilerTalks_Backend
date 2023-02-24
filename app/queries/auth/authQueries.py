@@ -16,23 +16,19 @@ def login(username, password):
     return DBreturn(True, "Login Successful", userData)
 
 def register(userData):
-    try:
-        newUser = User.fromDict(userData)
-        newProfile = Profile(newUser.getUsername())
-    except Exception as e:
-        return DBreturn(False, "Error occured while creating new user fields", str(e))
-    try:
-        res = User.save(newUser)
-        resP = Profile.save(newProfile)
-    except Exception as e:
-        return DBreturn(False, "Error occured while saving user", str(e))
+    newUser = User.fromDict(userData)
+    if newUser is None:
+        return DBreturn(False, "Invalid User Data", None)
+    newProfile = Profile(newUser.getUsername())
+    if newProfile is None:
+        return DBreturn(False, "Invalid Profile Data", None)
+    res = User.save(newUser)
     if not res.success:
-        if "Username" in res.message or "Email" in res.message:
-            res.data = [res.message]
-        return DBreturn(False, "Register Unsuccessful", res.data)
+        return res
+    resP = Profile.save(newProfile)
     if not resP.success:
-        return DBreturn(False, "Profile Creation Unsuccessful", res.data)
-    return DBreturn(True, "Register Successful", res)
+        return resP
+    return DBreturn(True, "Register Successful", res.data)
 
 def resetPassword(username, password):
     try:

@@ -125,11 +125,11 @@ class User:
         try:
             #check if username is taken
             if self.collection.find_one({"username": self._username}) != None:
-                return DBreturn(False, UserMessages.USERNAME_TAKEN, self)
+                return DBreturn(False, UserMessages.USERNAME_TAKEN, self.formatDict())
 
             #check if email is taken
             if self.collection.find_one({"email": self._email}) != None:
-                return DBreturn(False, UserMessages.EMAIL_TAKEN, self)
+                return DBreturn(False, UserMessages.EMAIL_TAKEN, self.formatDict())
 
             #save user
             result = self.collection.insert_one(self.formatDict())
@@ -156,7 +156,7 @@ class User:
 
             #check if user was updated
             if result.modified_count == 0:
-                return DBreturn(False, UserMessages.UPDATE_ERROR + UserMessages.NOT_FOUND, self)
+                return DBreturn(False, UserMessages.UPDATE_ERROR + UserMessages.NOT_FOUND, self.formatDict())
             return DBreturn(True, UserMessages.USER_UPDATED, self)
         except Exception as e:
             return DBreturn(False, UserMessages.UPDATE_ERROR + str(e), None)

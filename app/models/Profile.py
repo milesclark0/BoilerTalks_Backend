@@ -103,8 +103,8 @@ class Profile:
 
             #check if profile was updated
             if result.modified_count == 0:
-                return DBreturn(False, ProfileMessages.UPDATE_ERROR + ProfileMessages.NOT_FOUND, self)
-            return DBreturn(True, ProfileMessages.PROFILE_UPDATED, self)
+                return DBreturn(False, ProfileMessages.UPDATE_ERROR + ProfileMessages.NOT_FOUND, self.formatDict())
+            return DBreturn(True, ProfileMessages.PROFILE_UPDATED, self.formatDict())
         except Exception as e:
             return DBreturn(False, ProfileMessages.UPDATE_ERROR + str(e), None)   
 
