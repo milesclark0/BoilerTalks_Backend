@@ -34,6 +34,14 @@ def registerAccount():
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.UNAUTHORIZED, 'message': res.message})
     return jsonify({'data': None, 'statusCode': HTTPStatus.OK, 'message': res.message})
 
+@bp.route(routePrefix + '/changePassword', methods=['POST'])
+def resetPassword():
+    username = request.json['username']
+    password = request.json['password']
+    res = queries.resetPassword(username, password)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.UNAUTHORIZED, 'message': res.message})
+    return jsonify({'data': None, 'statusCode': HTTPStatus.OK, 'message': res.message})
 
 @bp.route(routePrefix + '/refresh', methods=['GET'])
 @jwt_required(refresh=True)
@@ -49,6 +57,3 @@ def refresh():
     else:
         return jsonify({'data': None, 'statusCode': HTTPStatus.UNAUTHORIZED, 'message': res.message})
     
-
-
-
