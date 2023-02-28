@@ -38,6 +38,11 @@ def create_app(config_class=Config, debug=int(Config.FLASK_DEBUG)):
     app.register_blueprint(profile_bp)
 
     
+    from app.blueprints.messaging import bp as messaging_bp
+    from app.blueprints.messaging import namespace as messaging_namespace
+    app.register_blueprint(messaging_bp)
+
+    socketIo.on_namespace(messaging_namespace.MyCustomNamespace('/chat'))
     socketIo.init_app(app)
     jwt.init_app(app)
 

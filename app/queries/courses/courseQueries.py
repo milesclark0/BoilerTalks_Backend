@@ -69,7 +69,15 @@ def getUserCourses(username: str):
             return res
         aggregate = get_course_aggregate(user)
         courses = Course.collection.aggregate(aggregate)
-        res.data = parse_json(courses)
+        res.data = list(courses)
+        #merge courses with same id
+        for courseOne in res.data:
+            for courseTwo in res.data:
+                if courseOne != courseTwo:
+                    if courseOne['_id'] == courseTwo['_id']:
+                        courseOne['rooms'].extend(courseTwo['rooms'])
+                        res.data.remove(courseTwo)
+        res.data = parse_json(res.data)
         res.success = True
         res.message = 'Successfully retrieved user courses'
     except Exception as e:

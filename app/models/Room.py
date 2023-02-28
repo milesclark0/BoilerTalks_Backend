@@ -106,7 +106,8 @@ class Room:
             courseId = self.__dict__.pop("_courseId", None)
 
             #update the ROOM
-            result = self.collection.update_one({"courseId": courseId}, {"$set": self.formatDict()})
+            logger.warning(str(id))
+            result = self.collection.update_one({"_id": id}, {"$set": self.formatDict()})
 
             #add non mutable fields back
             self.__dict__["_id"] = id

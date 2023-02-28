@@ -58,12 +58,12 @@ class UserTests(unittest.TestCase):
 
     def test_save_duplicate(self):
         user = User('user1', 'Password1!', 'email@purdue.edu', 'firstName', 'lastName', ['CS 40800'], ['CS 40800'], 'https:/imgur.com/abcd.jpg', ['user2'])
+        user2 = User.fromDict(user.formatDict())
+        user3 = User.fromDict(user.formatDict())
         result = user.save()
         self.assertTrue(result.success)
 
-        #create user with same username, save user
-        user2 = user
-        user2.setPassword('Password1!')
+        # save user again
         result = user2.save()
 
         # should not allow duplicate usernames
@@ -71,12 +71,11 @@ class UserTests(unittest.TestCase):
         self.assertTrue(result.message == UserMessages.USERNAME_TAKEN)
 
         # create user with same email, save user
-        user2.setUsername('user2')
-        user2.setPassword('Password1!')
-        result = user2.save()
+        user3.setUsername('user3')
+        result = user3.save()
 
         # should not allow duplicate emails
-        self.assertFalse(result.success)
+        self.assertFalse(result.success) 
         self.assertTrue(result.message == UserMessages.EMAIL_TAKEN)
 
     def test_update_valid(self):
