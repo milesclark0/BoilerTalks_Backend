@@ -28,12 +28,25 @@ class ProfileMessages:
     MOD_THREADS_INVALID = "Modded thread list is invalid"
     MOD_THREAD_STRING = "A modded thread specified must be a string"
 
+    BLOCKED_USER_NULL = "A blocked user specified cannot be empty"
+    BLOCKED_USERS_INVALID = "Blocked user list is invalid"
+    BLOCKED_USER_STRING = "A blocked user specified must be a string"
+
+    DISPLAY_NAME_INVALID = "Display name must be a string"
+    DISPLAY_NAME_LENGTH = "Display name must be 50 characters or less"
+    
+
+
     CREATION_DATE_INVALID = "Creation date must be a valid datetime object"
 
 class Profile:
     _username: str
     _bio: str
     _modThreads: list
+    _blockedUsers: list
+    _displayName: str
+    _theme: str
+    _profilePicture: bytes
 
     # non mutable
     _id: ObjectId
@@ -43,8 +56,7 @@ class Profile:
     collection = db.Profiles
 
     # TODO: make sure profile gets created on account creation
-    def __init__(self, username: str, bio: str = None, modThreads: list = None, id: ObjectId = None, creationDate: datetime.datetime = None):
-        # required fields
+    def __init__(self, username: str, bio: str = None, modThreads: list = None, id: ObjectId = None, creationDate: datetime.datetime = None, blockedUsers: list = None, displayName: str = None, profilePicture: bytes = None, theme: str = None):
         self._username = username
         
         # optional fields
@@ -53,6 +65,12 @@ class Profile:
         else: self._bio = ""
         if modThreads is not None: self._modThreads = modThreads
         else: self._modThreads = []
+        if blockedUsers is not None: self._blockedUsers = blockedUsers
+        else: self._blockedUsers = []
+        if displayName is not None: self._displayName = displayName
+        else: self._displayName = ""
+        if profilePicture is not None: self._profilePicture = profilePicture
+        if theme is not None: self._theme = theme
         if creationDate is not None: self._creationDate = creationDate 
         else: self._creationDate = datetime.datetime.utcnow()
 
@@ -61,7 +79,7 @@ class Profile:
         if not Profile.hasAllRequiredFields(data):
             logger.warning(ProfileMessages.MISSING_FIELDS)
             return None
-        for k in ('username', 'bio', 'modCourses', '_id', 'creationDate'):
+        for k in ('username', 'bio', 'modThreads', '_id', 'creationDate', 'blockedUsers', 'displayName', 'profilePicture'):
             item = data.get(k, None)
             newDict[k] = item
         return Profile(*newDict.values())
@@ -149,6 +167,7 @@ class Profile:
         if len(self._bio) > 500:
             errors.append(ProfileMessages.BIO_LENGTH)
         return (len(errors) == 0, errors)
+    
 
     def validateModThreads(self):
         errors = []
@@ -162,6 +181,31 @@ class Profile:
             if modThread == "" or modThread == None:
                 errors.append(ProfileMessages.MOD_THREAD_NULL)
         return (len(errors) == 0, errors)
+    
+    def validateBlockedUsers(self):
+        errors = []
+        if not isinstance(self._blockedUsers, list):
+            errors.append(ProfileMessages.BLOCKED_USERS_INVALID)
+            return (False, errors)
+        for blockedUser in self._blockedUsers:
+            if not isinstance(blockedUser, str):
+                errors.append(ProfileMessages.BLOCKED_USER_STRING)
+                return (False, errors)
+            if blockedUser == "" or blockedUser == None:
+                errors.append(ProfileMessages.BLOCKED_USER_NULL)
+        return (len(errors) == 0, errors)
+    
+
+    def validateDisplayName(self):
+        errors = []
+        if not isinstance(self._displayName, str):
+            errors.append(ProfileMessages.DISPLAY_NAME_INVALID)
+            return (False, errors)
+        if len(self._displayName) > 50:
+            errors.append(ProfileMessages.DISPLAY_NAME_LENGTH)
+        return (len(errors) == 0, errors)
+    
+
 
     def validateCreationDate(self):
         #try to parse the date if it is a string
@@ -192,6 +236,19 @@ class Profile:
     
     def getCreationDate(self):
         return self._creationDate
+    
+    def getBlockedUsers(self):
+        return self._blockedUsers
+    
+    def getDisplayName(self):
+        return self._displayName
+    
+    def getProfilePicture(self):
+        return self._profilePicture
+    
+    def getTheme(self):
+        return self._theme
+    
 
     def setId(self, id):
         #id may not be set yet
@@ -199,6 +256,7 @@ class Profile:
             return self._id
         except:
             return None   
+    
     
     def setUsername(self, username):
         self._username = username
@@ -211,6 +269,22 @@ class Profile:
 
     def setCreationDate(self, creationDate):
         self._creationDate = creationDate
+
+    def setTheme(self, theme):
+        self._theme = theme
+
+    def setBlockedUsers(self, blockedUsers):
+        self._blockedUsers = blockedUsers
+
+    def setDisplayName(self, displayName):
+        self._displayName = displayName
+
+    def setProfilePicture(self, profilePicture):
+        self._profilePicture = profilePicture
+
+    
+
+        
 
     @staticmethod
     def hasAllRequiredFields(data: dict):

@@ -13,7 +13,7 @@ def getAllCourses():
 @bp.route(routePrefix + '/getCourse/<name>', methods=['GET'])
 @jwt_required()
 def getCourseByName(name):
-    res = DBreturn(None, 'No Course Provided', True)
+    res = DBreturn(False, 'No Course Provided', None)
     res = queries.getCourse(name)
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
@@ -23,7 +23,7 @@ def getCourseByName(name):
 @bp.route(routePrefix + '/getUserCourses/<username>', methods=['GET'])
 @jwt_required()
 def getUserCourses(username):
-    res = DBreturn(None, 'No User Provided', True)
+    res = DBreturn(False, 'No User Provided', None)
     if username is None or username == '':
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
     res = queries.getUserCourses(username)
@@ -35,7 +35,7 @@ def getUserCourses(username):
 @bp.route(routePrefix + '/subscribeToCourses', methods=['POST'])
 @jwt_required()
 def subscribeToCourse():
-    res = DBreturn(None, 'No new Courses Provided', True)
+    res = DBreturn(False, 'No new Courses Provided', None)
     try:
         courseIdArray = request.json['courses']
         username = request.json['username']
@@ -50,7 +50,7 @@ def subscribeToCourse():
 @bp.route(routePrefix + '/setActiveCourse', methods=['POST'])
 @jwt_required()
 def setCourseActive():
-    res = DBreturn(None, 'No course provided', True)
+    res = DBreturn(False, 'No new Courses Provided', None)
     try:
         courseName = request.json['courseName']
         username = request.json['username']
@@ -65,7 +65,7 @@ def setCourseActive():
 @bp.route(routePrefix + '/unsubscribeFromCourse', methods=['POST'])
 @jwt_required()
 def unsubscribeFromCourse():
-    res = DBreturn(None, 'No new Courses Provided', True)
+    res = DBreturn(False, 'No new Courses Provided', None)
     try:
         courseName = request.json['courseName']
         username = request.json['username']
@@ -79,7 +79,7 @@ def unsubscribeFromCourse():
 @bp.route(routePrefix + '/addRoomToCourse', methods=['POST'])
 @jwt_required()
 def addRoomToCourse():
-    res = DBreturn(None, 'No new Courses Provided', True)
+    res = DBreturn(False, 'No new Courses Provided', None)
     try:
         courseName = request.json['courseName']
         roomName = request.json['roomName']
@@ -94,7 +94,7 @@ def addRoomToCourse():
 @bp.route(routePrefix + '/getCourseUsers/<courseName>', methods=['GET'])
 @jwt_required()
 def getCourseUsers(courseName):
-    res = DBreturn(None, 'No courseName Provided', True)
+    res = DBreturn(False, 'No Course Provided', None)
     if courseName is None or courseName == '':
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
     res = queries.getCourseUsers(courseName)

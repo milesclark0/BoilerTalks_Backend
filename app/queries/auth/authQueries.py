@@ -50,8 +50,11 @@ def resetPassword(username, password):
 def getUserById(id):
     try:
         userData = User.fromDict(User.collection.find_one({ "_id": ObjectId(id)}))
+        profileData = Profile.collection.find_one({ "username": userData.getUsername()})
+        if profileData is not None:
+            profileData['profilePicture'] = decompress_file(profileData['profilePicture'])
     except Exception as e:
         return DBreturn(False, "Error occurred while retrieving user", str(e))
     if userData is None:
         return DBreturn(False, "User not found", None)
-    return DBreturn(True, "User found", userData)
+    return DBreturn(True, "User found", [userData, profileData])

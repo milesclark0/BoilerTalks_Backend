@@ -36,7 +36,11 @@ class ProfileTests(unittest.TestCase):
             'bio': 'this is my bio hip hip hooray',
             'modThreads': ['5f0b6a5a6c5a6f5d6c5a6f5d'],
             '_id': '5f0b6a5a6c5a6f5d6c5a6f5d',
-            'creationDate': '2020-07-13 15:00:00'
+            'creationDate': '2020-07-13 15:00:00',
+            'blockedUsers': [],
+            "displayName": "name",
+            "theme": "dark",
+            "profilePicture": b"",
         }
         profile = Profile.fromDict(profile_dict)
         self.assertTrue(profile is not None)

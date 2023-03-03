@@ -8,6 +8,10 @@ def getProfile(username: str):
             res.message = 'error retrieving profile: user not found'
             return res
         profile = Profile.collection.find_one({ "username": username})
+        if profile is None:
+            res.message = 'error retrieving profile: profile not found'
+            return res
+        profile['profilePicture'] = decompress_file(profile['profilePicture'])
         res.data = parse_json(profile)
         res.success = True
         res.message = 'Successfully retrieved profile'
@@ -22,31 +26,51 @@ def editProfile(bio: str, username: str):
     try:
         user = User.collection.find_one({"username": username})
         if user is None:
-            res.message = 'error editting profile: user not found'
+            res.message = 'error editing profile: user not found'
             return res
 
         if len(bio) > 500:
-            res.message = 'error editting profile: bio over 500 chars'
+            res.message = 'error editing profile: bio over 500 chars'
             return res
         
         profile = Profile.fromDict(Profile.collection.find_one({ "username": username}))
         # if profile is None:
-        #     res.message = 'error editting profile: profile not found'
+        #     res.message = 'error editing profile: profile not found'
         #     return res
         profile.setBio(bio)
         profileSaveResult = profile.update()
         if not profileSaveResult.success:
             return profileSaveResult
         res.success = True
-        res.message = 'Successfully editted profile'
+        res.message = 'Successfully edited profile'
     except Exception as e:
         res.success = False
-        res.message = 'Error occurred while editting profile'
+        res.message = 'Error occurred while editing profile'
         res.data = str(e)
         print(res.data)
     return res       
 
-
-        
-
+def uploadProfilePicture(username: str, file):
+    res = DBreturn()
+    compressedFile = compress_file(file)
+    try:
+        userProfile = Profile.collection.find_one({"username": username})
+        if userProfile is None:
+            res.message = 'error uploading profile picture: user not found'
+            return res
+        userProfile = Profile.fromDict(userProfile)
+        userProfile.setProfilePicture(compressedFile)
+        profileSaveResult = userProfile.update()
+        if not profileSaveResult.success:
+            return profileSaveResult
+        #make sure to send back the non-compressed file
+        userProfile.setProfilePicture(file)
+        res.data = parse_json(userProfile.formatDict())
+        res.success = True
+        res.message = 'Successfully uploaded profile picture'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while uploading profile picture'
+        res.data = str(e)
+    return res
 

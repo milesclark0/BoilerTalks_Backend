@@ -98,7 +98,7 @@ class User:
         else: self._activeCourses = []
         #TODO: add default profile picture link
         if profilePicture is not None: self._profilePicture = profilePicture
-        else: self._profilePicture = "https://imgur.com/gallery/mCHMpLT"
+        else: self._profilePicture = "http://www.gravatar.com/avatar/?d=mp"
         if blockedUsers is not None: self._blockedUsers = blockedUsers
         else: self._blockedUsers = []
         
