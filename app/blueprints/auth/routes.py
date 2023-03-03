@@ -15,6 +15,8 @@ def login():
     refresh_token = create_refresh_token(identity = str(res.data.getId()))
 
     res = queries.getUserById(res.data.getId())
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.UNAUTHORIZED, 'message': res.message})
     user = parse_json(res.data[0].formatDict())
     profile = parse_json(res.data[1])
     

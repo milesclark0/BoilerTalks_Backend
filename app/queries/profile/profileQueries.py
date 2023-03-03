@@ -11,7 +11,8 @@ def getProfile(username: str):
         if profile is None:
             res.message = 'error retrieving profile: profile not found'
             return res
-        profile['profilePicture'] = decompress_file(profile['profilePicture'])
+        if 'profilePicture' in profile:
+            profile['profilePicture'] = decompress_file(profile['profilePicture'])
         res.data = parse_json(profile)
         res.success = True
         res.message = 'Successfully retrieved profile'
