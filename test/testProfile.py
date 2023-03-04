@@ -40,7 +40,6 @@ class ProfileTests(unittest.TestCase):
             'blockedUsers': [],
             "displayName": "name",
             "theme": "dark",
-            "profilePicture": b"",
         }
         profile = Profile.fromDict(profile_dict)
         self.assertTrue(profile is not None)

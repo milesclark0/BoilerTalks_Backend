@@ -46,7 +46,6 @@ class Profile:
     _blockedUsers: list
     _displayName: str
     _theme: str
-    _profilePicture: bytes
 
     # non mutable
     _id: ObjectId
@@ -56,7 +55,7 @@ class Profile:
     collection = db.Profiles
 
     # TODO: make sure profile gets created on account creation
-    def __init__(self, username: str, bio: str = None, modThreads: list = None, id: ObjectId = None, creationDate: datetime.datetime = None, blockedUsers: list = None, displayName: str = None, profilePicture: bytes = None, theme: str = None):
+    def __init__(self, username: str, bio: str = None, modThreads: list = None, id: ObjectId = None, creationDate: datetime.datetime = None, blockedUsers: list = None, displayName: str = None, theme: str = None):
         self._username = username
         
         # optional fields
@@ -69,7 +68,6 @@ class Profile:
         else: self._blockedUsers = []
         if displayName is not None: self._displayName = displayName
         else: self._displayName = ""
-        if profilePicture is not None: self._profilePicture = profilePicture
         if theme is not None: self._theme = theme
         if creationDate is not None: self._creationDate = creationDate 
         else: self._creationDate = datetime.datetime.utcnow()
@@ -79,7 +77,7 @@ class Profile:
         if not Profile.hasAllRequiredFields(data):
             logger.warning(ProfileMessages.MISSING_FIELDS)
             return None
-        for k in ('username', 'bio', 'modThreads', '_id', 'creationDate', 'blockedUsers', 'displayName', 'profilePicture'):
+        for k in ('username', 'bio', 'modThreads', '_id', 'creationDate', 'blockedUsers', 'displayName'):
             item = data.get(k, None)
             newDict[k] = item
         return Profile(*newDict.values())
@@ -243,9 +241,6 @@ class Profile:
     def getDisplayName(self):
         return self._displayName
     
-    def getProfilePicture(self):
-        return self._profilePicture
-    
     def getTheme(self):
         return self._theme
     
@@ -279,8 +274,6 @@ class Profile:
     def setDisplayName(self, displayName):
         self._displayName = displayName
 
-    def setProfilePicture(self, profilePicture):
-        self._profilePicture = profilePicture
 
     
 

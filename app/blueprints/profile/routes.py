@@ -34,7 +34,7 @@ def uploadProfilePicture(username):
         image = request.files['file'].read()
     except Exception as e:
         return jsonify({'data': str(e), 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
-    res = queries.uploadProfilePicture(username, image)
+    res = queries.uploadProfilePictureAWS(username, image)
     if not res.success:
-        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
-    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+        return jsonify({'data': None, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': None, 'statusCode': HTTPStatus.OK, 'message': res.message})

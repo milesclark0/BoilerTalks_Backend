@@ -5,6 +5,9 @@ from http import HTTPStatus
 import app.queries.profile.profileQueries as queries
 from app.models.User import User
 from app.models.Database import db, DBreturn, parse_json, ObjectId
+import boto3
+import os, binascii
+from dotenv import load_dotenv
 
 bp = Blueprint('profile', __name__)
 
