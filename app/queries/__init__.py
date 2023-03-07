@@ -22,23 +22,22 @@ s3 = boto3.client(
 
 # get a presigned url for uploading an image to S3
 def getPresignedUrl(username: str):
+    bucketUrl = 'https://boilertalks-profile-images.s3.amazonaws.com/'
     ret = DBreturn(False, 'Error generating presigned url', None)
-    defaultImageURL = "http://www.gravatar.com/avatar/?d=mp"
     try:
         user = User.fromDict(User.collection.find_one({"username": username}))
         if user is None:
             ret.message = 'User not found'
             return ret
         
-        if user.getProfilePicture() != defaultImageURL:
+        if user.getProfilePicture().startswith(bucketUrl):
             ret.message = 'User already has a profile picture'
             ret.success = True
             ret.data = user
             return ret
         
         img_name = str(user.getId()) + '.jpg'
-        url = "https://boilertalks-profile-images.s3.amazonaws.com/" + img_name
-        print(url)
+        url = bucketUrl + img_name
         user.setProfilePicture(url)
         ret = user.update()
     except Exception as e:
