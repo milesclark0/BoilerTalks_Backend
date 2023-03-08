@@ -1,5 +1,6 @@
 import unittest, certifi
 from app.models.Course import Course, CourseMessages
+from app.models.CourseManagement import CourseManagement
 from app.models.Thread import Thread
 from app.models.Room import Room
 from pymongo import MongoClient
@@ -15,11 +16,13 @@ class CourseTests(unittest.TestCase):
         Course.collection = MongoClient(Config.DB_CONN_STR, tlsCAFile=ca)[Config.DB_NAME_TEST]['Courses']
         Thread.collection = MongoClient(Config.DB_CONN_STR, tlsCAFile=ca)[Config.DB_NAME_TEST]['Threads']
         Room.collection = MongoClient(Config.DB_CONN_STR, tlsCAFile=ca)[Config.DB_NAME_TEST]['Rooms']
+        CourseManagement.collection = MongoClient(Config.DB_CONN_STR, tlsCAFile=ca)[Config.DB_NAME_TEST]['CourseManagement']
     #clear database before each test
     def setUp(self):
         Course.collection.delete_many({})
         Thread.collection.delete_many({})
         Room.collection.delete_many({})
+        CourseManagement.collection.delete_many({})
 
 
     def test_from_dict_valid(self):
@@ -106,10 +109,17 @@ class CourseTests(unittest.TestCase):
         for room in course.getRooms():
             room_dict = Room.collection.find_one({'_id': room[1]})
             self.assertTrue(room_dict is not None)
-        self.assertTrue(room_dict['courseId'] == course.getId())
+            self.assertTrue(room_dict['courseId'] == course.getId())
+        
+        #check if mod room is in database
         room_dict = Room.collection.find_one({'_id': course.getModRoom()})
         self.assertTrue(room_dict is not None)
         self.assertTrue(room_dict['courseId'] == course.getId())
+
+        #check if CourseManagement object is in database
+        cm_dict = CourseManagement.collection.find_one({'courseId': course.getId()})
+        self.assertTrue(cm_dict is not None)
+
 
     def test_save_invalid(self):
         #save with invalid fields
@@ -203,4 +213,5 @@ class CourseTests(unittest.TestCase):
         Course.collection.delete_many({})
         Thread.collection.delete_many({})
         Room.collection.delete_many({})
+        CourseManagement.collection.delete_many({})
     

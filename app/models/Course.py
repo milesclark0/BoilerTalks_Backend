@@ -1,6 +1,7 @@
 from app.models.Database import db, DBreturn, ObjectId
 from app.models.Room import Room
 from app.models.Thread import Thread
+from app.models.CourseManagement import CourseManagement
 from app import logger
 import datetime, re
 
@@ -405,6 +406,14 @@ class Course:
         if not modRoomRet.success:
             logger.error(CourseMessages.FOREIGN_KEYS_ERROR)
             return modRoomRet
+        
+        #create course mngmt object
+        courseManagement = CourseManagement(courseId=self._id)
+        courseManagementRet = courseManagement.save()
+        if not courseManagementRet.success:
+            logger.error(CourseMessages.FOREIGN_KEYS_ERROR)
+            return courseManagementRet
+
         try:
             self._userThread = threadRet.data["_id"]
             self._modRoom = modRoomRet.data["_id"]
@@ -415,25 +424,32 @@ class Course:
 
     def deleteForeignKeys(self):
         # delete the thread and rooms for the course
+        fkError =  DBreturn(False, CourseMessages.FOREIGN_KEYS_ERROR, None)
         userThread = Thread.fromDict(Thread.collection.find_one({"_id": self._userThread}))
         if not isinstance(userThread, Thread):
-            return DBreturn(False, CourseMessages.FOREIGN_KEYS_ERROR, None)
+            return fkError
         threadRet = userThread.delete()
         if not threadRet.success:
             return threadRet
         for i, room in enumerate(self._rooms):
             room = Room.fromDict(Room.collection.find_one({"_id": self._rooms[i][1]}))
             if not isinstance(room, Room):
-                return DBreturn(False, CourseMessages.FOREIGN_KEYS_ERROR, None)
+                return fkError
             roomRet = room.delete()
             if not roomRet.success:
                 return roomRet
         modRoom = Room.fromDict(Room.collection.find_one({"_id": self._modRoom}))
         if not isinstance(modRoom, Room):
-            return DBreturn(False, CourseMessages.FOREIGN_KEYS_ERROR, None)
+            return fkError
         modRoomRet = modRoom.delete()
         if not modRoomRet.success:
             return modRoomRet
+        courseManagement = CourseManagement.fromDict(CourseManagement.collection.find_one({"courseId": self._id}))
+        if not isinstance(courseManagement, CourseManagement):
+            return fkError
+        courseManagementRet = courseManagement.delete()
+        if not courseManagementRet.success:
+            return courseManagementRet
         return DBreturn(True, CourseMessages.FOREIGN_KEYS_DELETED, self.formatDict())
 
 
