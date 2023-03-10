@@ -25,10 +25,7 @@ def leaveRoom(room, username, sid):
     if foundUser is None:
         res.message = "User not found in room"
         return res
-    if len(room.getConnected()) > 1:
-        room.getConnected().remove(foundUser)
-    else:
-        room.setConnected([])
+    room.getConnected().remove(foundUser)
     roomSaveResult = room.update()
     if not roomSaveResult.success:
         return roomSaveResult
@@ -36,7 +33,7 @@ def leaveRoom(room, username, sid):
     res.message = "Successfully left room"
     return res
     
-def joinRoom(room, username, sid):
+def joinRoom(room, username, sid, profilePic):
     res = DBreturn()
     if (username is None or username == "") and (sid is None or sid == ""):
         res.message = "Username or sid is required"
@@ -47,7 +44,7 @@ def joinRoom(room, username, sid):
         return res
     foundUser = next((member for member in room.getConnected() if member['username'] == username or member['sid'] == sid), None)
     if foundUser is None:
-        room.getConnected().append({"username": username, "sid": sid})
+        room.getConnected().append({"username": username, "sid": sid, "profilePic": profilePic})
     else:
         #safe guard if user is already in room, but has a different sid
         foundUser['sid'] = sid

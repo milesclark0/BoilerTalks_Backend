@@ -47,6 +47,7 @@ class MyCustomNamespace(Namespace):
     def on_join(self, data):
         roomID = data['roomID']
         username = data['username']
+        profilePic = data['profilePic']
         sid = request.sid
         print(f"Joining roomID: {roomID}")
         print(f"sid: {sid}")
@@ -54,7 +55,7 @@ class MyCustomNamespace(Namespace):
         #leave all rooms before joining a new one
         self.leave_all_rooms(sid)
         foundRoom = queries.getRoom(roomID)
-        res = queries.joinRoom(foundRoom, username, sid)
+        res = queries.joinRoom(foundRoom, username, sid, profilePic)
         if (isinstance(rooms.get(sid), list)):
             rooms[sid].append(roomID)
         else:

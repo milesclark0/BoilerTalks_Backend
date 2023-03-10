@@ -11,7 +11,7 @@ def getProfile(username: str):
         if profile is None:
             res.message = 'error retrieving profile: profile not found'
             return res
-        res.data = parse_json(profile)
+        res.data = [parse_json(profile), parse_json(user)]
         res.success = True
         res.message = 'Successfully retrieved profile'
     except Exception as e:
