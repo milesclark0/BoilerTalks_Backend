@@ -212,14 +212,15 @@ def getCourseUsers(courseName: str):
         res.data = str(e)
     return res
 
-def getBannedUsersforCourse(courseName: str):
+def getBannedUsersforCourse(courseId: str):
     res = DBreturn()
     try:
-        bannedUsers = CourseManagement.collection.find_one({"name": courseName})
-        if bannedUsers is None:
-            res.message = 'get users error: no banned users found'
+        course = CourseManagement.collection.find_one({"courseId": courseId})
+        print("Course: " + str(course))
+        if course is None:
+            res.message = 'get course error: no course found'
             return res
-        res.data = parse_json(bannedUsers)
+        res.data = parse_json(course.bannedUsers)
         res.success = True
         res.message = 'Successfully retrieved banned user for course'
     except Exception as e:
@@ -228,18 +229,36 @@ def getBannedUsersforCourse(courseName: str):
         res.data = str(e)
     return res
 
-def getAppealsforCourse(courseName: str):
+def getAppealsforCourse(courseId: str):
     res = DBreturn()
     try:
-        users = CourseManagement.collection.find_one({"name": courseName})
-        if users is None:
-            res.message = 'get users error: no users found'
+        course = CourseManagement.collection.find_one({"courseId": courseId})
+        if course is None:
+            res.message = 'get course error: no course found'
             return res
-        res.data = parse_json(users)
+        res.data = parse_json(course.appeals)
         res.success = True
-        res.message = 'Successfully retrieved user courses'
+        res.message = 'Successfully retrieved course appeals'
     except Exception as e:
         res.success = False
-        res.message = 'Error occurred while retrieving users'
+        res.message = 'Error occurred while retrieving course appeals'
+        res.data = str(e)
+    return res
+
+def addAppealforCourse(courseId: str):
+    res = DBreturn()
+    try:
+        course = CourseManagement.collection.find_one({"courseId": courseId})
+        if course is None:
+            res.message = 'get course error: no course found'
+            return res
+        # append to array
+        # update coursemanagement
+        res.data = parse_json(course)
+        res.success = True
+        res.message = 'Successfully added appeal to course'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while adding appeal to course'
         res.data = str(e)
     return res

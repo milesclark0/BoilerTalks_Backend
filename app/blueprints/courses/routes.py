@@ -102,24 +102,36 @@ def getCourseUsers(courseName):
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
 
-@bp.route(routePrefix + '/getCourseAppeals/<courseName>', methods=['GET'])
+@bp.route(routePrefix + '/getCourseAppeals/<courseId>', methods=['GET'])
 @jwt_required()
-def getCourseAppeals(courseName):
+def getCourseAppeals(courseId):
     res = DBreturn(False, 'No Course Provided', None)
-    if courseName is None or courseName == '':
+    if courseId is None or courseId == '':
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
-    res = queries.getAppealsforCourse(courseName)
+    res = queries.getAppealsforCourse(courseId)
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
 
-@bp.route(routePrefix + '/getBannedUsers/<courseName>', methods=['GET'])
+@bp.route(routePrefix + '/getBannedUsers/<courseId>', methods=['GET'])
 @jwt_required()
-def getBannedUsers(courseName):
+def getBannedUsers(courseId):
     res = DBreturn(False, 'No Course Provided', None)
-    if courseName is None or courseName == '':
+    if courseId is None or courseId == '':
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
-    res = queries.getBannedUsersforCourse(courseName)
+    res = queries.getBannedUsersforCourse(courseId)
+    print("banned users: " + str(res))
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
+@bp.route(routePrefix + '/addAppeal/<courseId>', methods=['POST'])
+@jwt_required()
+def addAppealtoCourse(courseId):
+    res = DBreturn(False, 'No Course Provided', None)
+    if courseId is None or courseId == '':
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
+    res = queries.addAppealforCourse(courseId)
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
