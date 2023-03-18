@@ -102,25 +102,13 @@ def getCourseUsers(courseName):
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
 
-@bp.route(routePrefix + '/getCourseAppeals/<courseId>', methods=['GET'])
+@bp.route(routePrefix + '/getCourseManagement/<courseId>', methods=['GET'])
 @jwt_required()
 def getCourseAppeals(courseId):
     res = DBreturn(False, 'No Course Provided', None)
     if courseId is None or courseId == '':
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
-    res = queries.getAppealsforCourse(courseId)
-    if not res.success:
-        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
-    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
-
-@bp.route(routePrefix + '/getBannedUsers/<courseId>', methods=['GET'])
-@jwt_required()
-def getBannedUsers(courseId):
-    res = DBreturn(False, 'No Course Provided', None)
-    if courseId is None or courseId == '':
-        return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
-    res = queries.getBannedUsersforCourse(courseId)
-    print("banned users: " + str(res))
+    res = queries.getCourseManagementData(courseId)
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})

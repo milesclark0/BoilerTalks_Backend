@@ -212,7 +212,7 @@ def getCourseUsers(courseName: str):
         res.data = str(e)
     return res
 
-def getBannedUsersforCourse(courseId: str):
+def getCourseManagementData(courseId: str):
     res = DBreturn()
     try:
         course = CourseManagement.collection.find_one({"courseId": courseId})
@@ -220,28 +220,12 @@ def getBannedUsersforCourse(courseId: str):
         if course is None:
             res.message = 'get course error: no course found'
             return res
-        res.data = parse_json(course.bannedUsers)
+        res.data = parse_json(course)
         res.success = True
-        res.message = 'Successfully retrieved banned user for course'
+        res.message = 'Successfully retrieved course management'
     except Exception as e:
         res.success = False
-        res.message = 'Error occurred while retrieving banned users'
-        res.data = str(e)
-    return res
-
-def getAppealsforCourse(courseId: str):
-    res = DBreturn()
-    try:
-        course = CourseManagement.collection.find_one({"courseId": courseId})
-        if course is None:
-            res.message = 'get course error: no course found'
-            return res
-        res.data = parse_json(course.appeals)
-        res.success = True
-        res.message = 'Successfully retrieved course appeals'
-    except Exception as e:
-        res.success = False
-        res.message = 'Error occurred while retrieving course appeals'
+        res.message = 'Error occurred while retrieving course management data'
         res.data = str(e)
     return res
 
