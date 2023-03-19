@@ -1,4 +1,4 @@
-from app.blueprints.courses import *
+from app.blueprints.courseManagement import *
 
 routePrefix = '/courseManagement'
 
@@ -45,6 +45,30 @@ def banUser(courseId):
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
     user = request.json["user"]
     res = queries.banUserForCourse(courseId, user)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
+@bp.route(routePrefix + '/warnUser/<courseId>', methods=['POST'])
+@jwt_required()
+def warnUser(courseId):
+    res = DBreturn(False, 'No Course Provided', None)
+    if courseId is None or courseId == '':
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
+    user = request.json["user"]
+    res = queries.warnUserForCourse(courseId, user)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
+@bp.route(routePrefix + '/updateWarnList/<courseId>', methods=['POST'])
+@jwt_required()
+def warnUser(courseId):
+    res = DBreturn(False, 'No Course Provided', None)
+    if courseId is None or courseId == '':
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
+    user = request.json["user"]
+    res = queries.updateWarnListForCourse(courseId, user)
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})

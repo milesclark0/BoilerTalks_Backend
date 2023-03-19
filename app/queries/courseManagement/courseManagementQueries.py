@@ -71,3 +71,39 @@ def banUserForCourse(courseId: str, username: str):
         res.message = 'Error occurred while adding user to ban list'
         res.data = str(e)
     return res
+
+def warnUserForCourse(courseId: str, username: str):
+    res = DBreturn()
+    try:
+        course = CourseManagement.collection.find_one({"courseId": courseId})
+        if course is None:
+            res.message = 'get course error: no course found'
+            return res
+        # find user from username
+        # add user to warn list
+        res.data = parse_json(course)
+        res.success = True
+        res.message = 'Successfully added user to ban list'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while adding user to ban list'
+        res.data = str(e)
+    return res
+
+def updateWarnListForCourse(courseId: str, username: str):
+    res = DBreturn()
+    try:
+        course = CourseManagement.collection.find_one({"courseId": courseId})
+        if course is None:
+            res.message = 'get course error: no course found'
+            return res
+        # find user from username
+        # remove user from warn list
+        res.data = parse_json(course)
+        res.success = True
+        res.message = 'Successfully removed user from warn list'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while removing user from warn list'
+        res.data = str(e)
+    return res
