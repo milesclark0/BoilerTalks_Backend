@@ -20,6 +20,7 @@ class CourseManagementMessages:
 
     RULES_INVALID = "Rules must be a list of strings"
     BANNED_USERS_INVALID = "Banned users must be a list of strings"
+    WARNED_USERS_INVALID = "Warned users must be a list of strings"
     APPEALS_INVALID = "Appeals must be a list of strings"
     REQUESTS_INVALID = "Requests must be a list of strings"
     MODERATORS_INVALID = "Moderators must be a list of strings"
@@ -27,6 +28,7 @@ class CourseManagementMessages:
 
     APPEAL_INVALID = "Appeal must be a valid String"
     REQUEST_INVALID = "Request must be a valid String"
+    WARNED_USER_INVALID = "Warned user must be a valid String"
     BANNED_USER_INVALID = "Banned user must be a valid String"
     MODERATOR_INVALID = "Moderator must be a valid String"
     RULE_INVALID = "Rule must be a valid String"
@@ -44,6 +46,7 @@ class CourseManagement:
     # optional fields
     rules: list[str]
     bannedUsers: list[str]
+    warnedUsers: list[str]
     appeals: list[str]
     requests: list[str]
     moderators: list[str]
@@ -57,7 +60,7 @@ class CourseManagement:
     collection = db.CourseManagement
 
 
-    def __init__(self, courseId: ObjectId, rules = None, bannedUsers = None, appeals = None, requests = None, moderators = None, announcements = None, creationDate: datetime = None, id: ObjectId = None):
+    def __init__(self, courseId: ObjectId, rules = None, bannedUsers = None, warnedUsers = None, appeals = None, requests = None, moderators = None, announcements = None, creationDate: datetime = None, id: ObjectId = None):
         self._courseId = courseId
 
         
@@ -66,6 +69,8 @@ class CourseManagement:
         else: self._rules = []
         if bannedUsers is not None: self._bannedUsers = bannedUsers
         else: self._bannedUsers = []
+        if warnedUsers is not None: self._warnedUsers = warnedUsers
+        else: self._warnedUsers = []
         if appeals is not None: self._appeals = appeals
         else: self._appeals = []
         if requests is not None: self._requests = requests
@@ -84,7 +89,7 @@ class CourseManagement:
         if not CourseManagement.hasAllRequiredFields(data):
             logger.warning(CourseManagementMessages.MISSING_FIELDS)
             return None
-        for k in ("courseId", "rules", "bannedUsers", "appeals", "requests", "moderators", "announcements", "creationDate", "_id"):
+        for k in ("courseId", "rules", "bannedUsers", "warnedUsers", "appeals", "requests", "moderators", "announcements", "creationDate", "_id"):
             item = data.get(k, None)
             newDict[k] = item
         return CourseManagement(*newDict.values())
@@ -177,6 +182,17 @@ class CourseManagement:
                     errors.append(CourseManagementMessages.BANNED_USER_INVALID)
                     break
         return (len(errors) == 0, errors)
+
+    def validateWarnedUsers(self):
+        errors = []
+        if not isinstance(self._warnedUsers, list):
+            errors.append(CourseManagementMessages.WARNED_USERS_INVALID)
+        else:
+            for user in self._warnedUsers:
+                if not isinstance(user, str):
+                    errors.append(CourseManagementMessages.WARNED_USER_INVALID)
+                    break
+        return (len(errors) == 0, errors)
     
     def validateAppeals(self):
         errors = []
@@ -244,6 +260,9 @@ class CourseManagement:
     def getBannedUsers(self):
         return self._bannedUsers
     
+    def getWarnedUsers(self):
+        return self._warnedUsers
+    
     def getAppeals(self):
         return self._appeals
     
@@ -268,6 +287,9 @@ class CourseManagement:
 
     def setBannedUsers(self, bannedUsers):
         self._bannedUsers = bannedUsers
+    
+    def setWarnedUsers(self, warnedUsers):
+        self._warnedUsers = warnedUsers
 
     def setAppeals(self, appeals):
         self._appeals = appeals
