@@ -35,6 +35,7 @@ class CourseManagementTests(unittest.TestCase):
             'appeals': [],
             'requests': [],
             'bannedUsers': [],
+            'warnedUsers': [],
             'moderators': [],
 
         }
@@ -72,6 +73,7 @@ class CourseManagementTests(unittest.TestCase):
             'appeals': [],
             'requests': [],
             'bannedUsers': [],
+            'warnedUsers': [],
             'moderators': [],
         }
         cm = CourseManagement.fromDict(cm_dict)

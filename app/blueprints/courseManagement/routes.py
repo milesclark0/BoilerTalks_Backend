@@ -63,7 +63,7 @@ def warnUser(courseId):
 
 @bp.route(routePrefix + '/updateWarnList/<courseId>', methods=['POST'])
 @jwt_required()
-def warnUser(courseId):
+def updateWarnUser(courseId):
     res = DBreturn(False, 'No Course Provided', None)
     if courseId is None or courseId == '':
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
