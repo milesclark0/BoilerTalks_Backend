@@ -34,9 +34,11 @@ def create_app(config_class=Config, debug=int(Config.FLASK_DEBUG)):
     from app.blueprints.courses import bp as courses_bp
     app.register_blueprint(courses_bp)
 
+    from app.blueprints.courseManagement import bp as courseManagement_bp
+    app.register_blueprint(courseManagement_bp)
+
     from app.blueprints.profile import bp as profile_bp
     app.register_blueprint(profile_bp)
-
     
     from app.blueprints.messaging import bp as messaging_bp
     from app.blueprints.messaging import namespace as messaging_namespace
