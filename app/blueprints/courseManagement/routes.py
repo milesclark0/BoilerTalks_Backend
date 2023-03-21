@@ -67,8 +67,8 @@ def updateWarnUser(courseId):
     res = DBreturn(False, 'No Course Provided', None)
     if courseId is None or courseId == '':
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
-    user = request.json["user"]
-    res = queries.updateWarnListForCourse(courseId, user)
+    warnData = request.json
+    res = queries.updateWarnListForCourse(courseId, warnData)
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})

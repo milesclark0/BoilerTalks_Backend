@@ -3,8 +3,7 @@ from app.queries import *
 def getCourseManagementData(courseId: str):
     res = DBreturn()
     try:
-        course = CourseManagement.collection.find_one({"courseId": courseId})
-        print("Course: " + str(course))
+        course = CourseManagement.collection.find_one({"courseId": ObjectId(courseId)})
         if course is None:
             res.message = 'get course error: no course found'
             return res
@@ -17,14 +16,15 @@ def getCourseManagementData(courseId: str):
         res.data = str(e)
     return res
 
-def addAppealforCourse(courseId: str, appeal):
+def addAppealforCourse(courseId: str, appeal: dict):
     res = DBreturn()
     try:
-        course = CourseManagement.collection.find_one({"courseId": courseId})
+        course = CourseManagement.collection.find_one({"courseId":  ObjectId(courseId)})
         if course is None:
             res.message = 'get course error: no course found'
             return res
         # append to array
+        course = CourseManagement.fromDict(course)
         course.getAppeals().append(appeal)
         # update coursemanagement
         saveAppeal = course.update()
@@ -38,38 +38,51 @@ def addAppealforCourse(courseId: str, appeal):
         res.data = str(e)
     return res
 
-def updateAppealforCourse(courseId: str, descision: str):
+def updateAppealforCourse(courseId: str, appeal: dict):
     res = DBreturn()
     try:
-        course = CourseManagement.collection.find_one({"courseId": courseId})
+        course = CourseManagement.collection.find_one({"courseId":  ObjectId(courseId)})
         if course is None:
             res.message = 'get course error: no course found'
             return res
-        # if decision is unban, remove user from ban array
-        # if decision is deny, update reason in ban array
-        # remove the appeal
+        course = CourseManagement.fromDict(course)
+        if appeal["unban"]:
+            # if decision is unban, remove user from ban array
+            banDict = {'username': appeal["username"], 'reason': appeal["reason"]}
+            course.getBannedUsers().remove(banDict)
+        # update appeal
+        appeals = []
+        for appealData in course.getAppeals():
+            if (appealData["username"] == appeal["username"]):
+                appealData = appeal
+            appeals.append(appealData)
+        course.setAppeals(appeals)
+        appealRes = course.update()
+        if not appealRes.success:
+            return appealRes
         res.success = True
-        res.message = 'Successfully updated ban to course'
+        res.message = 'Successfully updated appeal to course'
     except Exception as e:
         res.success = False
-        res.message = 'Error occurred while updating ban to course'
+        res.message = 'Error occurred while updating appeal to course'
         res.data = str(e)
     return res
 
-def banUserForCourse(courseId: str, username: str, banData: dict):
+def banUserForCourse(courseId: str, banData: dict):
     res = DBreturn()
     try:
-        course = CourseManagement.collection.find_one({"courseId": courseId})
+        course = CourseManagement.collection.find_one({"courseId":  ObjectId(courseId)})
         if course is None:
             res.message = 'get course error: no course found'
             return res
         # find user from username
-        user = User.collection.find_one({"name": username})
+        user = User.collection.find_one({"username": banData["username"]})
         if user is None:
             res.message = 'get user error: no user found'
             return res
         # add user to ban list
-        course.getBannedUsers.append(banData)
+        course = CourseManagement.fromDict(course)
+        course.getBannedUsers().append(banData)
         saveBan = course.update()
         if not saveBan.success:
             return saveBan
@@ -81,20 +94,24 @@ def banUserForCourse(courseId: str, username: str, banData: dict):
         res.data = str(e)
     return res
 
-def warnUserForCourse(courseId: str, username: str, warnData: dict):
+def warnUserForCourse(courseId: str, warnData: dict):
     res = DBreturn()
     try:
-        course = CourseManagement.collection.find_one({"courseId": courseId})
+        course = CourseManagement.collection.find_one({"courseId":  ObjectId(courseId)})
         if course is None:
             res.message = 'get course error: no course found'
             return res
         # find user from username
-        user = User.collection.find_one({"name": username})
+        user = User.collection.find_one({"username": warnData["username"]})
         if user is None:
             res.message = 'get user error: no user found'
             return res
         # add user to warn list 
-        course.getWarnedUsers.append(warnData)
+        course = CourseManagement.fromDict(course)
+        course.getWarnedUsers().append(warnData)
+        saveWarning = course.update()
+        if not saveWarning.success:
+            return saveWarning
         res.success = True
         res.message = 'Successfully added user to warn list'
     except Exception as e:
@@ -103,16 +120,21 @@ def warnUserForCourse(courseId: str, username: str, warnData: dict):
         res.data = str(e)
     return res
 
-def updateWarnListForCourse(courseId: str, username: str):
+def updateWarnListForCourse(courseId: str, warnData: dict):
     res = DBreturn()
     try:
-        course = CourseManagement.collection.find_one({"courseId": courseId})
+        course = CourseManagement.collection.find_one({"courseId":  ObjectId(courseId)})
         if course is None:
             res.message = 'get course error: no course found'
             return res
         # find user from username
+        user = User.collection.find_one({"username": warnData["username"]})
         # remove user from warn list
-        res.data = parse_json(course)
+        course = CourseManagement.fromDict(course)
+        course.getWarnedUsers().remove(warnData)
+        listRes = course.update()
+        if not listRes.success:
+            return listRes
         res.success = True
         res.message = 'Successfully removed user from warn list'
     except Exception as e:

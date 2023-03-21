@@ -76,6 +76,6 @@ def clear_courses_threads_rooms():
 
 if __name__ == "__main__":
     populate_db_from_file()
-    populate_courseManagementdb()
+    # populate_courseManagementdb()
     #clear_courses_threads_rooms()
         

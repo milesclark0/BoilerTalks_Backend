@@ -19,22 +19,32 @@ class CourseManagementMessages:
     DELETE_ERROR = "CM delete error: "  
 
     RULES_INVALID = "Rules must be a list of strings"
-    BANNED_USERS_INVALID = "Banned users must be a list of strings"
-    WARNED_USERS_INVALID = "Warned users must be a list of strings"
-    APPEALS_INVALID = "Appeals must be a list of strings"
+    BANNED_USERS_INVALID = "Banned users must be a list of dicts"
+    WARNED_USERS_INVALID = "Warned users must be a list of dicts"
+    APPEALS_INVALID = "Appeals must be a list of dicts"
     REQUESTS_INVALID = "Requests must be a list of strings"
     MODERATORS_INVALID = "Moderators must be a list of strings"
     ANNOUNCEMENTS_INVALID = "Announcements must be a list of strings"
 
-    APPEAL_INVALID = "Appeal must be a valid String"
+    APPEAL_INVALID = "Appeal must be a valid Dict"
     REQUEST_INVALID = "Request must be a valid String"
-    WARNED_USER_INVALID = "Warned user must be a valid String"
-    BANNED_USER_INVALID = "Banned user must be a valid String"
+    WARNED_USER_INVALID = "Warned user must be a valid Dict"
+    BANNED_USER_INVALID = "Banned user must be a valid Dict"
     MODERATOR_INVALID = "Moderator must be a valid String"
     RULE_INVALID = "Rule must be a valid String"
     ANNOUNCEMENT_INVALID = "Announcement must be a valid String"
 
-    
+    APPEAL_INVALID_FORMAT_USERNAME = "Appeal does not contain a valid username"
+    APPEAL_INVALID_FORMAT_RESPONSE = "Appeal does not contain a valid response"
+    APPEAL_INVALID_FORMAT_REASON = "Appeal does not contain a valid reason"
+    APPEAL_INVALID_FORMAT_REVIEWED = "Appeal does not contain a valid review"
+    APPEAL_INVALID_FORMAT_UNBAN = "Appeal does not contain a valid unban"
+
+    WARNED_USER_INVALID_FORMAT_USERNAME = "Warned user does not contain a valid username"
+    WARNED_USER_INVALID_FORMAT_REASON = "Warned user does not contain a valid reason"
+
+    BANNED_USER_INVALID_FORMAT_USERNAME = "Banned user does not contain a valid username"
+    BANNED_USER_INVALID_FORMAT_REASON = "Banned user does not contain a valid reason"
 
 
     CREATION_DATE_INVALID = "Creation date must be a valid datetime object"
@@ -45,9 +55,9 @@ class CourseManagement:
 
     # optional fields
     rules: list[str]
-    bannedUsers: list[str]
-    warnedUsers: list[str]
-    appeals: list[str]
+    bannedUsers: list[dict] # { username: str; reason: str }
+    warnedUsers: list[dict] # { username: str; reason: str }
+    appeals: list[dict] # { username: str; response: str; reason: str; reviewed: bool; unban: bool }
     requests: list[str]
     moderators: list[str]
     announcement: list[str]
@@ -177,10 +187,13 @@ class CourseManagement:
         if not isinstance(self._bannedUsers, list):
             errors.append(CourseManagementMessages.BANNED_USERS_INVALID)
         else:
-            for user in self._bannedUsers:
-                if not isinstance(user, str):
+            for item in self._bannedUsers:
+                if not isinstance(item, dict):
                     errors.append(CourseManagementMessages.BANNED_USER_INVALID)
-                    break
+                if "username" not in item:
+                    errors.append(CourseManagementMessages.BANNED_USER_INVALID_FORMAT_USERNAME)
+                if "reason" not in item:
+                    errors.append(CourseManagementMessages.BANNED_USER_INVALID_FORMAT_REASON)
         return (len(errors) == 0, errors)
 
     def validateWarnedUsers(self):
@@ -188,10 +201,13 @@ class CourseManagement:
         if not isinstance(self._warnedUsers, list):
             errors.append(CourseManagementMessages.WARNED_USERS_INVALID)
         else:
-            for user in self._warnedUsers:
-                if not isinstance(user, str):
+            for item in self._warnedUsers:
+                if not isinstance(item, dict):
                     errors.append(CourseManagementMessages.WARNED_USER_INVALID)
-                    break
+                if "username" not in item:
+                    errors.append(CourseManagementMessages.WARNED_USER_INVALID_FORMAT_USERNAME)
+                if "reason" not in item:
+                    errors.append(CourseManagementMessages.WARNED_USER_INVALID_FORMAT_REASON)
         return (len(errors) == 0, errors)
     
     def validateAppeals(self):
@@ -200,9 +216,18 @@ class CourseManagement:
             errors.append(CourseManagementMessages.APPEALS_INVALID)
         else:
             for appeal in self._appeals:
-                if not isinstance(appeal, str):
+                if not isinstance(appeal, dict):
                     errors.append(CourseManagementMessages.APPEAL_INVALID)
-                    break
+                if "username" not in appeal:
+                    errors.append(CourseManagementMessages.APPEAL_INVALID_FORMAT_USERNAME)
+                if "reason" not in appeal:
+                    errors.append(CourseManagementMessages.APPEAL_INVALID_FORMAT_REASON)
+                if "response" not in appeal:
+                    errors.append(CourseManagementMessages.APPEAL_INVALID_FORMAT_RESPONSE)
+                if "reviewed" not in appeal:
+                    errors.append(CourseManagementMessages.APPEAL_INVALID_FORMAT_REVIEWED)
+                if "unban" not in appeal:
+                    errors.append(CourseManagementMessages.APPEAL_INVALID_FORMAT_UNBAN)
         return (len(errors) == 0, errors)
     
     def validateRequests(self):
