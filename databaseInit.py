@@ -3,7 +3,7 @@ import re
 from app.models.Course import Course
 from app.models.Room import Room
 from app.models.Thread import Thread
-
+from app.models.CourseManagement import CourseManagement
 
 
 def sentence_case(string):
@@ -59,13 +59,23 @@ def populate_db_from_file(sample = False):
                     print(f"\tError: {ret.message}")
                     #print(f"\tField Errors: {ret.data}")
 
+def populate_courseManagementdb():
+    courses = Course.collection.find({})
+    for course in courses:
+        # print(course)
+        courseManagement = CourseManagement(course["_id"])
+        ret = courseManagement.save()
+        if not ret.success:
+            print(f"\tError: {ret.message}")
 
 def clear_courses_threads_rooms():
     Course.collection.delete_many({})
     Room.collection.delete_many({})
     Thread.collection.delete_many({})
+    CourseManagement.collection.delete_many({})
 
 if __name__ == "__main__":
     populate_db_from_file()
+    populate_courseManagementdb()
     #clear_courses_threads_rooms()
         

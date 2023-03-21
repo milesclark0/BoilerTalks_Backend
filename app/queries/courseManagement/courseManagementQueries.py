@@ -17,7 +17,7 @@ def getCourseManagementData(courseId: str):
         res.data = str(e)
     return res
 
-def addAppealforCourse(courseId: str):
+def addAppealforCourse(courseId: str, appeal):
     res = DBreturn()
     try:
         course = CourseManagement.collection.find_one({"courseId": courseId})
@@ -25,8 +25,11 @@ def addAppealforCourse(courseId: str):
             res.message = 'get course error: no course found'
             return res
         # append to array
+        course.getAppeals().append(appeal)
         # update coursemanagement
-        res.data = parse_json(course)
+        saveAppeal = course.update()
+        if not saveAppeal.success:
+            return saveAppeal
         res.success = True
         res.message = 'Successfully added appeal to course'
     except Exception as e:
@@ -45,7 +48,6 @@ def updateAppealforCourse(courseId: str, descision: str):
         # if decision is unban, remove user from ban array
         # if decision is deny, update reason in ban array
         # remove the appeal
-        res.data = parse_json(course)
         res.success = True
         res.message = 'Successfully updated ban to course'
     except Exception as e:
@@ -54,7 +56,7 @@ def updateAppealforCourse(courseId: str, descision: str):
         res.data = str(e)
     return res
 
-def banUserForCourse(courseId: str, username: str):
+def banUserForCourse(courseId: str, username: str, banData: dict):
     res = DBreturn()
     try:
         course = CourseManagement.collection.find_one({"courseId": courseId})
@@ -62,8 +64,15 @@ def banUserForCourse(courseId: str, username: str):
             res.message = 'get course error: no course found'
             return res
         # find user from username
+        user = User.collection.find_one({"name": username})
+        if user is None:
+            res.message = 'get user error: no user found'
+            return res
         # add user to ban list
-        res.data = parse_json(course)
+        course.getBannedUsers.append(banData)
+        saveBan = course.update()
+        if not saveBan.success:
+            return saveBan
         res.success = True
         res.message = 'Successfully added user to ban list'
     except Exception as e:
@@ -72,7 +81,7 @@ def banUserForCourse(courseId: str, username: str):
         res.data = str(e)
     return res
 
-def warnUserForCourse(courseId: str, username: str):
+def warnUserForCourse(courseId: str, username: str, warnData: dict):
     res = DBreturn()
     try:
         course = CourseManagement.collection.find_one({"courseId": courseId})
@@ -80,13 +89,17 @@ def warnUserForCourse(courseId: str, username: str):
             res.message = 'get course error: no course found'
             return res
         # find user from username
-        # add user to warn list
-        res.data = parse_json(course)
+        user = User.collection.find_one({"name": username})
+        if user is None:
+            res.message = 'get user error: no user found'
+            return res
+        # add user to warn list 
+        course.getWarnedUsers.append(warnData)
         res.success = True
-        res.message = 'Successfully added user to ban list'
+        res.message = 'Successfully added user to warn list'
     except Exception as e:
         res.success = False
-        res.message = 'Error occurred while adding user to ban list'
+        res.message = 'Error occurred while adding user to warn list'
         res.data = str(e)
     return res
 

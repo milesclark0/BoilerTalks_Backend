@@ -19,8 +19,8 @@ def addAppealtoCourse(courseId):
     res = DBreturn(False, 'No Course Provided', None)
     if courseId is None or courseId == '':
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
-    
-    res = queries.addAppealforCourse(courseId)
+    courseAppeal = request.json
+    res = queries.addAppealforCourse(courseId, courseAppeal)
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
@@ -31,8 +31,8 @@ def updateAppealtoCourse(courseId):
     res = DBreturn(False, 'No Course Provided', None)
     if courseId is None or courseId == '':
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
-    decision = request.json["decision"]
-    res = queries.updateAppealforCourse(courseId, decision)
+    appeal = request.json
+    res = queries.updateAppealforCourse(courseId, appeal)
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
@@ -43,8 +43,8 @@ def banUser(courseId):
     res = DBreturn(False, 'No Course Provided', None)
     if courseId is None or courseId == '':
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
-    user = request.json["user"]
-    res = queries.banUserForCourse(courseId, user)
+    banData = request.json
+    res = queries.banUserForCourse(courseId, banData)
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
@@ -55,8 +55,8 @@ def warnUser(courseId):
     res = DBreturn(False, 'No Course Provided', None)
     if courseId is None or courseId == '':
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
-    user = request.json["user"]
-    res = queries.warnUserForCourse(courseId, user)
+    warnData = request.json
+    res = queries.warnUserForCourse(courseId, warnData)
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})

@@ -1298,7 +1298,7 @@ BME 49800 - Biomedical Engineering Projects
 BME 52100 - Biosensors: Fundamentals And Applications
 BME 52800 - Measurement And Stimulation Of The Nervous System
 BME 54000 - Biomechanics
- BME 55100 - Tissue Engineering
+BME 55100 - Tissue Engineering
 BME 55300 - Biomedical Optics
 BME 58100 - Fundamentals Of MEMS And Micro-Integrated Systems
 BME 58300 - Biomaterials
@@ -1698,7 +1698,7 @@ CE 47300 - Reinforced Concrete Design
 CE 47400 - Structural Analysis II
 CE 47900 - Design Of Building Components And Systems
 CE 48300 - Geotechnical Engineering II
- CE 49100 - Civil Engineering Practice IV
+CE 49100 - Civil Engineering Practice IV
 CE 49200 - Civil Engineering Practice V
 CE 49700 - Civil Engineering Projects
 CE 49800 - Civil Engineering Design Project
@@ -1798,7 +1798,7 @@ CLCS 38700 - Roman Religion
 CLCS 48000 - Potters And Society In Antiquity
 CLCS 48100 - Culture And Society In The Age Of Pericles
 CLCS 48300 - Republican Rome
- CLCS 49900 - Special Topics In Classics
+CLCS 49900 - Special Topics In Classics
 CLCS 59000 - Directed Reading In Classics
 CLCS 59300 - Special Topics In Classical Literature
 CLPH 36100 - Geriatric Pharmacy Practice
@@ -1898,7 +1898,7 @@ COM 55700 - Legal Dimensions Of Communication
 COM 55800 - Historical Trends In Mass Communication Research
 COM 55900 - Current Trends In Mass Communication Research
 COM 56500 - Sociolinguistics
-  COM 57400 - Organizational Communication
+COM 57400 - Organizational Communication
 COM 57600 - Health Communication
 COM 58200 - Descriptive/Experimental Research In Communication
 COM 58300 - Research And Assessment In Organizational Communication
@@ -1998,7 +1998,7 @@ CPB 85500 - Veterinary Hematology And Cytology
 CPB 85602 - Veterinary Bacteriology And Mycology
 CPB 85700 - Veterinary Systemic Pathobiology
 CPB 86000 - Veterinary Virology
-  CPB 86100 - Veterinary Clinical Chemistry
+CPB 86100 - Veterinary Clinical Chemistry
 CPB 86200 - Clinical Epidemiology For Companion Animals
 CPB 86300 - Epidemiology For Livestock Production
 CPB 86900 - Veterinary Public Health And Zoonoses
@@ -2098,7 +2098,7 @@ CNIT 55100 - Information Technology Economics
 CNIT 55200 - Information Technology Project Management
 CNIT 55300 - Quality Management In Information Technology
 CNIT 55500 - Advanced Network Security
- CNIT 55600 - Basic Computer Forensics
+CNIT 55600 - Basic Computer Forensics
 CNIT 55700 - Advanced Research Topics In Cyber Forensics
 CNIT 55800 - Bioinformatics Computing And Systems Integration
 CNIT 55900 - Data Warehousing
@@ -2198,7 +2198,7 @@ CGT 47010 - Interactive Infographics Design And Development
 CGT 47107 - Human-Centered Design And Development Capstone I
 CGT 47207 - Human-Centered Design And Development Capstone II
 CGT 49000 - Computer Graphics
- CGT 49100 - Special Topics in Computer Graphics
+CGT 49100 - Special Topics in Computer Graphics
 CGT 49500 - Industrial Practice V
 CGT 50100 - Seminar In Computer Graphics Technology
 CGT 51100 - The Development Of Graphics In Technology
@@ -2398,7 +2398,7 @@ CSR 69000 - Independent Study In Consumer Sciences And Retailing
 CSR 69500 - Behavioral Research Design
 CSR 69700 - Final Non-Thesis Paper
 CSR 69800 - Research MS Thesis
- CSR 69900 - Research PhD Thesis
+CSR 69900 - Research PhD Thesis
 CDIS 23900 - Introduction To Disability Studies
 DANC 10100 - Modern Dance Technique
 DANC 10200 - Ballet I
@@ -2598,7 +2598,7 @@ ECON 45600 - Urban Economics
 ECON 46000 - Econometrics
 ECON 46100 - Industrial Organization
 ECON 46600 - International Economics
- ECON 47000 - Transportation Economics
+ECON 47000 - Transportation Economics
 ECON 47100 - Behavioral Economics
 ECON 49000 - Problems In Economics
 ECON 49900 - Senior Honors Thesis
@@ -2798,7 +2798,7 @@ EDCI 67200 - Advanced Practices In Learning Systems Design
 EDCI 67300 - Issues And Methods In Learning Systems Design Research
 EDCI 67400 - Advanced Instructional Design Theory
 EDCI 67500 - Instructional Strategies
-  EDCI 68200 - Contemporary Curriculum Theory
+EDCI 68200 - Contemporary Curriculum Theory
 EDCI 68400 - Seminar In Curriculum Studies
 EDCI 68500 - Global Issues In Education
 EDCI 69400 - Elementary Transition To Teaching Student Teaching/Internship
@@ -2898,7 +2898,7 @@ EDPS 63200 - Seminar In Research Procedures In Education
 EDPS 63300 - Seminar In Educational Psychology
 EDPS 63400 - The Psychology Of Learning And Teaching At The College Level
 EDPS 63500 - Psychometric Theory And Application
- EDPS 63600 - Item Response Theory
+EDPS 63600 - Item Response Theory
 EDPS 63700 - Data Analytic Procedures For Applied Research
 EDPS 63800 - Factor Analytic Procedures
 EDPS 65000 - Critical Issues In Special Education
@@ -3098,7 +3098,7 @@ ECE 68000 - Modern Automatic Control
 ECE 68800 - VLSI Testing And Verification
 ECE 69200 - Introduction To Graduate Research
 ECE 69300 - Advanced Intern Project
- ECE 69400 - Electrical And Computer Engineering Seminar
+ECE 69400 - Electrical And Computer Engineering Seminar
 ECE 69500 - Advanced Topics In Electrical And Computer Engineering
 ECE 69600 - Advanced Electrical Engineering Projects
 ECE 69700 - Directed Reading In Electrical Engineering
@@ -3198,7 +3198,7 @@ ECET 52400 - Applied Electromagnetics
 ECET 52500 - Applications In Forensic Engineering Technology
 ECET 53500 - Energy Management
 ECET 53600 - Embedded Systems Security
- ECET 58100 - Workshop In Electrical And Computer Engineering Technology
+ECET 58100 - Workshop In Electrical And Computer Engineering Technology
 ECET 59000 - Special Problems In Electrical And Computer Engineering Technology
 ECET 59800 - Directed MS Project
 ECET 63800 - Selected Topics In Sensor Networks
@@ -3298,7 +3298,7 @@ ENGL 23200 - Thematic Studies In Literature
 ENGL 23400 - Ecological Literature
 ENGL 23500 - Introduction To Drama
 ENGL 23700 - Introduction To Poetry
- ENGL 23800 - Introduction To Fiction
+ENGL 23800 - Introduction To Fiction
 ENGL 24000 - Survey Of The British Literature: From The Beginnings Through The Neoclassical Period
 ENGL 24100 - Survey Of The British Literature: From The Rise Of Romanticism To The Modern Period
 ENGL 25000 - Great American Books
@@ -3398,7 +3398,7 @@ ENGL 53200 - The English Novel In The Nineteenth Century
 ENGL 53400 - Seventeenth-Century Literature
 ENGL 53500 - Restoration And Early Eighteenth-Century Literature
 ENGL 53800 - English Drama From The Restoration To The Modern Period
- ENGL 54100 - Studies In Chaucer’s Canterbury Tales
+ENGL 54100 - Studies In Chaucer’s Canterbury Tales
 ENGL 54200 - Shakespeare’s Dramatic Art
 ENGL 54300 - Shakespeare In Critical Perspective
 ENGL 54400 - Milton
