@@ -93,7 +93,8 @@ def get_course_users_aggregate(courseName):
         }, {
             '$project': {
                 '_id': 0, 
-                'username': 1
+                'username': 1,
+                'profilePic': "$profilePicture"
             }
         }
 ]
