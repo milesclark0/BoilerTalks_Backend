@@ -142,3 +142,24 @@ def updateWarnListForCourse(courseId: str, warnData: dict):
         res.message = 'Error occurred while removing user from warn list'
         res.data = str(e)
     return res
+
+def updateCourseRules(courseId: str, rules: list):
+    res = DBreturn()
+    try:
+        course = CourseManagement.collection.find_one({"courseId":  ObjectId(courseId)})
+        if course is None:
+            res.message = 'get course error: no course found'
+            return res
+        # update rules
+        course = CourseManagement.fromDict(course)
+        course.setRules(rules)
+        rulesRes = course.update()
+        if not rulesRes.success:
+            return rulesRes
+        res.success = True
+        res.message = 'Successfully updated course rules'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while updating course rules'
+        res.data = str(e)
+    return res

@@ -72,3 +72,15 @@ def updateWarnUser(courseId):
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
+@bp.route(routePrefix + '/updateCourseRules/<courseId>', methods=['POST'])
+@jwt_required()
+def updateCourseRules(courseId):
+    res = DBreturn(False, 'No Course Provided', None)
+    if courseId is None or courseId == '':
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
+    rules = request.json['rules']
+    res = queries.updateCourseRules(courseId, rules)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
