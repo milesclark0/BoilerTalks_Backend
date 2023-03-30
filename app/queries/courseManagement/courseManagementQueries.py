@@ -201,7 +201,7 @@ def removeReport(courseId: str, reportData: dict):
         user = User.collection.find_one({"username": reportData["username"]})
         # remove user from warn list
         course = CourseManagement.fromDict(course)
-        course.getWarnedUsers().remove(reportData)
+        course.getReports().remove(reportData)
         listRes = course.update()
         if not listRes.success:
             return listRes
