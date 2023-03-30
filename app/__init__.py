@@ -44,6 +44,9 @@ def create_app(config_class=Config, debug=int(Config.FLASK_DEBUG)):
     from app.blueprints.messaging import namespace as messaging_namespace
     app.register_blueprint(messaging_bp)
 
+    from app.blueprints.blocking import bp as blocking_bp
+    app.register_blueprint(blocking_bp)
+
     socketIo.on_namespace(messaging_namespace.MyCustomNamespace('/chat'))
     socketIo.init_app(app)
     jwt.init_app(app)
