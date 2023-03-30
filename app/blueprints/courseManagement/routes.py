@@ -99,7 +99,7 @@ def addReport(courseId):
 
 @bp.route(routePrefix + '/removeReport/<courseId>', methods=['POST'])
 @jwt_required()
-def addReport(courseId):
+def removeReport(courseId):
     res = DBreturn(False, 'No Course Provided', None)
     if courseId is None or courseId == '':
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
