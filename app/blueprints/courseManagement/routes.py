@@ -99,12 +99,36 @@ def addReport(courseId):
 
 @bp.route(routePrefix + '/removeReport/<courseId>', methods=['POST'])
 @jwt_required()
-def addReport(courseId):
+def removeReport(courseId):
     res = DBreturn(False, 'No Course Provided', None)
     if courseId is None or courseId == '':
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
     reportData = request.json
     res = queries.removeReport(courseId, reportData)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
+@bp.route(routePrefix + '/addRequest/<courseId>', methods=['POST'])
+@jwt_required()
+def addRequest(courseId):
+    res = DBreturn(False, 'No Course Provided', None)
+    if courseId is None or courseId == '':
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
+    requestStr = request.json['requestStr']
+    res = queries.addRequest(courseId, requestStr)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
+@bp.route(routePrefix + '/removeRequest/<courseId>', methods=['POST'])
+@jwt_required()
+def removeRequest(courseId):
+    res = DBreturn(False, 'No Course Provided', None)
+    if courseId is None or courseId == '':
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
+    requestStr = request.json['requestStr']
+    res = queries.removeRequest(courseId, requestStr)
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})

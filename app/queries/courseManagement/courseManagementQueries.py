@@ -201,7 +201,7 @@ def removeReport(courseId: str, reportData: dict):
         user = User.collection.find_one({"username": reportData["username"]})
         # remove user from warn list
         course = CourseManagement.fromDict(course)
-        course.getWarnedUsers().remove(reportData)
+        course.getReports().remove(reportData)
         listRes = course.update()
         if not listRes.success:
             return listRes
@@ -210,5 +210,45 @@ def removeReport(courseId: str, reportData: dict):
     except Exception as e:
         res.success = False
         res.message = 'Error occurred while removing report from list'
+        res.data = str(e)
+    return res
+
+def addRequest(courseId: str, requestStr: str):
+    res = DBreturn()
+    try:
+        course = CourseManagement.collection.find_one({"courseId":  ObjectId(courseId)})
+        if course is None:
+            res.message = 'get course error: no course found'
+            return res
+        course = CourseManagement.fromDict(course)
+        course.getRequests().append(requestStr)
+        saveRequest = course.update()
+        if not saveRequest.success:
+            return saveRequest
+        res.success = True
+        res.message = 'Successfully added request to list'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while adding request to list'
+        res.data = str(e)
+    return res
+
+def removeRequest(courseId: str, requestStr: str):
+    res = DBreturn()
+    try:
+        course = CourseManagement.collection.find_one({"courseId":  ObjectId(courseId)})
+        if course is None:
+            res.message = 'get course error: no course found'
+            return res
+        course = CourseManagement.fromDict(course)
+        course.getRequests().remove(requestStr)
+        saveRequest = course.update()
+        if not saveRequest.success:
+            return saveRequest
+        res.success = True
+        res.message = 'Successfully removed request from list'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while removing request from list'
         res.data = str(e)
     return res
