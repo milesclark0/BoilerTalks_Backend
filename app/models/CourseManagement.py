@@ -25,6 +25,7 @@ class CourseManagementMessages:
     REQUESTS_INVALID = "Requests must be a list of strings"
     MODERATORS_INVALID = "Moderators must be a list of strings"
     ANNOUNCEMENTS_INVALID = "Announcements must be a list of strings"
+    REPORTS_INVALID = "Reports must be a list of dicts"
 
     APPEAL_INVALID = "Appeal must be a valid Dict"
     REQUEST_INVALID = "Request must be a valid String"
@@ -33,6 +34,7 @@ class CourseManagementMessages:
     MODERATOR_INVALID = "Moderator must be a valid String"
     RULE_INVALID = "Rule must be a valid String"
     ANNOUNCEMENT_INVALID = "Announcement must be a valid String"
+    REPORT_INVALID = "Report must be a valid Dict"
 
     APPEAL_INVALID_FORMAT_USERNAME = "Appeal does not contain a valid username"
     APPEAL_INVALID_FORMAT_RESPONSE = "Appeal does not contain a valid response"
@@ -46,6 +48,8 @@ class CourseManagementMessages:
     BANNED_USER_INVALID_FORMAT_USERNAME = "Banned user does not contain a valid username"
     BANNED_USER_INVALID_FORMAT_REASON = "Banned user does not contain a valid reason"
 
+    REPORT_INVALID_FORMAT_USERNAME = "Report does not contain a valid username"
+    REPORT_INVALID_FORMAT_REASON = "Report does not contain a valid reason"
 
     CREATION_DATE_INVALID = "Creation date must be a valid datetime object"
 
@@ -61,6 +65,7 @@ class CourseManagement:
     requests: list[str]
     moderators: list[str]
     announcement: list[str]
+    reports: list[dict]  # { username: str; reason: str }
 
     # non mutable
     _id: ObjectId
@@ -70,7 +75,7 @@ class CourseManagement:
     collection = db.CourseManagement
 
 
-    def __init__(self, courseId: ObjectId, rules = None, bannedUsers = None, warnedUsers = None, appeals = None, requests = None, moderators = None, announcements = None, creationDate: datetime = None, id: ObjectId = None):
+    def __init__(self, courseId: ObjectId, rules = None, bannedUsers = None, warnedUsers = None, appeals = None, requests = None, moderators = None, announcements = None, reports = None, creationDate: datetime = None, id: ObjectId = None):
         self._courseId = courseId
 
         
@@ -89,6 +94,8 @@ class CourseManagement:
         else: self._moderators = []
         if announcements is not None: self._announcements = announcements
         else: self._announcements = []
+        if reports is not None: self._reports = reports
+        else: self._reports = []
 
         if id is not None: self._id = id
         if creationDate is not None: self._creationDate = creationDate 
@@ -99,7 +106,7 @@ class CourseManagement:
         if not CourseManagement.hasAllRequiredFields(data):
             logger.warning(CourseManagementMessages.MISSING_FIELDS)
             return None
-        for k in ("courseId", "rules", "bannedUsers", "warnedUsers", "appeals", "requests", "moderators", "announcements", "creationDate", "_id"):
+        for k in ("courseId", "rules", "bannedUsers", "warnedUsers", "appeals", "requests", "moderators", "announcements", "reports", "creationDate", "_id"):
             item = data.get(k, None)
             newDict[k] = item
         return CourseManagement(*newDict.values())
@@ -263,6 +270,20 @@ class CourseManagement:
                     break
         return (len(errors) == 0, errors)
     
+    def validateReports(self):
+        errors = []
+        if not isinstance(self._reports, list):
+            errors.append(CourseManagementMessages.REPORTS_INVALID)
+        else:
+            for item in self._reports:
+                if not isinstance(item, dict):
+                    errors.append(CourseManagementMessages.REPORT_INVALID)
+                if "username" not in item:
+                    errors.append(CourseManagementMessages.REPORT_INVALID_FORMAT_USERNAME)
+                if "reason" not in item:
+                    errors.append(CourseManagementMessages.REPORT_INVALID_FORMAT_REASON)
+        return (len(errors) == 0, errors)          
+    
     def validateCreationDate(self):
         #try to parse the date if it is a string
         errors = []
@@ -300,6 +321,9 @@ class CourseManagement:
     def getAnnouncements(self):
         return self._announcements
     
+    def getReports(self):
+        return self._reports
+    
     def getCreationDate(self):
         return self._creationDate
     
@@ -324,6 +348,9 @@ class CourseManagement:
 
     def setAnnouncements(self, announcements):
         self._announcements = announcements
+
+    def setReports(self, reports):
+        self._reports = reports
 
     def setModerators(self, moderators):
         self._moderators = moderators

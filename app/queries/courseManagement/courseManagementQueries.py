@@ -163,3 +163,52 @@ def updateCourseRules(courseId: str, rules: list):
         res.message = 'Error occurred while updating course rules'
         res.data = str(e)
     return res
+
+def addReport(courseId: str, reportData: dict):
+    res = DBreturn()
+    try:
+        course = CourseManagement.collection.find_one({"courseId":  ObjectId(courseId)})
+        if course is None:
+            res.message = 'get course error: no course found'
+            return res
+        # find user from username
+        user = User.collection.find_one({"username": reportData["username"]})
+        if user is None:
+            res.message = 'get user error: no user found'
+            return res
+        # add user to report list 
+        course = CourseManagement.fromDict(course)
+        course.getReports().append(reportData)
+        saveReport = course.update()
+        if not saveReport.success:
+            return saveReport
+        res.success = True
+        res.message = 'Successfully added report to list'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while adding report to list'
+        res.data = str(e)
+    return res
+
+def removeReport(courseId: str, reportData: dict):
+    res = DBreturn()
+    try:
+        course = CourseManagement.collection.find_one({"courseId":  ObjectId(courseId)})
+        if course is None:
+            res.message = 'get course error: no course found'
+            return res
+        # find user from username
+        user = User.collection.find_one({"username": reportData["username"]})
+        # remove user from warn list
+        course = CourseManagement.fromDict(course)
+        course.getWarnedUsers().remove(reportData)
+        listRes = course.update()
+        if not listRes.success:
+            return listRes
+        res.success = True
+        res.message = 'Successfully removed report from list'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while removing report from list'
+        res.data = str(e)
+    return res
