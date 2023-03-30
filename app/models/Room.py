@@ -106,7 +106,7 @@ class Room:
             courseId = self.__dict__.pop("_courseId", None)
 
             #update the ROOM
-            result = self.collection.update_one({"_id": id}, {"$set": self.formatDict()})
+            result = self.collection.update_one({"_id": ObjectId(id)}, {"$set": self.formatDict()})
 
             #add non mutable fields back
             self.__dict__["_id"] = id
@@ -114,7 +114,7 @@ class Room:
 
             if result.modified_count == 0:
                 logger.warning(RoomMessages.UPDATE_ERROR + RoomMessages.NOT_FOUND)
-                return DBreturn(False, RoomMessages.UPDATE_ERROR + RoomMessages.NOT_FOUND, None)
+                return DBreturn(True, RoomMessages.UPDATE_ERROR + RoomMessages.NOT_FOUND, None)
             logger.info(RoomMessages.ROOM_UPDATED)
             return DBreturn(True, RoomMessages.ROOM_UPDATED, self.formatDict())
         except Exception as e:

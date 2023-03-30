@@ -82,6 +82,7 @@ def getUserCourses(username: str):
         res.message = 'Successfully retrieved user courses'
     except Exception as e:
         res.success = False
+        print(e)
         res.message = 'Error occurred while retrieving user courses'
         res.data = str(e)
     return res

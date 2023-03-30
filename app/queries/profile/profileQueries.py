@@ -1,4 +1,5 @@
 from app.queries import *
+from app.queries.courses.courseQueries import getUserCourses
 
 def getProfile(username: str):
     res = DBreturn()
@@ -79,7 +80,46 @@ def uploadProfilePictureAWS(username: str, file):
         return res
     user = res.data
     res = uploadFileToS3(user, file)
+    if not res.success:
+        return res
+    res = updateMessagesWithNewProfilePicture(user)
     return res
+
+def updateMessagesWithNewProfilePicture(user: User):
+    ret = DBreturn(False, 'Error updating messages with new profile picture', None)
+    try:
+        #get all courses the user is in
+        res = getUserCourses(user.getUsername())
+        print(res.message)
+        if not res.success:
+            return res
+        courses = res.data
+        msgCount = 0
+        needUpdate = False
+        #this checks all previous messages and updates the profile picture if it is different or if it is null
+        for course in courses:
+            for room in course['rooms']:
+                for message in room['messages']:
+                    if message['username'] == user.getUsername():
+                        if message['profilePic'] != user.getProfilePicture():
+                            message['profilePic'] = user.getProfilePicture()
+                            msgCount += 1
+                            needUpdate = True
+                room['courseId'] = room['courseId']['$oid']
+                room['_id'] = room['_id']['$oid']
+                roomObj = Room.fromDict(room)
+                if needUpdate == True:
+                    res = roomObj.update()
+                    if not res.success:
+                        return res
+                    needUpdate = False
+        ret.success = True
+        ret.message = f'Successfully updated user profile picture in {msgCount} messages'
+
+    except Exception as e:
+        ret.message = str(e)
+    return ret
+
     
 
 
