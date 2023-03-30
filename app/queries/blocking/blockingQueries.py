@@ -16,7 +16,7 @@ def blockUser(toBlock: str, username: str):
         userDict = User.fromDict(user)
         blockDict = User.fromDict(toBlock)
 
-        if userDict.getBlockedUsers().__contains__(toBlock):
+        if toBlock in userDict.getBlockedUsers():
             res.message = 'error blocking user: user already blocked'
             return res
         
