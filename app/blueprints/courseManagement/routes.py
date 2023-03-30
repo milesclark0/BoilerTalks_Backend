@@ -84,3 +84,27 @@ def updateCourseRules(courseId):
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
+@bp.route(routePrefix + '/addReport/<courseId>', methods=['POST'])
+@jwt_required()
+def addReport(courseId):
+    res = DBreturn(False, 'No Course Provided', None)
+    if courseId is None or courseId == '':
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
+    reportData = request.json
+    res = queries.addReport(courseId, reportData)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
+@bp.route(routePrefix + '/removeReport/<courseId>', methods=['POST'])
+@jwt_required()
+def removeReport(courseId):
+    res = DBreturn(False, 'No Course Provided', None)
+    if courseId is None or courseId == '':
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
+    reportData = request.json
+    res = queries.removeReport(courseId, reportData)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
