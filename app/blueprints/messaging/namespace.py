@@ -43,6 +43,21 @@ class MyCustomNamespace(Namespace):
             emit("send_message", message, broadcast=True, to=roomId)
         else:
             print(res.message)
+
+    def on_react(self, data):
+        index = data['index']
+        reaction = data['reaction']
+        message = data['message']
+        username = data['username']
+        print(f"updating message {message} to room {data['roomID']}")
+        roomId = data['roomID']
+
+        room = queries.getRoom(roomId)
+        res = queries.updateMessage(room, index, reaction, username)
+        if res.success:
+            emit("react", {"message": message, "index": index, "reaction": reaction, "username": username},  broadcast=True, to=roomId)
+        else:
+            print(res.message)
                
     def on_join(self, data):
         roomID = data['roomID']

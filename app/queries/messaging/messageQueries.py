@@ -69,4 +69,22 @@ def sendMessage(room, message):
     res.message = "Successfully sent message"
     return res
 
-    
+def updateMessage(room, index, reaction, username):
+    res = DBreturn()
+    room = Room.fromDict(room)
+    if room is None:
+        res.message = "Room not found"
+        return res
+    messages = room.getMessages()
+    msg = messages[index]
+    current_reactions = msg.get("reactions", None)
+    if current_reactions is None:
+        msg["reactions"] = [{ "username": username, "reaction": reaction}]
+    else:
+        msg["reactions"].append({ "username": username, "reaction": reaction})
+    roomSaveResult = room.update()
+    if not roomSaveResult.success:
+        return roomSaveResult
+    res.success = True
+    res.message = "Successfully sent message"
+    return res
