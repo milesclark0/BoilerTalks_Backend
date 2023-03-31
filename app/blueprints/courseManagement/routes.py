@@ -13,6 +13,26 @@ def getCourseAppeals(courseId):
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
 
+@bp.route(routePrefix + '/addCourseMods/<username>/<courseId>', methods=['POST'])
+@jwt_required()
+def addCourseMods(username, courseId):
+    res = DBreturn(False, 'No username Provided', None)
+    if username is None or username == '':
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
+    res = queries.addCourseMod(username, courseId)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
+@bp.route(routePrefix + '/getCourseMods/<courseId>', methods=['GET'])
+@jwt_required()
+def getCourseMods( courseId):
+    res = DBreturn(False, 'No username Provided', None)
+    res = queries.getCourseMods(courseId)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
 @bp.route(routePrefix + '/addAppeal/<courseId>', methods=['POST'])
 @jwt_required()
 def addAppealtoCourse(courseId):

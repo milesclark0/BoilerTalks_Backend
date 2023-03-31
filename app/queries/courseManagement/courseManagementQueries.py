@@ -16,6 +16,42 @@ def getCourseManagementData(courseId: str):
         res.data = str(e)
     return res
 
+def addCourseMod(username: str, courseId: str):
+    res = DBreturn()
+    try:
+        course = CourseManagement.fromDict(CourseManagement.collection.find_one({"courseId": ObjectId(courseId)}))
+        if course is None:
+            res.message = 'get course error: no course found'
+            return res
+        profile = User.collection.find_one({"username": username})
+        if profile is None:
+            res.message = 'bad username'
+            return res
+        
+        course._moderators.append(username)
+        saveResult = course.update()
+        if not saveResult.success:
+            return saveResult
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while promoting user'
+        res.data = str(e)
+    return res
+
+def getCourseMods(courseId: str):
+    res = DBreturn()
+    try:
+        course = CourseManagement.fromDict(CourseManagement.collection.find_one({"courseId": ObjectId(courseId)}))
+        if course is None:
+            res.message = 'get course error: no course found'
+            return res
+        res.data = course.moderators
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while promoting user'
+        res.data = str(e)
+    return res
+
 def addAppealforCourse(courseId: str, appeal: dict):
     res = DBreturn()
     try:
