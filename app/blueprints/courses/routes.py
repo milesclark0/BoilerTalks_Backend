@@ -31,6 +31,17 @@ def getUserCourses(username):
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
 
+@bp.route(routePrefix + '/getUserCoursesAndRooms/<username>', methods=['GET'])
+@jwt_required()
+def getUserCoursesAndRooms(username):
+    res = DBreturn(False, 'No User Provided', None)
+    if username is None or username == '':
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
+    res = queries.getUserCoursesAndRooms(username)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
 
 @bp.route(routePrefix + '/subscribeToCourses', methods=['POST'])
 @jwt_required()

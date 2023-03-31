@@ -87,6 +87,20 @@ def getUserCourses(username: str):
         res.data = str(e)
     return res
 
+def getUserCoursesAndRooms(username: str):
+    courses = getUserCourses(username)
+    if not courses.success:
+        return courses
+    courses = courses.data
+    rooms = []
+    for course in courses:
+        rooms.extend(course['rooms'])
+        for i, room in enumerate(course['rooms']):
+            #condense room data
+            course['rooms'][i] = [room['name'], room['_id']]
+    return  DBreturn(True, "SuccessFully got user courses and Rooms", [courses, rooms])
+
+
 
 def subscribeToCourse(courseName: str, username: str):
     res = DBreturn()
