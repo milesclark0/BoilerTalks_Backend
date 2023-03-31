@@ -101,7 +101,7 @@ def updateMessagesWithNewProfilePicture(user: User):
             for room in course['rooms']:
                 for message in room['messages']:
                     if message['username'] == user.getUsername():
-                        if message['profilePic'] != user.getProfilePicture():
+                        if message.get('profilePic', None) != user.getProfilePicture():
                             message['profilePic'] = user.getProfilePicture()
                             msgCount += 1
                             needUpdate = True
