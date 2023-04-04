@@ -124,9 +124,10 @@ def banUserForCourse(courseId: str, banData: dict):
         if user is None:
             res.message = 'get user error: no user found'
             return res
-        # add user to ban list
+        # add user to ban list/prev ban list
         course = CourseManagement.fromDict(course)
         course.getBannedUsers().append(banData)
+        course.getPrevBannedUsers().append(banData)
         saveBan = course.update()
         if not saveBan.success:
             return saveBan
@@ -150,9 +151,10 @@ def warnUserForCourse(courseId: str, warnData: dict):
         if user is None:
             res.message = 'get user error: no user found'
             return res
-        # add user to warn list 
+        # add user to warn list/prev warn list 
         course = CourseManagement.fromDict(course)
         course.getWarnedUsers().append(warnData)
+        course.getPrevWarnedUsers().append(warnData)
         saveWarning = course.update()
         if not saveWarning.success:
             return saveWarning
