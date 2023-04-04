@@ -113,8 +113,8 @@ class Room:
             self.__dict__["_courseId"] = courseId
 
             if result.modified_count == 0:
-                logger.warning(RoomMessages.UPDATE_ERROR + RoomMessages.NOT_FOUND)
-                return DBreturn(True, RoomMessages.UPDATE_ERROR + RoomMessages.NOT_FOUND, None)
+                logger.warning(RoomMessages.UPDATE_ERROR + RoomMessages.NOT_FOUND + "or Room update is unnecessary")
+                return DBreturn(False, RoomMessages.UPDATE_ERROR + RoomMessages.NOT_FOUND, None)
             logger.info(RoomMessages.ROOM_UPDATED)
             return DBreturn(True, RoomMessages.ROOM_UPDATED, self.formatDict())
         except Exception as e:

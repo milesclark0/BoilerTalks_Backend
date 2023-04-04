@@ -34,7 +34,7 @@ def leaveRoom(room, username, sid):
     return res
     
 def joinRoom(room, username, sid, profilePic):
-    res = DBreturn()
+    res = DBreturn(True, "Successfully joined room", None)
     if (username is None or username == "") and (sid is None or sid == ""):
         res.message = "Username or sid is required"
         return res
@@ -51,8 +51,6 @@ def joinRoom(room, username, sid, profilePic):
     roomSaveResult = room.update()
     if not roomSaveResult.success:
         return roomSaveResult
-    res.success = True
-    res.message = "Successfully joined room"
     return res
 
 def sendMessage(room, message):

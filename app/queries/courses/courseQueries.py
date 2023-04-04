@@ -47,6 +47,22 @@ def setCourseActive(courseName: str, username: str):
         res.data = str(e)
     return res
 
+def getRoom(roomId: str):
+    res = DBreturn()
+    try:
+        room = Room.collection.find_one({"_id": ObjectId(roomId)})
+        if room is None:
+            res.message = 'get room error: Room not found'
+            return res
+        res.data = parse_json(room)
+        res.success = True
+        res.message = 'Successfully retrieved room'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while retrieving room'
+        res.data = str(e)
+    return res
+
 def getCourse(name: str):
     res = DBreturn()
     try:
@@ -105,7 +121,7 @@ def getUserCoursesAndRooms(username: str):
 def subscribeToCourse(courseName: str, username: str):
     res = DBreturn()
     try:
-        user = User.fromDict(User.collection.find_one({"username": username}))
+        user = User.fromDict(User.collection.find_one({"userna me": username}))
         if user is None:
             res.message = 'subscribe to course error: User not found'
             return res
@@ -132,6 +148,10 @@ def subscribeToCourse(courseName: str, username: str):
             courseSaveResult = course.update()
             if not courseSaveResult.success:
                 return courseSaveResult
+        res = getUserCoursesAndRooms(username)
+        if not res.success:
+            return res
+        res.data = res.data[0] #return only courses
         res.success = True
         res.message = 'Successfully subscribed to course'
     except Exception as e:

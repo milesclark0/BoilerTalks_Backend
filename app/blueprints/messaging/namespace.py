@@ -18,9 +18,13 @@ class MyCustomNamespace(Namespace):
                 if res.success:
                     #emit("send_message", res.message, to=room)
                     print("Client left room")
+                    try:
+                        rooms.get(sid).remove(room)
+                    except:
+                        pass
                 else:
                     print(res.message)
-                rooms.get(sid).remove(room)
+
         print("All rooms left")
 
 
@@ -71,13 +75,14 @@ class MyCustomNamespace(Namespace):
         self.leave_all_rooms(sid)
         foundRoom = queries.getRoom(roomID)
         res = queries.joinRoom(foundRoom, username, sid, profilePic)
-        if (isinstance(rooms.get(sid), list)):
-            rooms[sid].append(roomID)
-        else:
-            rooms[sid] = [roomID]
-        join_room(roomID)
-        print(f"All rooms joined by {sid} ", rooms.get(sid))
+
         if res.success:
+            if (isinstance(rooms.get(sid), list)):
+                rooms[sid].append(roomID)
+            else:
+                rooms[sid] = [roomID]
+            print(f"All rooms joined by {sid} ", rooms.get(sid))
+            join_room(roomID)
             #emit("send_message", f"---{username} has joined the room.---", to=roomID)
             print(res.message)
         else:

@@ -98,7 +98,7 @@ class User:
         else: self._activeCourses = []
         #TODO: add default profile picture link
         if profilePicture is not None: self._profilePicture = profilePicture
-        else: self._profilePicture = "http://www.gravatar.com/avatar/?d=mp"
+        else: self._profilePicture = ""
         if blockedUsers is not None: self._blockedUsers = blockedUsers
         else: self._blockedUsers = []
         
@@ -275,16 +275,6 @@ class User:
                 return (False, errors)
             if activeCourse == "" or activeCourse == None:
                 errors.append(UserMessages.ACTIVE_COURSE_NULL)
-        return (len(errors) == 0, errors)
-
-    def validateProfilePicture(self):
-        errors = []
-        if not isinstance(self._profilePicture, str):
-            errors.append(UserMessages.PROFILE_PICTURE_INVALID)
-            return (False, errors)
-        if not (self._profilePicture == "" or self._profilePicture == None):
-            if re.match(r"(https:)([/|.|\w|\s|-])*", self._profilePicture) == None:
-                errors.append(UserMessages.PROFILE_PICTURE_INVALID_LINK)
         return (len(errors) == 0, errors)
 
     def validateBlockedUsers(self):
