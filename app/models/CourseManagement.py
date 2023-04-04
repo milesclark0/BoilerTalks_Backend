@@ -60,7 +60,9 @@ class CourseManagement:
     # optional fields
     rules: list[str]
     bannedUsers: list[dict] # { username: str; reason: str }
+    prevBannedUsers: list[dict]
     warnedUsers: list[dict] # { username: str; reason: str }
+    prevWarnedUsers: list[dict]
     appeals: list[dict] # { username: str; response: str; reason: str; reviewed: bool; unban: bool }
     requests: list[str]
     moderators: list[str]
@@ -75,7 +77,7 @@ class CourseManagement:
     collection = db.CourseManagement
 
 
-    def __init__(self, courseId: ObjectId, rules = None, bannedUsers = None, warnedUsers = None, appeals = None, requests = None, moderators = None, announcements = None, reports = None, creationDate: datetime = None, id: ObjectId = None):
+    def __init__(self, courseId: ObjectId, rules = None, bannedUsers = None, prevBannedUsers = None, warnedUsers = None, prevWarnedUsers = None, appeals = None, requests = None, moderators = None, announcements = None, reports = None, creationDate: datetime = None, id: ObjectId = None):
         self._courseId = courseId
 
         
@@ -84,8 +86,12 @@ class CourseManagement:
         else: self._rules = []
         if bannedUsers is not None: self._bannedUsers = bannedUsers
         else: self._bannedUsers = []
+        if prevBannedUsers is not None: self._prevBannedUsers = prevBannedUsers
+        else: self._prevBannedUsers = []
         if warnedUsers is not None: self._warnedUsers = warnedUsers
         else: self._warnedUsers = []
+        if prevWarnedUsers is not None: self._prevWarnedUsers = prevWarnedUsers
+        else: self._prevWarnedUsers = []
         if appeals is not None: self._appeals = appeals
         else: self._appeals = []
         if requests is not None: self._requests = requests
@@ -106,7 +112,7 @@ class CourseManagement:
         if not CourseManagement.hasAllRequiredFields(data):
             logger.warning(CourseManagementMessages.MISSING_FIELDS)
             return None
-        for k in ("courseId", "rules", "bannedUsers", "warnedUsers", "appeals", "requests", "moderators", "announcements", "reports", "creationDate", "_id"):
+        for k in ("courseId", "rules", "bannedUsers", "prevBannedUsers", "warnedUsers", "prevWarnedUsers", "appeals", "requests", "moderators", "announcements", "reports", "creationDate", "_id"):
             item = data.get(k, None)
             newDict[k] = item
         return CourseManagement(*newDict.values())
@@ -305,9 +311,15 @@ class CourseManagement:
     
     def getBannedUsers(self):
         return self._bannedUsers
+
+    def getPrevBannedUsers(self):
+        return self._prevBannedUsers
     
     def getWarnedUsers(self):
         return self._warnedUsers
+    
+    def getPrevWarnedUsers(self):
+        return self._prevWarnedUsers
     
     def getAppeals(self):
         return self._appeals
@@ -336,9 +348,15 @@ class CourseManagement:
 
     def setBannedUsers(self, bannedUsers):
         self._bannedUsers = bannedUsers
+
+    def setPrevBannedUsers(self, prevBannedUsers):
+        self._prevBannedUsers = prevBannedUsers
     
     def setWarnedUsers(self, warnedUsers):
         self._warnedUsers = warnedUsers
+
+    def setPrevWarnedUsers(self, prevWarnedUsers):
+        self._prevWarnedUsers = prevWarnedUsers
 
     def setAppeals(self, appeals):
         self._appeals = appeals
