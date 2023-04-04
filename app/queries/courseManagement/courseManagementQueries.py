@@ -23,12 +23,20 @@ def addCourseMod(username: str, courseId: str):
         if course is None:
             res.message = 'get course error: no course found'
             return res
-        profile = User.collection.find_one({"username": username})
+        profile = Profile.fromDict(Profile.collection.find_one({"username": username}))
         if profile is None:
             res.message = 'bad username'
             return res
-        
-        course._moderators.append(username)
+        actualCourse = Course.fromDict(Course.collection.find_one({"_id": ObjectId(courseId)}))
+        if actualCourse is None:
+            res.message = 'bad course'
+            return res
+        profile.getModThreads().append(actualCourse.getName())
+        saveResult = profile.update()
+        if not saveResult.success:
+            return saveResult
+        print(profile.getModThreads())
+        course.getModerators().append(username)
         saveResult = course.update()
         if not saveResult.success:
             return saveResult
