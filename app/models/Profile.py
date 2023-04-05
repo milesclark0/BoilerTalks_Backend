@@ -88,6 +88,7 @@ class Profile:
         for k in ('username', 'bio', 'modThreads', '_id', 'creationDate', 'blockedUsers', 'displayName', 'notificationPreference'):
             item = data.get(k, None)
             newDict[k] = item
+        print(newDict)
         return Profile(*newDict.values())
 
     def save(self):
@@ -290,7 +291,7 @@ class Profile:
         self._bio = bio
 
     def setNotificationPreference(self, notificationPreference):
-        self._bio = notificationPreference
+        self._notificationPreference = notificationPreference
 
     def setModThreads(self, modThreads):
         self._modThreads = modThreads
