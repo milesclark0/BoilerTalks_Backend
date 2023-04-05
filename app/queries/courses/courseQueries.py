@@ -121,7 +121,7 @@ def getUserCoursesAndRooms(username: str):
 def subscribeToCourse(courseName: str, username: str):
     res = DBreturn()
     try:
-        user = User.fromDict(User.collection.find_one({"userna me": username}))
+        user = User.fromDict(User.collection.find_one({"username": username}))
         if user is None:
             res.message = 'subscribe to course error: User not found'
             return res
