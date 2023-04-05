@@ -122,8 +122,12 @@ def subscribeToCourse(courseName: str, username: str):
     res = DBreturn()
     try:
         user = User.fromDict(User.collection.find_one({"username": username}))
+        profile = Profile.fromDict(Profile.collection.find_one({"username": username}))
         if user is None:
             res.message = 'subscribe to course error: User not found'
+            return res
+        if profile is None:
+            res.message = 'subscribe to course error: Profile not found'
             return res
         courses = Course.collection.find({"name": courseName})
         if courses is None:
@@ -135,9 +139,15 @@ def subscribeToCourse(courseName: str, username: str):
             return res
         user.getCourses().append(courseName)
         userSaveResult = user.update()
+        notificationPreferenceDict = {"courseName": courseName, "messages": True, "appeals": True, "reports": True}
+        profile.getNotificationPreference().append(notificationPreferenceDict)
+        profileSaveResult = profile.update()
         if not userSaveResult.success:
             print(userSaveResult.message)
             return userSaveResult
+        if not profileSaveResult.success:
+            print(profileSaveResult.message)
+            return profileSaveResult
         # subscribe to every course (all semesters)
         for courseDict in courses:
             course = Course.fromDict(courseDict)
@@ -165,8 +175,12 @@ def unsubscribeFromCourse(courseName: str, username: str):
     res = DBreturn()
     try:
         user = User.fromDict(User.collection.find_one({"username": username}))
+        profile = Profile.fromDict(Profile.collection.find_one({"username": username}))
         if user is None:
             res.message = 'unsubscribe from course error: User not found'
+            return res
+        if profile is None:
+            res.message = 'unsubscribe from course error: Profile not found'
             return res
         courses = Course.collection.find({"name": courseName})
         if courses is None:
@@ -177,13 +191,19 @@ def unsubscribeFromCourse(courseName: str, username: str):
             res.message = 'unsubscribe from course error: Not subscribed to course'
             return res
         user.getCourses().remove(courseName)
+        for index in range(len(profile.getNotificationPreference())):
+            if profile.getNotificationPreference()[index]['courseName'] == courseName:
+                del profile.getNotificationPreference()[index]
+                break            
         isActiveCourse = courseName in user.getActiveCourses()
         if isActiveCourse:
             user.getActiveCourses().remove(courseName)
-        
         userSaveResult = user.update()
+        profileSaveResult = profile.update()
         if not userSaveResult.success:
             return userSaveResult
+        if not profileSaveResult.success:
+            return profileSaveResult
         # unsubscribe from every course (all semesters)
         for courseDict in courses:
             course = Course.fromDict(courseDict)

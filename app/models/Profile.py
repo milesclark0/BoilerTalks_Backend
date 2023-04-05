@@ -35,7 +35,12 @@ class ProfileMessages:
     DISPLAY_NAME_INVALID = "Display name must be a string"
     DISPLAY_NAME_LENGTH = "Display name must be 50 characters or less"
     
-
+    NOTIFICATIONS_INVALID = "Notications must be a list of dicts"
+    NOTIFICATION_INVALID = "Notication muse be a dict"
+    NOTIFICATION_INVALID_FORMAT_COURSE = "Notification does not contain a valid course name"
+    NOTIFICATION_INVALID_FORMAT_MESSAGE = "Notification does not contain a valid message value"
+    NOTIFICATION_INVALID_FORMAT_APPEAL = "Notification does not contain a valid appeal value"
+    NOTIFICATION_INVALID_FORMAT_REPORT = "Notification does not contain a valid report value"
 
     CREATION_DATE_INVALID = "Creation date must be a valid datetime object"
 
@@ -46,6 +51,7 @@ class Profile:
     _blockedUsers: list
     _displayName: str
     _theme: str
+    _notificationPreference: list[dict] # {courseName: str, messages: boolean, appeals: boolean, reports: boolean}
 
     # non mutable
     _id: ObjectId
@@ -55,7 +61,7 @@ class Profile:
     collection = db.Profiles
 
     # TODO: make sure profile gets created on account creation
-    def __init__(self, username: str, bio: str = None, modThreads: list = None, id: ObjectId = None, creationDate: datetime.datetime = None, blockedUsers: list = None, displayName: str = None, theme: str = None):
+    def __init__(self, username: str, bio: str = None, notificationPreference: list[dict] = None, modThreads: list = None, id: ObjectId = None, creationDate: datetime.datetime = None, blockedUsers: list = None, displayName: str = None, theme: str = None):
         self._username = username
         
         # optional fields
@@ -64,6 +70,8 @@ class Profile:
         else: self._bio = ""
         if modThreads is not None: self._modThreads = modThreads
         else: self._modThreads = []
+        if notificationPreference is not None: self._notificationPreference = notificationPreference
+        else: self._notificationPreference = []
         if blockedUsers is not None: self._blockedUsers = blockedUsers
         else: self._blockedUsers = []
         if displayName is not None: self._displayName = displayName
@@ -77,7 +85,7 @@ class Profile:
         if not Profile.hasAllRequiredFields(data):
             logger.warning(ProfileMessages.MISSING_FIELDS)
             return None
-        for k in ('username', 'bio', 'modThreads', '_id', 'creationDate', 'blockedUsers', 'displayName'):
+        for k in ('username', 'bio', 'modThreads', '_id', 'creationDate', 'blockedUsers', 'displayName', 'notificationPreference'):
             item = data.get(k, None)
             newDict[k] = item
         return Profile(*newDict.values())
@@ -166,6 +174,24 @@ class Profile:
             errors.append(ProfileMessages.BIO_LENGTH)
         return (len(errors) == 0, errors)
     
+    def validateNotificationPreference(self):
+        errors = []
+        if not isinstance(self._notificationPreference, list):
+            errors.append(ProfileMessages.NOTIFICATIONS_INVALID)
+        else:
+            for item in self._notificationPreference:
+                if not isinstance(item, dict):
+                    errors.append(ProfileMessages.NOTIFICATION_INVALID)
+                if "courseName" not in item:
+                    errors.append(ProfileMessages.NOTIFICATION_INVALID_FORMAT_COURSE)
+                if "messages" not in item:
+                    errors.append(ProfileMessages.NOTIFICATION_INVALID_FORMAT_MESSAGE)
+                if "appeals" not in item:
+                    errors.append(ProfileMessages.NOTIFICATION_INVALID_FORMAT_APPEAL)
+                if "reports" not in item:
+                    errors.append(ProfileMessages.NOTIFICATION_INVALID_FORMAT_REPORT)
+        return (len(errors) == 0, errors)
+    
 
     def validateModThreads(self):
         errors = []
@@ -215,6 +241,7 @@ class Profile:
                 errors.append(ProfileMessages.CREATION_DATE_INVALID)
         if not isinstance(self._creationDate, datetime.datetime):
             errors.append(ProfileMessages.CREATION_DATE_INVALID)
+        print(errors)
         return (len(errors) == 0, errors)
 
     # getters and setters
@@ -228,6 +255,9 @@ class Profile:
 
     def getBio(self):
         return self._bio
+    
+    def getNotificationPreference(self):
+        return self._notificationPreference
     
     def getModThreads(self):
         return self._modThreads
@@ -258,6 +288,9 @@ class Profile:
     
     def setBio(self, bio):
         self._bio = bio
+
+    def setNotificationPreference(self, notificationPreference):
+        self._bio = notificationPreference
 
     def setModThreads(self, modThreads):
         self._modThreads = modThreads
