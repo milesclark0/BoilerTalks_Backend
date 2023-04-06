@@ -123,7 +123,6 @@ def subscribeToCourse(courseName: str, username: str):
     try:
         user = User.fromDict(User.collection.find_one({"username": username}))
         profile = Profile.fromDict(Profile.collection.find_one({"username": username}))
-        print(profile)
         if user is None:
             res.message = 'subscribe to course error: User not found'
             return res
@@ -176,7 +175,7 @@ def unsubscribeFromCourse(courseName: str, username: str):
     res = DBreturn()
     try:
         user = User.fromDict(User.collection.find_one({"username": username}))
-        profile = Profile.collection.find_one({"username": username})
+        profile = Profile.fromDict(Profile.collection.find_one({"username": username}))
         if user is None:
             res.message = 'unsubscribe from course error: User not found'
             return res

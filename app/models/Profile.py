@@ -88,7 +88,6 @@ class Profile:
         for k in ('username', 'bio', 'modThreads', '_id', 'creationDate', 'blockedUsers', 'displayName', 'theme', 'notificationPreference'):
             item = data.get(k, None)
             newDict[k] = item
-        print(newDict)
         return Profile(*newDict.values())
 
     def save(self):
