@@ -120,7 +120,22 @@ def updateMessagesWithNewProfilePicture(user: User):
         ret.message = str(e)
     return ret
 
-    
+def updateNotification(username: str, notificationData: list):
+    res = DBreturn()
+    try:
+        profile = Profile.collection.find_one({"username":  username})
+        if profile is None:
+            res.message = 'get profile error: no profile found'
+            return res
+        # delete all instances of notification 
+        # set notificationPreference as notificationData
+        res.success = True
+        res.message = 'Successfully updated notification preference'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while updating notification preference'
+        res.data = str(e)
+    return res
 
 
 

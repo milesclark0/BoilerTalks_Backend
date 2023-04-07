@@ -38,3 +38,16 @@ def uploadProfilePicture(username):
     if not res.success:
         return jsonify({'data': None, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': None, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
+
+@bp.route(routePrefix + '/updateNotification/<username>', methods=['POST'])
+@jwt_required()
+def updateNotification(username):
+    res = DBreturn(False, 'No user provided', None)
+    if username is None or username == '':
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
+    notificationData = request.json
+    res = queries.updateNotification(username, notificationData)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
