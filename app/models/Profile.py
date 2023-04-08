@@ -66,7 +66,9 @@ class Profile:
     _displayName: str
     _theme: str
     _notificationPreference: list[dict] # {courseName: str, messages: boolean, appeals: boolean, reports: boolean}
-    _lastSeen: list[dict] # {courseName: str, messages: Message, appeals: Appeal, reports: Report}
+    _lastSeenMessage: list[dict] # {courseName: str, messages: Message}
+    _lastSeenAppeal: list[dict] # {courseName: str, appeals: Appeal}
+    _lastSeenReport: list[dict] # {courseName: str, reports: Report}
 
     # non mutable
     _id: ObjectId
@@ -76,7 +78,7 @@ class Profile:
     collection = db.Profiles
 
     # TODO: make sure profile gets created on account creation
-    def __init__(self, username: str, bio: str = None, modThreads: list = None, id: ObjectId = None, creationDate: datetime.datetime = None, blockedUsers: list = None, displayName: str = None, theme: str = None, notificationPreference: list[dict] = None, lastSeen: list[dict] = None):
+    def __init__(self, username: str, bio: str = None, modThreads: list = None, id: ObjectId = None, creationDate: datetime.datetime = None, blockedUsers: list = None, displayName: str = None, theme: str = None, notificationPreference: list[dict] = None, lastSeenMessage: list[dict] = None, lastSeenAppeal: list[dict] = None, lastSeenReport: list[dict] = None):
         self._username = username
         
         # optional fields
@@ -94,15 +96,19 @@ class Profile:
         else: self._creationDate = datetime.datetime.utcnow()
         if notificationPreference is not None: self._notificationPreference = notificationPreference
         else: self._notificationPreference = []
-        if lastSeen is not None: self._lastSeen = lastSeen
-        else: self._lastSeen = []
+        if lastSeenMessage is not None: self._lastSeenMessage = lastSeenMessage
+        else: self._lastSeenMessage = []
+        if lastSeenAppeal is not None: self._lastSeenAppeal = lastSeenAppeal
+        else: self._lastSeenAppeal = []
+        if lastSeenReport is not None: self._lastSeenReport = lastSeenReport
+        else: self._lastSeenReport = []
 
     def fromDict(data: dict):
         newDict = {}
         if not Profile.hasAllRequiredFields(data):
             logger.warning(ProfileMessages.MISSING_FIELDS)
             return None
-        for k in ('username', 'bio', 'modThreads', '_id', 'creationDate', 'blockedUsers', 'displayName', 'theme', 'notificationPreference', 'lastSeen'):
+        for k in ('username', 'bio', 'modThreads', '_id', 'creationDate', 'blockedUsers', 'displayName', 'theme', 'notificationPreference', 'lastSeenMessage', 'lastSeenAppeal', 'lastSeenReport'):
             item = data.get(k, None)
             newDict[k] = item
         return Profile(*newDict.values())
@@ -209,7 +215,7 @@ class Profile:
                     errors.append(ProfileMessages.NOTIFICATION_INVALID_FORMAT_REPORT)
         return (len(errors) == 0, errors)
     
-    def validateLastSeen(self):
+    def validateLastSeenMessage(self):
         errors = []
         if not isinstance(self._lastSeen, list):
             errors.append(ProfileMessages.LASTSEENS_INVALID)
@@ -226,11 +232,35 @@ class Profile:
                         errors.append(ProfileMessages.LASTSEEN_MESSAGES_INVALID_FORMAT_USERNAME)
                     if "timeSent" not in message:
                         errors.append(ProfileMessages.LASTSEEN_MESSAGES_INVALID_FORMAT_TIME)
+        return (len(errors) == 0, errors)
+    
+    def validateLastSeenAppeal(self):
+        errors = []
+        if not isinstance(self._lastSeen, list):
+            errors.append(ProfileMessages.LASTSEENS_INVALID)
+        else:
+            for item in self._lastSeen:
+                if not isinstance(item, dict):
+                    errors.append(ProfileMessages.LASTSEEN_INVALID)
+                if "courseName" not in item:
+                    errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_COURSE)
                 if "appeals" not in item:
                     errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_APPEAL)
                 for appeal in item["appeals"]:
                     if "id" not in appeal:
                         errors.append(ProfileMessages.LASTSEEN_APPEALS_INVALID_FORMAT_ID)
+        return (len(errors) == 0, errors)
+    
+    def validateLastSeenReport(self):
+        errors = []
+        if not isinstance(self._lastSeen, list):
+            errors.append(ProfileMessages.LASTSEENS_INVALID)
+        else:
+            for item in self._lastSeen:
+                if not isinstance(item, dict):
+                    errors.append(ProfileMessages.LASTSEEN_INVALID)
+                if "courseName" not in item:
+                    errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_COURSE)
                 if "reports" not in item:
                     errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_REPORT)
                 for report in item["reports"]:
@@ -320,8 +350,14 @@ class Profile:
     def getTheme(self):
         return self._theme
     
-    def getLastSeen(self):
-        return self._lastSeen
+    def getLastSeenMessage(self):
+        return self._lastSeenMessage
+    
+    def getLastSeenAppeal(self):
+        return self._lastSeenAppeal
+    
+    def getLastSeenReport(self):
+        return self._lastSeenReport
     
 
     def setId(self, id):
@@ -356,8 +392,14 @@ class Profile:
     def setDisplayName(self, displayName):
         self._displayName = displayName
 
-    def setLastSeen(self, lastSeen):
-        self._lastSeen = lastSeen
+    def setLastSeenMessage(self, lastSeenMessage):
+        self._lastSeenMessage = lastSeenMessage
+
+    def setLastSeenAppeal(self, lastSeenAppeal):
+        self._lastSeenAppeal = lastSeenAppeal
+
+    def setLastSeenReport(self, lastSeenReport):
+        self._lastSeenReport = lastSeenReport
     
 
     @staticmethod
