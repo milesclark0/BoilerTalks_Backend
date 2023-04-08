@@ -42,6 +42,22 @@ class ProfileMessages:
     NOTIFICATION_INVALID_FORMAT_APPEAL = "Notification does not contain a valid appeal value"
     NOTIFICATION_INVALID_FORMAT_REPORT = "Notification does not contain a valid report value"
 
+    LASTSEENS_INVALID = "LastSeens must be a list of dicts"
+    LASTSEEN_INVALID = "LastSeen muse be a dict"
+    LASTSEEN_INVALID_FORMAT_COURSE = "LastSeen does not contain a valid course name"
+    LASTSEEN_INVALID_FORMAT_MESSAGE = "LastSeen does not contain a valid message dict"
+    LASTSEEN_INVALID_FORMAT_APPEAL = "LastSeen does not contain a valid appeal dict"
+    LASTSEEN_INVALID_FORMAT_REPORT = "LastSeen does not contain a valid report dict"
+
+    LASTSEEN_MESSAGES_INVALID_FORMAT_USERNAME = "Messages does not contain a valid username"
+    LASTSEEN_MESSAGES_INVALID_FORMAT_TIME = "Messages does not contain a valid time"
+
+    LASTSEEN_REPORTS_INVALID_FORMAT_USERNAME = "Report does not contain a valid username"
+    LASTSEEN_REPORTS_INVALID_FORMAT_TIME = "Report does not contain a valid time"
+
+    LASTSEEN_APPEALS_INVALID_FORMAT_USERNAME = "Appeal does not contain a valid username"
+    LASTSEEN_APPEALS_INVALID_FORMAT_TIME = "Appeal does not contain a valid time"
+
     CREATION_DATE_INVALID = "Creation date must be a valid datetime object"
 
 class Profile:
@@ -52,6 +68,7 @@ class Profile:
     _displayName: str
     _theme: str
     _notificationPreference: list[dict] # {courseName: str, messages: boolean, appeals: boolean, reports: boolean}
+    _lastSeen: list[dict] # {courseName: str, messages: Message, appeals: Appeal, reports: Report}
 
     # non mutable
     _id: ObjectId
@@ -61,7 +78,7 @@ class Profile:
     collection = db.Profiles
 
     # TODO: make sure profile gets created on account creation
-    def __init__(self, username: str, bio: str = None, modThreads: list = None, id: ObjectId = None, creationDate: datetime.datetime = None, blockedUsers: list = None, displayName: str = None, theme: str = None, notificationPreference: list[dict] = None):
+    def __init__(self, username: str, bio: str = None, modThreads: list = None, id: ObjectId = None, creationDate: datetime.datetime = None, blockedUsers: list = None, displayName: str = None, theme: str = None, notificationPreference: list[dict] = None, lastSeen: list[dict] = None):
         self._username = username
         
         # optional fields
@@ -70,8 +87,6 @@ class Profile:
         else: self._bio = ""
         if modThreads is not None: self._modThreads = modThreads
         else: self._modThreads = []
-        if notificationPreference is not None: self._notificationPreference = notificationPreference
-        else: self._notificationPreference = []
         if blockedUsers is not None: self._blockedUsers = blockedUsers
         else: self._blockedUsers = []
         if displayName is not None: self._displayName = displayName
@@ -79,13 +94,17 @@ class Profile:
         if theme is not None: self._theme = theme
         if creationDate is not None: self._creationDate = creationDate 
         else: self._creationDate = datetime.datetime.utcnow()
+        if notificationPreference is not None: self._notificationPreference = notificationPreference
+        else: self._notificationPreference = []
+        if lastSeen is not None: self._lastSeen = lastSeen
+        else: self._lastSeen = []
 
     def fromDict(data: dict):
         newDict = {}
         if not Profile.hasAllRequiredFields(data):
             logger.warning(ProfileMessages.MISSING_FIELDS)
             return None
-        for k in ('username', 'bio', 'modThreads', '_id', 'creationDate', 'blockedUsers', 'displayName', 'theme', 'notificationPreference'):
+        for k in ('username', 'bio', 'modThreads', '_id', 'creationDate', 'blockedUsers', 'displayName', 'theme', 'notificationPreference', 'lastSeen'):
             item = data.get(k, None)
             newDict[k] = item
         return Profile(*newDict.values())
@@ -192,6 +211,39 @@ class Profile:
                     errors.append(ProfileMessages.NOTIFICATION_INVALID_FORMAT_REPORT)
         return (len(errors) == 0, errors)
     
+    def validateLastSeen(self):
+        errors = []
+        if not isinstance(self._lastSeen, list):
+            errors.append(ProfileMessages.LASTSEENS_INVALID)
+        else:
+            for item in self._lastSeen:
+                if not isinstance(item, dict):
+                    errors.append(ProfileMessages.LASTSEEN_INVALID)
+                if "courseName" not in item:
+                    errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_COURSE)
+                if "messages" not in item:
+                    errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_MESSAGE)
+                for message in item["messages"]:
+                    if "username" not in message:
+                        errors.append(ProfileMessages.LASTSEEN_MESSAGES_INVALID_FORMAT_USERNAME)
+                    if "timeSent" not in message:
+                        errors.append(ProfileMessages.LASTSEEN_MESSAGES_INVALID_FORMAT_TIME)
+                if "appeals" not in item:
+                    errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_APPEAL)
+                for appeal in item["appeals"]:
+                    if "username" not in appeal:
+                        errors.append(ProfileMessages.LASTSEEN_APPEALS_INVALID_FORMAT_USERNAME)
+                    if "creationDate" not in appeal:
+                        errors.append(ProfileMessages.LASTSEEN_APPEALS_INVALID_FORMAT_TIME)
+                if "reports" not in item:
+                    errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_REPORT)
+                for report in item["reports"]:
+                    if "username" not in report:
+                        errors.append(ProfileMessages.LASTSEEN_REPORTS_INVALID_FORMAT_USERNAME)
+                    if "creationDate" not in report:
+                        errors.append(ProfileMessages.LASTSEEN_REPORTS_INVALID_FORMAT_TIME)
+        return (len(errors) == 0, errors)
+    
 
     def validateModThreads(self):
         errors = []
@@ -274,6 +326,9 @@ class Profile:
     def getTheme(self):
         return self._theme
     
+    def getTheme(self):
+        return self._lastSeen
+    
 
     def setId(self, id):
         #id may not be set yet
@@ -307,10 +362,9 @@ class Profile:
     def setDisplayName(self, displayName):
         self._displayName = displayName
 
-
+    def setLastSeen(self, lastSeen):
+        self._lastSeen = lastSeen
     
-
-        
 
     @staticmethod
     def hasAllRequiredFields(data: dict):

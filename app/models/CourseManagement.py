@@ -63,11 +63,11 @@ class CourseManagement:
     prevBannedUsers: list[dict]
     warnedUsers: list[dict] # { username: str; reason: str }
     prevWarnedUsers: list[dict]
-    appeals: list[dict] # { username: str; response: str; reason: str; reviewed: bool; unban: bool }
+    appeals: list[dict] # { username: str; response: str; reason: str; reviewed: bool; unban: bool, creationDate: datetime }
     requests: list[str]
     moderators: list[str]
     announcement: list[str]
-    reports: list[dict]  # { username: str; reason: str }
+    reports: list[dict]  # { username: str; reason: str, creationDate: datetime }
 
     # non mutable
     _id: ObjectId
