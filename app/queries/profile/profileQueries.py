@@ -144,5 +144,26 @@ def updateNotification(username: str, notificationData: dict):
         res.data = str(e)
     return res
 
-
-
+def updateLastSeen(username: str, seenData: dict):
+    res = DBreturn()
+    try:
+        profile = Profile.fromDict(Profile.collection.find_one({"username":  username}))
+        if profile is None:
+            res.message = 'get profile error: no profile found'
+            return res
+        # newNotificationData = []
+        # for courseNoti in profile.getLastSeen():
+        #     if courseNoti["courseName"] == notificationData["courseName"]:
+        #         courseNoti = notificationData
+        #     newNotificationData.append(courseNoti)
+        # profile.setNotificationPreference(newNotificationData)
+        # saveNotificationPref = profile.update()
+        # if not saveNotificationPref.success:
+        #     return saveNotificationPref
+        res.success = True
+        res.message = 'Successfully updated notification preference'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while updating notification preference'
+        res.data = str(e)
+    return res

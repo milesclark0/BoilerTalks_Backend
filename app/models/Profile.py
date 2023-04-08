@@ -320,7 +320,7 @@ class Profile:
     def getTheme(self):
         return self._theme
     
-    def getTheme(self):
+    def getLastSeen(self):
         return self._lastSeen
     
 
