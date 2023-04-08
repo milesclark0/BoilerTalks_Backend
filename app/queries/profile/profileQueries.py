@@ -120,15 +120,22 @@ def updateMessagesWithNewProfilePicture(user: User):
         ret.message = str(e)
     return ret
 
-def updateNotification(username: str, notificationData: list):
+def updateNotification(username: str, notificationData: dict):
     res = DBreturn()
     try:
-        profile = Profile.collection.find_one({"username":  username})
+        profile = Profile.fromDict(Profile.collection.find_one({"username":  username}))
         if profile is None:
             res.message = 'get profile error: no profile found'
             return res
-        # delete all instances of notification 
-        # set notificationPreference as notificationData
+        newNotificationData = []
+        for courseNoti in profile.getNotificationPreference():
+            if courseNoti["courseName"] == notificationData["courseName"]:
+                courseNoti = notificationData
+            newNotificationData.append(courseNoti)
+        profile.setNotificationPreference(newNotificationData)
+        saveNotificationPref = profile.update()
+        if not saveNotificationPref.success:
+            return saveNotificationPref
         res.success = True
         res.message = 'Successfully updated notification preference'
     except Exception as e:
