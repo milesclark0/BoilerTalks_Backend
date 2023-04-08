@@ -52,11 +52,9 @@ class ProfileMessages:
     LASTSEEN_MESSAGES_INVALID_FORMAT_USERNAME = "Messages does not contain a valid username"
     LASTSEEN_MESSAGES_INVALID_FORMAT_TIME = "Messages does not contain a valid time"
 
-    LASTSEEN_REPORTS_INVALID_FORMAT_USERNAME = "Report does not contain a valid username"
-    LASTSEEN_REPORTS_INVALID_FORMAT_TIME = "Report does not contain a valid time"
+    LASTSEEN_REPORTS_INVALID_FORMAT_ID = "Report does not contain a valid id"
 
-    LASTSEEN_APPEALS_INVALID_FORMAT_USERNAME = "Appeal does not contain a valid username"
-    LASTSEEN_APPEALS_INVALID_FORMAT_TIME = "Appeal does not contain a valid time"
+    LASTSEEN_APPEALS_INVALID_FORMAT_ID = "Appeal does not contain a valid id"
 
     CREATION_DATE_INVALID = "Creation date must be a valid datetime object"
 
@@ -231,17 +229,13 @@ class Profile:
                 if "appeals" not in item:
                     errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_APPEAL)
                 for appeal in item["appeals"]:
-                    if "username" not in appeal:
-                        errors.append(ProfileMessages.LASTSEEN_APPEALS_INVALID_FORMAT_USERNAME)
-                    if "creationDate" not in appeal:
-                        errors.append(ProfileMessages.LASTSEEN_APPEALS_INVALID_FORMAT_TIME)
+                    if "id" not in appeal:
+                        errors.append(ProfileMessages.LASTSEEN_APPEALS_INVALID_FORMAT_ID)
                 if "reports" not in item:
                     errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_REPORT)
                 for report in item["reports"]:
-                    if "username" not in report:
-                        errors.append(ProfileMessages.LASTSEEN_REPORTS_INVALID_FORMAT_USERNAME)
-                    if "creationDate" not in report:
-                        errors.append(ProfileMessages.LASTSEEN_REPORTS_INVALID_FORMAT_TIME)
+                    if "id" not in report:
+                        errors.append(ProfileMessages.LASTSEEN_REPORTS_INVALID_FORMAT_ID)
         return (len(errors) == 0, errors)
     
 
