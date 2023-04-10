@@ -36,6 +36,7 @@ class CourseManagementMessages:
     ANNOUNCEMENT_INVALID = "Announcement must be a valid String"
     REPORT_INVALID = "Report must be a valid Dict"
 
+    APPEAL_INVALID_FORMAT_ID = "Appeal does not contain a valid id"
     APPEAL_INVALID_FORMAT_USERNAME = "Appeal does not contain a valid username"
     APPEAL_INVALID_FORMAT_RESPONSE = "Appeal does not contain a valid response"
     APPEAL_INVALID_FORMAT_REASON = "Appeal does not contain a valid reason"
@@ -48,6 +49,7 @@ class CourseManagementMessages:
     BANNED_USER_INVALID_FORMAT_USERNAME = "Banned user does not contain a valid username"
     BANNED_USER_INVALID_FORMAT_REASON = "Banned user does not contain a valid reason"
 
+    REPORT_INVALID_FORMAT_ID = "Report does not contain a valid id"
     REPORT_INVALID_FORMAT_USERNAME = "Report does not contain a valid username"
     REPORT_INVALID_FORMAT_REASON = "Report does not contain a valid reason"
 
@@ -63,11 +65,11 @@ class CourseManagement:
     prevBannedUsers: list[dict]
     warnedUsers: list[dict] # { username: str; reason: str }
     prevWarnedUsers: list[dict]
-    appeals: list[dict] # { username: str; response: str; reason: str; reviewed: bool; unban: bool }
+    appeals: list[dict] # { id: str, username: str; response: str; reason: str; reviewed: bool; unban: bool }
     requests: list[str]
     moderators: list[str]
     announcement: list[str]
-    reports: list[dict]  # { username: str; reason: str }
+    reports: list[dict]  # { id: str, username: str; reason: str }
 
     # non mutable
     _id: ObjectId
@@ -231,6 +233,8 @@ class CourseManagement:
             for appeal in self._appeals:
                 if not isinstance(appeal, dict):
                     errors.append(CourseManagementMessages.APPEAL_INVALID)
+                if "id" not in appeal:
+                    errors.append(CourseManagementMessages.APPEAL_INVALID_FORMAT_ID)
                 if "username" not in appeal:
                     errors.append(CourseManagementMessages.APPEAL_INVALID_FORMAT_USERNAME)
                 if "reason" not in appeal:
@@ -284,6 +288,8 @@ class CourseManagement:
             for item in self._reports:
                 if not isinstance(item, dict):
                     errors.append(CourseManagementMessages.REPORT_INVALID)
+                if "id" not in item:
+                    errors.append(CourseManagementMessages.REPORT_INVALID_FORMAT_ID)
                 if "username" not in item:
                     errors.append(CourseManagementMessages.REPORT_INVALID_FORMAT_USERNAME)
                 if "reason" not in item:
