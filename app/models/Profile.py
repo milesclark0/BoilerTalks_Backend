@@ -249,10 +249,10 @@ class Profile:
     
     def validateLastSeenMessage(self):
         errors = []
-        if not isinstance(self._lastSeen, list):
+        if not isinstance(self._lastSeenMessage, list):
             errors.append(ProfileMessages.LASTSEENS_INVALID)
         else:
-            for item in self._lastSeen:
+            for item in self._lastSeenMessage:
                 if not isinstance(item, dict):
                     errors.append(ProfileMessages.LASTSEEN_INVALID)
                 if "courseName" not in item:
@@ -268,10 +268,10 @@ class Profile:
     
     def validateLastSeenAppeal(self):
         errors = []
-        if not isinstance(self._lastSeen, list):
+        if not isinstance(self._lastSeenAppeal, list):
             errors.append(ProfileMessages.LASTSEENS_INVALID)
         else:
-            for item in self._lastSeen:
+            for item in self._lastSeenAppeal:
                 if not isinstance(item, dict):
                     errors.append(ProfileMessages.LASTSEEN_INVALID)
                 if "courseName" not in item:
@@ -285,10 +285,10 @@ class Profile:
     
     def validateLastSeenReport(self):
         errors = []
-        if not isinstance(self._lastSeen, list):
+        if not isinstance(self._lastSeenReport, list):
             errors.append(ProfileMessages.LASTSEENS_INVALID)
         else:
-            for item in self._lastSeen:
+            for item in self._lastSeenReport:
                 if not isinstance(item, dict):
                     errors.append(ProfileMessages.LASTSEEN_INVALID)
                 if "courseName" not in item:
