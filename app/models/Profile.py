@@ -10,7 +10,7 @@ class ProfileMessages:
 
     PROFILE_EXISTS = "Profile for this username already exists"
 
-    PROFILE_CREATED = "Profile created successfuly"
+    PROFILE_CREATED = "Profile created successfully"
     PROFILE_UPDATED = "Profile updated successfully"
     PROFILE_DELETED = "Profile deleted successfully"
 
@@ -20,6 +20,8 @@ class ProfileMessages:
 
     INVALID_BIO = "Invalid bio"
     BIO_LENGTH = "Bio must be 500 characters or less"
+
+    INVALID_CLASS_YEAR = "Invalid class year"
 
     INVALID_USER = "Invalid user"
     USER_NULL = "User cannot be null or empty"
@@ -52,6 +54,8 @@ class Profile:
     _displayName: str
     _theme: str
     _notificationPreference: list[dict] # {courseName: str, messages: boolean, appeals: boolean, reports: boolean}
+    classYear: str # "Freshman", "Sophomore", "Junior", "Senior", "Graduate", "Alumni"\
+    major: str
 
     # non mutable
     _id: ObjectId
@@ -61,22 +65,37 @@ class Profile:
     collection = db.Profiles
 
     # TODO: make sure profile gets created on account creation
-    def __init__(self, username: str, bio: str = None, modThreads: list = None, id: ObjectId = None, creationDate: datetime.datetime = None, blockedUsers: list = None, displayName: str = None, theme: str = None, notificationPreference: list[dict] = None):
+    def __init__(self, username: str, bio: str = None, modThreads: list = None, id: ObjectId = None, creationDate: datetime.datetime = None, blockedUsers: list = None, \
+                 displayName: str = None, theme: str = None, notificationPreference: list[dict] = None, classYear: str = None, major: str = None):
         self._username = username
         
         # optional fields
         if id is not None: self._id = id
+
         if bio is not None: self._bio = bio
         else: self._bio = ""
+
         if modThreads is not None: self._modThreads = modThreads
         else: self._modThreads = []
+
         if notificationPreference is not None: self._notificationPreference = notificationPreference
         else: self._notificationPreference = []
+
         if blockedUsers is not None: self._blockedUsers = blockedUsers
         else: self._blockedUsers = []
+
         if displayName is not None: self._displayName = displayName
         else: self._displayName = ""
+
         if theme is not None: self._theme = theme
+        else: self._theme = "dark"
+
+        if classYear is not None: self._classYear = classYear
+        else: self._classYear = ""
+
+        if major is not None: self._major = major
+        else: self._major = ""
+
         if creationDate is not None: self._creationDate = creationDate 
         else: self._creationDate = datetime.datetime.utcnow()
 
@@ -85,7 +104,7 @@ class Profile:
         if not Profile.hasAllRequiredFields(data):
             logger.warning(ProfileMessages.MISSING_FIELDS)
             return None
-        for k in ('username', 'bio', 'modThreads', '_id', 'creationDate', 'blockedUsers', 'displayName', 'theme', 'notificationPreference'):
+        for k in ('username', 'bio', 'modThreads', '_id', 'creationDate', 'blockedUsers', 'displayName', 'theme', 'notificationPreference', 'classYear', 'major'):
             item = data.get(k, None)
             newDict[k] = item
         return Profile(*newDict.values())
@@ -127,7 +146,7 @@ class Profile:
 
             #check if profile was updated
             if result.modified_count == 0:
-                return DBreturn(False, ProfileMessages.UPDATE_ERROR + ProfileMessages.NOT_FOUND, self.formatDict())
+                return DBreturn(True, ProfileMessages.UPDATE_ERROR + ProfileMessages.NOT_FOUND, self.formatDict())
             return DBreturn(True, ProfileMessages.PROFILE_UPDATED, self.formatDict())
         except Exception as e:
             return DBreturn(False, ProfileMessages.UPDATE_ERROR + str(e), None)   
@@ -172,6 +191,15 @@ class Profile:
             return (False, errors)
         if len(self._bio) > 500:
             errors.append(ProfileMessages.BIO_LENGTH)
+        return (len(errors) == 0, errors)
+    
+    def validateClassYear(self):
+        errors = []
+        if not isinstance(self._classYear, str):
+            errors.append(ProfileMessages.INVALID_CLASS_YEAR)
+            return (False, errors)
+        if self._classYear not in ["", "Freshmen", "Sophomore", "Junior", "Senior", "Graduate", "Alumni"]:
+            errors.append(ProfileMessages.INVALID_CLASS_YEAR)
         return (len(errors) == 0, errors)
     
     def validateNotificationPreference(self):
@@ -274,6 +302,12 @@ class Profile:
     def getTheme(self):
         return self._theme
     
+    def getClassYear(self):
+        return self._classYear
+    
+    def getMajor(self):
+        return self._major
+    
 
     def setId(self, id):
         #id may not be set yet
@@ -307,7 +341,11 @@ class Profile:
     def setDisplayName(self, displayName):
         self._displayName = displayName
 
+    def setClassYear(self, classYear):
+        self._classYear = classYear
 
+    def setMajor(self, major):
+        self._major = major
     
 
         

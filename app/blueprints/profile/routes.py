@@ -12,17 +12,17 @@ def getProfile(username):
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
 
-@bp.route(routePrefix + '/editProfile', methods=['POST'])
+@bp.route(routePrefix + '/editProfile/<username>', methods=['POST'])
 @jwt_required()
-def editProfile():
+def editProfile(username):
     res = DBreturn(False, 'No Edits Performed', None)
     try:
-        bio = request.json['bio']
-        username = request.json['username']
+        data = request.json
     except KeyError as e:
         return jsonify({'data': str(e), 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
-    res = queries.editProfile(bio, username)
+    res = queries.editProfile(data, username)
     if not res.success:
+        res.message = str(res.data)
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
 

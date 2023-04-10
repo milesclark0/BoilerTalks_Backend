@@ -21,24 +21,29 @@ def getProfile(username: str):
         res.data = str(e)
     return res
 
-def editProfile(bio: str, username: str):
+def editProfile(data: object, username: str):
     res = DBreturn()
     try:
         user = User.collection.find_one({"username": username})
         if user is None:
             res.message = 'error editing profile: user not found'
             return res
-
-        if len(bio) > 500:
-            res.message = 'error editing profile: bio over 500 chars'
-            return res
         
         profile = Profile.fromDict(Profile.collection.find_one({ "username": username}))
         # if profile is None:
         #     res.message = 'error editing profile: profile not found'
         #     return res
-        profile.setBio(bio)
+        bio = data['bio']
+        if bio is not None:
+            profile.setBio(bio)
+        classYear = data['classYear']
+        if classYear is not None:
+            profile.setClassYear(classYear)
+        major = data['major']
+        if major is not None:
+            profile.setMajor(major)
         profileSaveResult = profile.update()
+        print(profileSaveResult.message)
         if not profileSaveResult.success:
             return profileSaveResult
         res.success = True
