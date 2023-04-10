@@ -157,10 +157,14 @@ def updateLastSeenMessage(username: str, seenMessageData: dict):
             res.message = 'get profile error: no profile found'
             return res
         newMessageData = []
+        foundMessage = 0
         for message in profile.getLastSeenMessage():
             if message["courseName"] == seenMessageData["courseName"]:
+                foundMessage = 1
                 message = seenMessageData
             newMessageData.append(message)
+        if not foundMessage:
+            newMessageData.append(seenMessageData)
         profile.setLastSeenMessage(newMessageData)
         saveLastSeenMessage = profile.update()
         if not saveLastSeenMessage.success:
@@ -174,6 +178,7 @@ def updateLastSeenMessage(username: str, seenMessageData: dict):
     return res
 
 def updateLastSeenAppeal(username: str, seenAppealData: dict):
+    print(seenAppealData)
     res = DBreturn()
     try:
         profile = Profile.fromDict(Profile.collection.find_one({"username":  username}))
@@ -181,11 +186,15 @@ def updateLastSeenAppeal(username: str, seenAppealData: dict):
             res.message = 'get profile error: no profile found'
             return res
         newAppealData = []
+        foundAppeal = 0
         for appeal in profile.getLastSeenAppeal():
             if appeal["courseName"] == seenAppealData["courseName"]:
                 appeal = seenAppealData
+                foundAppeal = 1
             newAppealData.append(appeal)
-        profile.setLastSeenMessage(newAppealData)
+        if not foundAppeal:
+            newAppealData.append(seenAppealData)
+        profile.setLastSeenAppeal(newAppealData)
         saveLastSeenAppeal = profile.update()
         if not saveLastSeenAppeal.success:
             return saveLastSeenAppeal
@@ -205,11 +214,15 @@ def updateLastSeenReport(username: str, seenReportData: dict):
             res.message = 'get profile error: no profile found'
             return res
         newReportData = []
+        foundReport = 0
         for report in profile.getLastSeenReport():
             if report["courseName"] == seenReportData["courseName"]:
                 report = seenReportData
+                foundReport = 1
             newReportData.append(report)
-        profile.setLastSeenMessage(seenReportData)
+        if not foundReport:
+            newReportData.append(seenReportData)
+        profile.setLastSeenReport(seenReportData)
         saveLastSeenReport = profile.update()
         if not saveLastSeenReport.success:
             return saveLastSeenReport

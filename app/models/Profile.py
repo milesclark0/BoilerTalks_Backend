@@ -71,8 +71,8 @@ class Profile:
     _classYear: str # "Freshman", "Sophomore", "Junior", "Senior", "Graduate", "Alumni"\
     _major: str
     _lastSeenMessage: list[dict] # {courseName: str, messages: Message}
-    _lastSeenAppeal: list[dict] # {courseName: str, appeals: Appeal}
-    _lastSeenReport: list[dict] # {courseName: str, reports: Report}
+    _lastSeenAppeal: list[dict] # {courseName: str, id: string} id is id of appeal item
+    _lastSeenReport: list[dict] # {courseName: str, id: string} id is id of report item
 
     # non mutable
     _id: ObjectId
@@ -276,11 +276,9 @@ class Profile:
                     errors.append(ProfileMessages.LASTSEEN_INVALID)
                 if "courseName" not in item:
                     errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_COURSE)
-                if "appeals" not in item:
-                    errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_APPEAL)
-                for appeal in item["appeals"]:
-                    if "id" not in appeal:
-                        errors.append(ProfileMessages.LASTSEEN_APPEALS_INVALID_FORMAT_ID)
+                if "id" not in item:
+                    errors.append(ProfileMessages.LASTSEEN_APPEALS_INVALID_FORMAT_ID)
+        print(errors)
         return (len(errors) == 0, errors)
     
     def validateLastSeenReport(self):
@@ -293,11 +291,8 @@ class Profile:
                     errors.append(ProfileMessages.LASTSEEN_INVALID)
                 if "courseName" not in item:
                     errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_COURSE)
-                if "reports" not in item:
-                    errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_REPORT)
-                for report in item["reports"]:
-                    if "id" not in report:
-                        errors.append(ProfileMessages.LASTSEEN_REPORTS_INVALID_FORMAT_ID)
+                if "id" not in item:
+                    errors.append(ProfileMessages.LASTSEEN_REPORTS_INVALID_FORMAT_ID)
         return (len(errors) == 0, errors)
     
 
