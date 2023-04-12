@@ -125,19 +125,21 @@ def updateMessagesWithNewProfilePicture(user: User):
         ret.message = str(e)
     return ret
 
-def updateNotification(username: str, notificationData: dict):
+def updateNotificationPreference(username: str, notificationData: dict):
     res = DBreturn()
     try:
         profile = Profile.fromDict(Profile.collection.find_one({"username":  username}))
         if profile is None:
             res.message = 'get profile error: no profile found'
             return res
-        newNotificationData = []
-        for courseNoti in profile.getNotificationPreference():
-            if courseNoti["courseName"] == notificationData["courseName"]:
-                courseNoti = notificationData
-            newNotificationData.append(courseNoti)
-        profile.setNotificationPreference(newNotificationData)
+        # newNotificationData = {}
+        notiPref = profile.getNotificationPreference()
+        notiPref[notificationData["courseName"]] = notificationData["data"]
+        # for courseNoti in notiPref:
+        #     if courseNoti["roomId"] == notificationData["roomId"]:
+        #         courseNoti = notificationData
+        #     newNotificationData.append(courseNoti)
+        # profile.setNotificationPreference(newNotificationData)
         saveNotificationPref = profile.update()
         if not saveNotificationPref.success:
             return saveNotificationPref
@@ -149,6 +151,26 @@ def updateNotification(username: str, notificationData: dict):
         res.data = str(e)
     return res
 
+def updateSeenNotification(username: str, notificationData: dict):
+    res = DBreturn()
+    try:
+        profile = Profile.fromDict(Profile.collection.find_one({"username":  username}))
+        if profile is None:
+            res.message = 'get profile error: no profile found'
+            return res
+        profile.setSeenNotification(notificationData)
+        saveSeenNotification = profile.update()
+        if not saveSeenNotification.success:
+            return saveSeenNotification
+        res.success = True
+        res.message = 'Successfully updated seen notification'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while updating seen notification'
+        res.data = str(e)
+    return res
+
+
 def updateLastSeenMessage(username: str, seenMessageData: dict):
     res = DBreturn()
     try:
@@ -156,16 +178,18 @@ def updateLastSeenMessage(username: str, seenMessageData: dict):
         if profile is None:
             res.message = 'get profile error: no profile found'
             return res
-        newMessageData = []
-        foundMessage = 0
-        for message in profile.getLastSeenMessage():
-            if message["courseName"] == seenMessageData["courseName"]:
-                foundMessage = 1
-                message = seenMessageData
-            newMessageData.append(message)
-        if not foundMessage:
-            newMessageData.append(seenMessageData)
-        profile.setLastSeenMessage(newMessageData)
+        # newMessageData = []
+        # foundMessage = 0
+        # for message in profile.getLastSeenMessage():
+        #     if message["roomId"] == seenMessageData["roomId"]:
+        #         foundMessage = 1
+        #         message = seenMessageData
+        #     newMessageData.append(message)
+        # if not foundMessage:
+        #     newMessageData.append(seenMessageData)
+        # profile.setLastSeenMessage(newMessageData)
+        lastSeenMessage = profile.getLastSeenMessage()
+        lastSeenMessage[seenMessageData["roomId"]] = seenMessageData["data"]
         saveLastSeenMessage = profile.update()
         if not saveLastSeenMessage.success:
             return saveLastSeenMessage
@@ -174,62 +198,5 @@ def updateLastSeenMessage(username: str, seenMessageData: dict):
     except Exception as e:
         res.success = False
         res.message = 'Error occurred while updating last seen message'
-        res.data = str(e)
-    return res
-
-def updateLastSeenAppeal(username: str, seenAppealData: dict):
-    print(seenAppealData)
-    res = DBreturn()
-    try:
-        profile = Profile.fromDict(Profile.collection.find_one({"username":  username}))
-        if profile is None:
-            res.message = 'get profile error: no profile found'
-            return res
-        newAppealData = []
-        foundAppeal = 0
-        for appeal in profile.getLastSeenAppeal():
-            if appeal["courseName"] == seenAppealData["courseName"]:
-                appeal = seenAppealData
-                foundAppeal = 1
-            newAppealData.append(appeal)
-        if not foundAppeal:
-            newAppealData.append(seenAppealData)
-        profile.setLastSeenAppeal(newAppealData)
-        saveLastSeenAppeal = profile.update()
-        if not saveLastSeenAppeal.success:
-            return saveLastSeenAppeal
-        res.success = True
-        res.message = 'Successfully updated last seen appeal'
-    except Exception as e:
-        res.success = False
-        res.message = 'Error occurred while updating last seen appeal'
-        res.data = str(e)
-    return res
-
-def updateLastSeenReport(username: str, seenReportData: dict):
-    res = DBreturn()
-    try:
-        profile = Profile.fromDict(Profile.collection.find_one({"username":  username}))
-        if profile is None:
-            res.message = 'get profile error: no profile found'
-            return res
-        newReportData = []
-        foundReport = 0
-        for report in profile.getLastSeenReport():
-            if report["courseName"] == seenReportData["courseName"]:
-                report = seenReportData
-                foundReport = 1
-            newReportData.append(report)
-        if not foundReport:
-            newReportData.append(seenReportData)
-        profile.setLastSeenReport(seenReportData)
-        saveLastSeenReport = profile.update()
-        if not saveLastSeenReport.success:
-            return saveLastSeenReport
-        res.success = True
-        res.message = 'Successfully updated last seen report'
-    except Exception as e:
-        res.success = False
-        res.message = 'Error occurred while updating last seen report'
         res.data = str(e)
     return res

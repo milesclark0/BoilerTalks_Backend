@@ -37,26 +37,21 @@ class ProfileMessages:
     DISPLAY_NAME_INVALID = "Display name must be a string"
     DISPLAY_NAME_LENGTH = "Display name must be 50 characters or less"
     
-    NOTIFICATIONS_INVALID = "Notications must be a list of dicts"
-    NOTIFICATION_INVALID = "Notication muse be a dict"
+    NOTIFICATIONS_INVALID = "Notifications must be a dict of dicts"
+    NOTIFICATION_INVALID = "Notification muse be a dict"
     NOTIFICATION_INVALID_FORMAT_COURSE = "Notification does not contain a valid course name"
     NOTIFICATION_INVALID_FORMAT_MESSAGE = "Notification does not contain a valid message value"
     NOTIFICATION_INVALID_FORMAT_APPEAL = "Notification does not contain a valid appeal value"
     NOTIFICATION_INVALID_FORMAT_REPORT = "Notification does not contain a valid report value"
 
-    LASTSEENS_INVALID = "LastSeens must be a list of dicts"
+    LASTSEENS_INVALID = "LastSeens must be a dict of dicts"
     LASTSEEN_INVALID = "LastSeen muse be a dict"
     LASTSEEN_INVALID_FORMAT_COURSE = "LastSeen does not contain a valid course name"
+    LASTSEEN_INVALID_FORMAT_ROOM = "LastSeen does not contain a valid room id"
     LASTSEEN_INVALID_FORMAT_MESSAGE = "LastSeen does not contain a valid message dict"
-    LASTSEEN_INVALID_FORMAT_APPEAL = "LastSeen does not contain a valid appeal dict"
-    LASTSEEN_INVALID_FORMAT_REPORT = "LastSeen does not contain a valid report dict"
 
     LASTSEEN_MESSAGES_INVALID_FORMAT_USERNAME = "Messages does not contain a valid username"
     LASTSEEN_MESSAGES_INVALID_FORMAT_TIME = "Messages does not contain a valid time"
-
-    LASTSEEN_REPORTS_INVALID_FORMAT_ID = "Report does not contain a valid id"
-
-    LASTSEEN_APPEALS_INVALID_FORMAT_ID = "Appeal does not contain a valid id"
 
     CREATION_DATE_INVALID = "Creation date must be a valid datetime object"
 
@@ -67,12 +62,13 @@ class Profile:
     _blockedUsers: list
     _displayName: str
     _theme: str
-    _notificationPreference: list[dict] # {courseName: str, messages: boolean, appeals: boolean, reports: boolean}
+    _notificationPreference: dict[dict] # {courseName: {messages: boolean, appeals: boolean, reports: boolean}}
     _classYear: str # "Freshman", "Sophomore", "Junior", "Senior", "Graduate", "Alumni"\
     _major: str
-    _lastSeenMessage: list[dict] # {courseName: str, messages: Message}
-    _lastSeenAppeal: list[dict] # {courseName: str, id: string} id is id of appeal item
-    _lastSeenReport: list[dict] # {courseName: str, id: string} id is id of report item
+    # might be better to change to dict[dict] for easier access (since roomId is unique) instead of looping through everything
+    _lastSeenMessage: dict[dict] # {roomId: {courseName: str, messages: Message}} 
+    _notification: list[dict] # {courseName: str, notification: string, date: datetime.datetime}
+    _seenNotification: list[dict]
 
     # non mutable
     _id: ObjectId
@@ -84,8 +80,8 @@ class Profile:
     # TODO: make sure profile gets created on account creation
     def __init__(self, username: str, bio: str = None, modThreads: list = None, id: ObjectId = None, creationDate: datetime.datetime = None, \
                  blockedUsers: list = None, displayName: str = None, theme: str = None,\
-                  notificationPreference: list[dict] = None, lastSeenMessage: list[dict] = None, lastSeenAppeal: list[dict] = None, lastSeenReport: list[dict] = None,\
-                    classYear: str = None, major: str = None):
+                  notificationPreference: list[dict] = None, lastSeenMessage: list[dict] = None,\
+                    classYear: str = None, major: str = None, notification: list[dict] = None, seenNotification: list[dict] = None):
         self._username = username
         
         # optional fields
@@ -117,21 +113,25 @@ class Profile:
 
         if creationDate is not None: self._creationDate = creationDate 
         else: self._creationDate = datetime.datetime.utcnow()
+
         if notificationPreference is not None: self._notificationPreference = notificationPreference
-        else: self._notificationPreference = []
+        else: self._notificationPreference = {}
+
         if lastSeenMessage is not None: self._lastSeenMessage = lastSeenMessage
-        else: self._lastSeenMessage = []
-        if lastSeenAppeal is not None: self._lastSeenAppeal = lastSeenAppeal
-        else: self._lastSeenAppeal = []
-        if lastSeenReport is not None: self._lastSeenReport = lastSeenReport
-        else: self._lastSeenReport = []
+        else: self._lastSeenMessage = {}
+
+        if notification is not None: self._notification = notification
+        else: self._notification = []
+
+        if seenNotification is not None: self._seenNotification = seenNotification
+        else: self._seenNotification = []
 
     def fromDict(data: dict):
         newDict = {}
         if not Profile.hasAllRequiredFields(data):
             logger.warning(ProfileMessages.MISSING_FIELDS)
             return None
-        for k in ('username', 'bio', 'modThreads', '_id', 'creationDate', 'blockedUsers', 'displayName', 'theme', 'notificationPreference', 'lastSeenMessage', 'lastSeenAppeal', 'lastSeenReport', 'classYear', 'major'):
+        for k in ('username', 'bio', 'modThreads', '_id', 'creationDate', 'blockedUsers', 'displayName', 'theme', 'notificationPreference', 'lastSeenMessage', 'classYear', 'major', 'notification', 'seenNotification'):
             item = data.get(k, None)
             newDict[k] = item
         return Profile(*newDict.values())
@@ -231,70 +231,51 @@ class Profile:
     
     def validateNotificationPreference(self):
         errors = []
-        if not isinstance(self._notificationPreference, list):
+        if not isinstance(self._notificationPreference, dict):
             errors.append(ProfileMessages.NOTIFICATIONS_INVALID)
         else:
             for item in self._notificationPreference:
-                if not isinstance(item, dict):
+                if not isinstance(self._notificationPreference[item], dict):
                     errors.append(ProfileMessages.NOTIFICATION_INVALID)
-                if "courseName" not in item:
-                    errors.append(ProfileMessages.NOTIFICATION_INVALID_FORMAT_COURSE)
-                if "messages" not in item:
+                if "messages" not in self._notificationPreference[item]:
                     errors.append(ProfileMessages.NOTIFICATION_INVALID_FORMAT_MESSAGE)
-                if "appeals" not in item:
+                if "appeals" not in self._notificationPreference[item]:
                     errors.append(ProfileMessages.NOTIFICATION_INVALID_FORMAT_APPEAL)
-                if "reports" not in item:
+                if "reports" not in self._notificationPreference[item]:
                     errors.append(ProfileMessages.NOTIFICATION_INVALID_FORMAT_REPORT)
         return (len(errors) == 0, errors)
     
     def validateLastSeenMessage(self):
         errors = []
-        if not isinstance(self._lastSeenMessage, list):
+        if not isinstance(self._lastSeenMessage, dict):
             errors.append(ProfileMessages.LASTSEENS_INVALID)
         else:
             for item in self._lastSeenMessage:
-                if not isinstance(item, dict):
+                if not isinstance(self._lastSeenMessage[item], dict):
                     errors.append(ProfileMessages.LASTSEEN_INVALID)
-                if "courseName" not in item:
+                if "courseName" not in self._lastSeenMessage[item]:
                     errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_COURSE)
-                if "messages" not in item:
+                if not isinstance(self._lastSeenMessage[item]["message"], dict):
                     errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_MESSAGE)
-                for message in item["messages"]:
-                    if "username" not in message:
-                        errors.append(ProfileMessages.LASTSEEN_MESSAGES_INVALID_FORMAT_USERNAME)
-                    if "timeSent" not in message:
-                        errors.append(ProfileMessages.LASTSEEN_MESSAGES_INVALID_FORMAT_TIME)
+                if "username" not in self._lastSeenMessage[item]["message"]:
+                    errors.append(ProfileMessages.LASTSEEN_MESSAGES_INVALID_FORMAT_USERNAME)
+                if "timeSent" not in self._lastSeenMessage[item]["message"]:
+                    errors.append(ProfileMessages.LASTSEEN_MESSAGES_INVALID_FORMAT_TIME)
         return (len(errors) == 0, errors)
     
-    def validateLastSeenAppeal(self):
+    def validateNotification(self):
         errors = []
-        if not isinstance(self._lastSeenAppeal, list):
-            errors.append(ProfileMessages.LASTSEENS_INVALID)
+        if not isinstance(self._notification, list):
+            errors.append(ProfileMessages.NOTIFICATIONS_INVALID)
         else:
-            for item in self._lastSeenAppeal:
+            for item in self._notification:
                 if not isinstance(item, dict):
-                    errors.append(ProfileMessages.LASTSEEN_INVALID)
+                    errors.append(ProfileMessages.NOTIFICATION_INVALID)
                 if "courseName" not in item:
-                    errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_COURSE)
-                if "id" not in item:
-                    errors.append(ProfileMessages.LASTSEEN_APPEALS_INVALID_FORMAT_ID)
-        print(errors)
+                    errors.append(ProfileMessages.NOTIFICATION_INVALID_FORMAT_COURSE)
+                if not isinstance(item["date"], datetime.datetime):
+                    errors.append(ProfileMessages.CREATION_DATE_INVALID)
         return (len(errors) == 0, errors)
-    
-    def validateLastSeenReport(self):
-        errors = []
-        if not isinstance(self._lastSeenReport, list):
-            errors.append(ProfileMessages.LASTSEENS_INVALID)
-        else:
-            for item in self._lastSeenReport:
-                if not isinstance(item, dict):
-                    errors.append(ProfileMessages.LASTSEEN_INVALID)
-                if "courseName" not in item:
-                    errors.append(ProfileMessages.LASTSEEN_INVALID_FORMAT_COURSE)
-                if "id" not in item:
-                    errors.append(ProfileMessages.LASTSEEN_REPORTS_INVALID_FORMAT_ID)
-        return (len(errors) == 0, errors)
-    
 
     def validateModThreads(self):
         errors = []
@@ -331,8 +312,6 @@ class Profile:
         if len(self._displayName) > 50:
             errors.append(ProfileMessages.DISPLAY_NAME_LENGTH)
         return (len(errors) == 0, errors)
-    
-
 
     def validateCreationDate(self):
         #try to parse the date if it is a string
@@ -344,7 +323,6 @@ class Profile:
                 errors.append(ProfileMessages.CREATION_DATE_INVALID)
         if not isinstance(self._creationDate, datetime.datetime):
             errors.append(ProfileMessages.CREATION_DATE_INVALID)
-        print(errors)
         return (len(errors) == 0, errors)
 
     # getters and setters
@@ -382,14 +360,15 @@ class Profile:
     
     def getMajor(self):
         return self._major
+    
     def getLastSeenMessage(self):
         return self._lastSeenMessage
     
-    def getLastSeenAppeal(self):
-        return self._lastSeenAppeal
+    def getNotification(self):
+        return self._notification
     
-    def getLastSeenReport(self):
-        return self._lastSeenReport
+    def getSeenNotification(self):
+        return self._seenNotification
     
 
     def setId(self, id):
@@ -433,11 +412,11 @@ class Profile:
     def setLastSeenMessage(self, lastSeenMessage):
         self._lastSeenMessage = lastSeenMessage
 
-    def setLastSeenAppeal(self, lastSeenAppeal):
-        self._lastSeenAppeal = lastSeenAppeal
+    def setNotification(self, notification):
+        self._notification = notification
 
-    def setLastSeenReport(self, lastSeenReport):
-        self._lastSeenReport = lastSeenReport
+    def setSeenNotification(self, seenNotification):
+        self._seenNotification = seenNotification
     
 
     @staticmethod

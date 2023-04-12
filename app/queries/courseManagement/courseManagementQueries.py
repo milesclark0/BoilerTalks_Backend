@@ -74,6 +74,19 @@ def addAppealforCourse(courseId: str, appeal: dict):
         saveAppeal = course.update()
         if not saveAppeal.success:
             return saveAppeal
+        # add notification to any profile who has appeal set on
+        courseName = Course.collection.find_one({"_id": ObjectId(courseId)})
+        courseName = courseName["name"]
+        profiles = Profile.collection.find({})
+        for profile in profiles:
+            profile = Profile.fromDict(profile)
+            for noti in profile.getNotificationPreference():
+                if noti["courseName"] == courseName:
+                    if noti["appeals"]:
+                        profile.getNotification().append({"courseName": courseName, "notification": "appeal", "date": datetime.datetime.utcnow() })
+                        saveProfile = profile.update()
+                        if not saveProfile.success:
+                            return saveProfile
         res.success = True
         res.message = 'Successfully added appeal to course'
     except Exception as e:

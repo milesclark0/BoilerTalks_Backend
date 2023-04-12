@@ -9,7 +9,7 @@ from app.models.Room import Room
 from app.models.Profile import Profile
 from app.models.CourseManagement import CourseManagement
 from dotenv import load_dotenv
-import boto3, os
+import boto3, os, datetime
 
 # Load environment variables from .env file which contains AWS credentials
 load_dotenv()
