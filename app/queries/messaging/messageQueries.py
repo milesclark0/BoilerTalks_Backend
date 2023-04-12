@@ -68,17 +68,18 @@ def sendMessage(room, message):
     profiles = Profile.collection.find({})
     for profile in profiles:
         profile = Profile.fromDict(profile)
-        notiPref = profile.getNotificationPreference()
-        if courseName in notiPref:
-            if notiPref[courseName]["messages"]:
-                # get lastSeenMessages of room to see if it has been viewed
-                lastSeenMessage =  profile.getLastSeenMessage()
-                lastSeenMessageRoom = lastSeenMessage[str(room.getId())]
-                if lastSeenMessageRoom["message"]["timeSent"] != message["timeSent"]:
-                    profile.getNotification().append({"courseName": courseName, "notification": "new message in " + str(room.getId()), "date": datetime.datetime.utcnow()})
-                    saveProfile = profile.update()
-                    if not saveProfile.success:
-                        return saveProfile
+        if profile.getUsername() != message["username"]:
+            notiPref = profile.getNotificationPreference()
+            if courseName in notiPref:
+                if notiPref[courseName]["messages"]:
+                    # get lastSeenMessages of room to see if it has been viewed
+                    lastSeenMessage =  profile.getLastSeenMessage()
+                    lastSeenMessageRoom = lastSeenMessage[str(room.getId())]
+                    if lastSeenMessageRoom["message"]["timeSent"] != message["timeSent"]:
+                        profile.getNotification().append({"courseName": courseName, "notification": "new message in " + str(room.getId()), "date": datetime.datetime.utcnow()})
+                        saveProfile = profile.update()
+                        if not saveProfile.success:
+                            return saveProfile
 
 
     res.success = True
