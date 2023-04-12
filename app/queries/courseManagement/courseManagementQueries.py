@@ -110,7 +110,7 @@ def updateAppealforCourse(courseId: str, appeal: dict):
         # update appeal
         appeals = []
         for appealData in course.getAppeals():
-            if (appealData["id"] == appeal["id"]):
+            if appealData["id"] == appeal["id"]:
                 appealData = appeal
             appeals.append(appealData)
         course.setAppeals(appeals)
