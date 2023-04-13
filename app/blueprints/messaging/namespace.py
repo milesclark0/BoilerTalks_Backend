@@ -11,7 +11,7 @@ class MyCustomNamespace(Namespace):
     def leave_all_rooms(self, sid):
         for room in rooms.get(sid, []):
             if room != sid:
-                print(f"Disconnecting client: Leaving room {room}")
+                print(f"Leaving room: {room}")
                 leave_room(room)
                 foundRoom = queries.getRoom(room)
                 res = queries.leaveRoom(foundRoom, None, sid)
@@ -67,6 +67,7 @@ class MyCustomNamespace(Namespace):
         roomID = data['roomID']
         username = data['username']
         profilePic = data['profilePic']
+        displayName = data['displayName']
         sid = request.sid
         print(f"Joining roomID: {roomID}")
         print(f"sid: {sid}")
@@ -74,7 +75,7 @@ class MyCustomNamespace(Namespace):
         #leave all rooms before joining a new one
         self.leave_all_rooms(sid)
         foundRoom = queries.getRoom(roomID)
-        res = queries.joinRoom(foundRoom, username, sid, profilePic)
+        res = queries.joinRoom(foundRoom, username, sid, profilePic, displayName)
 
         if res.success:
             if (isinstance(rooms.get(sid), list)):

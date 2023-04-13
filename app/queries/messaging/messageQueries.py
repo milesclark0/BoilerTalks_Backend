@@ -33,7 +33,7 @@ def leaveRoom(room, username, sid):
     res.message = "Successfully left room"
     return res
     
-def joinRoom(room, username, sid, profilePic):
+def joinRoom(room, username, sid, profilePic, displayName):
     res = DBreturn(True, "Successfully joined room", None)
     if (username is None or username == "") and (sid is None or sid == ""):
         res.message = "Username or sid is required"
@@ -44,7 +44,7 @@ def joinRoom(room, username, sid, profilePic):
         return res
     foundUser = next((member for member in room.getConnected() if member['username'] == username or member['sid'] == sid), None)
     if foundUser is None:
-        room.getConnected().append({"username": username, "sid": sid, "profilePic": profilePic})
+        room.getConnected().append({"username": username, "sid": sid, "profilePic": profilePic, "displayName": displayName})
     else:
         #safe guard if user is already in room, but has a different sid
         foundUser['sid'] = sid
@@ -56,6 +56,12 @@ def joinRoom(room, username, sid, profilePic):
 def sendMessage(room, message):
     res = DBreturn()
     room = Room.fromDict(room)
+    senderProfile = Profile.collection.find_one({"username": message["username"]})
+    if senderProfile is None:
+        res.message = "Sender profile not found"
+        return res
+    senderProfile = Profile.fromDict(senderProfile)
+    message['displayName'] = senderProfile.getDisplayName()
     if room is None:
         res.message = "Room not found"
         return res
@@ -68,7 +74,7 @@ def sendMessage(room, message):
     profiles = Profile.collection.find({})
     for profile in profiles:
         profile = Profile.fromDict(profile)
-        if profile.getUsername() != message["username"]:
+        if profile.getUsername() != message["username"] or profile.getDisplayName() != message["username"]:
             notiPref = profile.getNotificationPreference()
             if courseName in notiPref:
                 if notiPref[courseName]["messages"]:

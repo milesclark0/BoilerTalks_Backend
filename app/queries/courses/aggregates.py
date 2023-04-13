@@ -90,12 +90,24 @@ def get_course_users_aggregate(courseName):
             '$match': {
                 'courses': courseName
             }
+        },{
+            '$lookup': {
+                'from': 'Profiles',
+                'localField': 'username',
+                'foreignField': 'username',
+                'as': 'profile'
+            }
+        }, {
+            '$unwind': {
+                'path': '$profile'
+            }
         }, {
             '$project': {
                 '_id': 0, 
                 'username': 1,
-                'profilePic': "$profilePicture"
+                'profilePic': "$profilePicture",
+                'displayName': "$profile.displayName"
             }
         }
-]
+    ]
    
