@@ -240,6 +240,7 @@ def updateLastSeenMessage(username: str, seenMessageData: dict):
         saveLastSeenMessage = profile.update()
         if not saveLastSeenMessage.success:
             return saveLastSeenMessage
+        res.data = lastSeenMessage
         res.success = True
         res.message = 'Successfully updated last seen message'
     except Exception as e:
