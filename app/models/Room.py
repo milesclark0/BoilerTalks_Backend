@@ -10,7 +10,7 @@ class RoomMessages:
     INVALID_FIELDS = "Invalid fields"
     MISSING_FIELDS = "Missing fields"
     ROOM_EXISTS = "Room already exists"
-    NOT_FOUND = "Room not found"
+    NOT_FOUND = "Room does not exist or is already updated"
 
     CONNECTED_INVALID = "Connected field is not a list"
     CONNECTED_NOT_DICT = "Connected is not a dict"
@@ -113,7 +113,7 @@ class Room:
             self.__dict__["_courseId"] = courseId
 
             if result.modified_count == 0:
-                logger.warning(RoomMessages.UPDATE_ERROR + RoomMessages.NOT_FOUND + "or Room update is unnecessary")
+                logger.warning(RoomMessages.UPDATE_ERROR + RoomMessages.NOT_FOUND)
                 return DBreturn(False, RoomMessages.UPDATE_ERROR + RoomMessages.NOT_FOUND, None)
             logger.info(RoomMessages.ROOM_UPDATED)
             return DBreturn(True, RoomMessages.ROOM_UPDATED, self.formatDict())

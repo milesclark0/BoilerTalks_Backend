@@ -48,6 +48,17 @@ class MyCustomNamespace(Namespace):
         else:
             print(res.message)
 
+    def on_delete_message(self, data):
+        message = data['message']
+        print(f"deleting message {message} to room {data['roomID']}")
+        roomId = data['roomID']
+        room = queries.getRoom(roomId)
+        res = queries.deleteMessage(room, message)
+        if res.success:
+            emit("delete_message", message, broadcast=True, to=roomId)
+        else:
+            print(res.message)
+
     def on_react(self, data):
         index = data['index']
         reaction = data['reaction']

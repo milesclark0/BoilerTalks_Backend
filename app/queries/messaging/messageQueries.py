@@ -86,10 +86,28 @@ def sendMessage(room, message):
                         saveProfile = profile.update()
                         if not saveProfile.success:
                             return saveProfile
-
-
     res.success = True
     res.message = "Successfully sent message"
+    return res
+
+def deleteMessage(room, message):
+    res = DBreturn(False, "Failed to delete message", None)
+    room = Room.fromDict(room)
+    if room is None:
+        res.message = "Room not found"
+        return res
+    messages = room.getMessages()
+    #find message with matching timeSent and username to remove
+    newMessages = []
+    for msg in messages:
+        if msg["timeSent"] != message["timeSent"] or msg["username"] != message["username"]:
+            newMessages.append(msg)
+    room.setMessages(newMessages)
+    roomSaveResult = room.update()
+    if not roomSaveResult.success:
+        return roomSaveResult
+    res.success = True
+    res.message = "Successfully removed message"
     return res
 
 def updateMessage(room, index, reaction, username):
