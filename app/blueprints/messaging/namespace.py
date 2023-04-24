@@ -64,11 +64,12 @@ class MyCustomNamespace(Namespace):
         reaction = data['reaction']
         message = data['message']
         username = data['username']
+        displayName = data['displayName']
         print(f"updating message {message} to room {data['roomID']}")
         roomId = data['roomID']
 
         room = queries.getRoom(roomId)
-        res = queries.updateMessage(room, index, reaction, username)
+        res = queries.updateMessage(room, index, reaction, username, displayName)
         if res.success:
             emit("react", {"message": message, "index": index, "reaction": reaction, "username": username},  broadcast=True, to=roomId)
         else:

@@ -110,7 +110,7 @@ def deleteMessage(room, message):
     res.message = "Successfully removed message"
     return res
 
-def updateMessage(room, index, reaction, username):
+def updateMessage(room, index, reaction, username, displayName):
     res = DBreturn()
     room = Room.fromDict(room)
     if room is None:
@@ -120,9 +120,9 @@ def updateMessage(room, index, reaction, username):
     msg = messages[index]
     current_reactions = msg.get("reactions", None)
     if current_reactions is None:
-        msg["reactions"] = [{ "username": username, "reaction": reaction}]
+        msg["reactions"] = [{ "username": username, "reaction": reaction, "displayName": displayName}]
     else:
-        msg["reactions"].append({ "username": username, "reaction": reaction})
+        msg["reactions"].append({ "username": username, "reaction": reaction, "displayName": displayName})
     roomSaveResult = room.update()
     if not roomSaveResult.success:
         return roomSaveResult

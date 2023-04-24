@@ -1,5 +1,6 @@
 from app.queries import *
 from app.queries.courses.courseQueries import getUserCourses
+import traceback
 
 def getProfile(username: str):
     res = DBreturn()
@@ -125,16 +126,11 @@ def updateMessagesWithNewProfilePicture(user: User):
         ret.message = str(e)
     return ret
 
-def updateMessagesWithNewDisplayName(user: User):
+def updateMessagesWithNewDisplayName(profile: Profile):
     ret = DBreturn(False, 'Error updating messages with new display name', None)
     try:
-        #get user profile
-        profile = Profile.fromDict(Profile.collection.find_one({"username": user.getUsername()}))
-        if not profile:
-            return res
-        
         #get all courses the user is in
-        res = getUserCourses(user.getUsername())
+        res = getUserCourses(profile.getUsername())
         if not res.success:
             return res
         
@@ -146,10 +142,10 @@ def updateMessagesWithNewDisplayName(user: User):
         for course in courses:
             for room in course['rooms']:
                 for message in room['messages']:
-                    if message['username'] == user.getUsername():
+                    if message['username'] == profile.getUsername():
                         #if the display name is null or empty, set it to the username
                         if not profile.getDisplayName():
-                            profile.setDisplayName(user.getUsername())
+                            profile.setDisplayName(profile.getUsername())
                             res = profile.update()
                             if not res.success:
                                 return res
@@ -157,10 +153,10 @@ def updateMessagesWithNewDisplayName(user: User):
                             message['displayName'] = profile.getDisplayName()
                             msgCount += 1
                             needUpdate = True
-                room['courseId'] = room['courseId']['$oid']
-                room['_id'] = room['_id']['$oid']
-                roomObj = Room.fromDict(room)
                 if needUpdate == True:
+                    room['courseId'] = room['courseId']['$oid']
+                    room['_id'] = room['_id']['$oid']
+                    roomObj = Room.fromDict(room)
                     res = roomObj.update()
                     if not res.success:
                         return res
@@ -170,7 +166,44 @@ def updateMessagesWithNewDisplayName(user: User):
 
     except Exception as e:
         ret.message = str(e)
+        ret.success = False
     return ret
+
+def updateReactionsWithNewDisplayName(profile: Profile):
+    ret = DBreturn(False, 'Error updating reactions with new display name', None)
+    try:
+        #get all courses the user is in
+        res = getUserCourses(profile.getUsername())
+        if not res.success:
+            return res
+        courses = res.data
+        needUpdate = False
+        for course in list(courses):
+            for room in course['rooms']:
+                for message in room['messages']:
+                    for reaction in message.get('reactions', []):
+                        if not isinstance(reaction, dict):
+                            continue
+                        if reaction.get("username", None) == profile.getUsername():
+                            if reaction.get('displayName', None) != profile.getDisplayName():
+                                print(course['name'],room['name'], message['reactions'])
+                                reaction['displayName'] = profile.getDisplayName()
+                                print("updating")
+                                needUpdate = True
+                if needUpdate == True:
+                    room['courseId'] = room['courseId']['$oid']
+                    room['_id'] = room['_id']['$oid']
+                    roomObj = Room.fromDict(room)
+                    res = roomObj.update()
+                    if not res.success:
+                        return res
+                    needUpdate = False
+    except Exception as e:
+        ret.message = str(e)
+        ret.success = False
+        print(traceback.format_exc())
+    return ret
+
 
 def updateNotificationPreference(username: str, notificationData: dict):
     res = DBreturn()
@@ -246,5 +279,31 @@ def updateLastSeenMessage(username: str, seenMessageData: dict):
     except Exception as e:
         res.success = False
         res.message = 'Error occurred while updating last seen message'
+        res.data = str(e)
+    return res
+
+def changeDisplayName(username: str, displayName: str):
+    res = DBreturn()
+    try:
+        profile = Profile.fromDict(Profile.collection.find_one({"username":  username}))
+        if profile is None:
+            res.message = 'get profile error: no profile found'
+            return res
+        profile.setDisplayName(displayName)
+        saveDisplayName = profile.update()
+        if not saveDisplayName.success:
+            return saveDisplayName
+        
+        res = updateMessagesWithNewDisplayName(profile)
+        if not res.success:
+            return res
+        res = updateReactionsWithNewDisplayName(profile)
+        if not res.success:
+            return res
+        res.success = True
+        res.message = 'Successfully updated display name'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while updating display name'
         res.data = str(e)
     return res
