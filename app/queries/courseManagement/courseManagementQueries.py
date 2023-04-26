@@ -153,6 +153,7 @@ def updateAppealforCourse(courseId: str, appeal: dict):
         res.data = str(e)
     return res
 
+# Note: bans don't seem to be happening, even though front and back end are returning 200s
 def banUserForCourse(courseId: str, banData: dict):
     res = DBreturn()
     try:
