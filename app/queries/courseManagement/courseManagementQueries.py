@@ -46,6 +46,34 @@ def addCourseMod(username: str, courseId: str):
         res.data = str(e)
     return res
 
+def getPrevBannedUsers(courseId: str):
+    res = DBreturn()
+    try:
+        course = CourseManagement.fromDict(CourseManagement.collection.find_one({"courseId": ObjectId(courseId)}))
+        if course is None:
+            res.message = 'get course error: no course found'
+            return res
+        res.data = course.prevBannedUsers
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while getting previous banned users'
+        res.data = str(e)
+    return res
+
+def getPrevWarnedUsers(courseId: str):
+    res = DBreturn()
+    try:
+        course = CourseManagement.fromDict(CourseManagement.collection.find_one({"courseId": ObjectId(courseId)}))
+        if course is None:
+            res.message = 'get course error: no course found'
+            return res
+        res.data = course.prevBannedUsers
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while getting previous banned users'
+        res.data = str(e)
+    return res
+
 def getCourseMods(courseId: str):
     res = DBreturn()
     try:
