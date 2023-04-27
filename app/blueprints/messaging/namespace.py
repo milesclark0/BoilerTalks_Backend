@@ -59,6 +59,19 @@ class MyCustomNamespace(Namespace):
         else:
             print(res.message)
 
+    def on_edit_message(self, data):
+        message = data['message']
+        print(f"editing message {message} to room {data['roomID']}")
+        roomId = data['roomID']
+        room = queries.getRoom(roomId)
+        index = data['index']
+        res = queries.editMessage(room, message, index)
+        if res.success:
+            emit("edit_message", message, broadcast=True, to=roomId)
+        else:
+            print(res.message)
+
+
     def on_react(self, data):
         index = data['index']
         reaction = data['reaction']
