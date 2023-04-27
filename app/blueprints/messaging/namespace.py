@@ -134,3 +134,38 @@ class MyCustomNamespace(Namespace):
             #emit("send_message", f"---{username} has left the room.---", to=roomID)
             print(res.message)
         return {'data': res.__dict__}
+    
+    def on_send_question(self, data):
+        question = data['question']
+        print(f"sending question {question} to room {data['roomID']}")
+        roomId = data['roomID']
+        room = queries.getRoom(roomId)
+        res = queries.sendQuestion(room, question)
+        if res.success:
+            emit("send_question", question, broadcast=True, to=roomId)
+        else:
+            print(res.message)
+    
+    def on_update_question(self, data):
+        question = data['question']
+        print(f"updating question {question} to room {data['roomID']}")
+        roomId = data['roomID']
+        index = data['index']
+        room = queries.getRoom(roomId)
+        res = queries.updateQuestion(room, question, index)
+        if res.success:
+            emit("update_question", question, broadcast=True, to=roomId)
+        else:
+            print(res.message)
+
+    def on_send_response(self, data):
+        question = data['question']
+        print(f"updating question {question} to room {data['roomID']}")
+        roomId = data['roomID']
+        index = data['index']
+        room = queries.getRoom(roomId)
+        res = queries.sendResponse(room, question, index)
+        if res.success:
+            emit("update_question", question, broadcast=True, to=roomId)
+        else:
+            print(res.message)

@@ -23,6 +23,13 @@ class RoomMessages:
     MESSAGES_INVALID_FORMAT_MESSAGE = "Messages does not contain a valid message"
     MESSAGES_INVALID_FORMAT_TIME = "Messages does not contain a valid time"
 
+    QUESTIONS_INVALID = "Questions is not a list"
+    QUESTIONS_NOT_DICT = "Questions is not a dict"
+    QUESTIONS_INVALID_FORMAT_USERNAME = "Question does not contain a valid username"
+    QUESTIONS_INVALID_FORMAT_TITLE = "Question does not contain a title"
+    QUESTIONS_INVALID_FORMAT_CONTENT = "Question does not contain content"
+    QUESTIONS_INVALID_FORMAT_ANSWERED = "Question does not contain answered flag"
+
     NAME_TOO_LONG = "Name is too long"
     NAME_NULL = "Name is null"
     NAME_INVALID = "Name is invalid"
@@ -40,6 +47,8 @@ class Room:
     _name: str
     _connected: list[dict] #{sid: str, username: str}
     _messages: list[dict] #{username: str, message: str, timeSent: datetime.datetime}
+    _questions: list[dict] #{username: str, title: str, content: str, answered: boolean, responses: {answerUsername: str, response: str}[]}
+
     
     #non mutable
     _id: ObjectId
@@ -48,7 +57,7 @@ class Room:
 
     collection = db.Rooms
 
-    def __init__(self, name: str, courseId: ObjectId, connected: list[dict] = None, messages: list[dict] = None,  id: ObjectId = None ):
+    def __init__(self, name: str, courseId: ObjectId, connected: list[dict] = None, messages: list[dict] = None, questions: list[dict] = None, id: ObjectId = None ):
         #required fields
         self._name = name
         self._courseId = courseId
@@ -60,6 +69,9 @@ class Room:
         if messages is not None: self._messages = messages
         else: self._messages = []
 
+        if questions is not None: self._questions = questions
+        else: self._questions = []
+
         if id is not None: self._id = id
 
     def fromDict(data: dict):
@@ -68,7 +80,7 @@ class Room:
             logger.warning(RoomMessages.MISSING_FIELDS)
             return None
         #reorder the dict to match the order of the constructor
-        for key in ("name", "courseId", "connected", "messages", "_id"):
+        for key in ("name", "courseId", "connected", "messages", "questions", "_id"):
             item = data.get(key, None)
             newDict[key] = item
         return Room(*newDict.values())
@@ -186,6 +198,26 @@ class Room:
             if "timeSent" not in item:
                 errors.append(RoomMessages.MESSAGES_INVALID_FORMAT_TIME)
         return (len(errors) == 0, errors)
+    
+    def validateQuestions(self):
+        # messages must be a list of dict and must have a username, message and timeSent
+        errors = []
+        if not isinstance(self._questions, list):
+            errors.append(RoomMessages.QUESTIONS_INVALID)
+            return (False, errors)
+        for item in self._questions:
+            if not isinstance(item, dict):
+                errors.append(RoomMessages.QUESTIONS_NOT_DICT)
+            if "username" not in item:
+                errors.append(RoomMessages.QUESTIONS_INVALID_FORMAT_USERNAME)
+            if "title" not in item:
+                errors.append(RoomMessages.QUESTIONS_INVALID_FORMAT_TITLE)
+            if "content" not in item:
+                errors.append(RoomMessages.QUESTIONS_INVALID_FORMAT_CONTENT)
+            if "answered" not in item:
+                errors.append(RoomMessages.QUESTIONS_INVALID_FORMAT_ANSWERED)
+        return (len(errors) == 0, errors)
+    
 
     def validateCourseId(self):
         # courseId must be a valid ObjectId
@@ -211,6 +243,10 @@ class Room:
 
     def getMessages(self):
         return self._messages
+    
+    def getQuestions(self):
+        return self._questions
+
 
     #setters
     def setName(self, name: str):
@@ -222,7 +258,8 @@ class Room:
     def setMessages(self, messages: list[dict]):    
         self._messages = messages
 
-    
+    def setQuestions(self, questions: list[dict]):
+        self._questions = questions
 
 
 

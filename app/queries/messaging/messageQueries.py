@@ -124,7 +124,7 @@ def editMessage(room, message, index):
                         if not saveProfile.success:
                             return saveProfile
     res.success = True
-    res.message = "Successfully sent message"
+    res.message = "Successfully edited message"
     return res
 
 def deleteMessage(room, message):
@@ -165,4 +165,79 @@ def updateMessage(room, index, reaction, username, displayName):
         return roomSaveResult
     res.success = True
     res.message = "Successfully sent message"
+    return res
+
+def sendQuestion(room, question):
+    res = DBreturn()
+    room = Room.fromDict(room)
+    senderProfile = Profile.collection.find_one({"username": question["username"]})
+    if senderProfile is None:
+        res.message = "Sender profile not found"
+        return res
+    if room is None:
+        res.message = "Room not found"
+        return res
+    room.getQuestions().append(question)
+    roomSaveResult = room.update()
+    if not roomSaveResult.success:
+        return roomSaveResult
+    # courseName = Course.collection.find_one({"_id": room.getCourseId()})
+    # courseName = courseName["name"]
+    # profiles = Profile.collection.find({})
+    # for profile in profiles:
+    #     profile = Profile.fromDict(profile)
+    #     if profile.getUsername() != question["username"] or profile.getDisplayName() != question["username"]:
+    #         notiPref = profile.getNotificationPreference()
+    #         if courseName in notiPref:
+    #             if notiPref[courseName]["messages"]:
+    #                 # get lastSeenMessages of room to see if it has been viewed
+    #                 lastSeenMessage =  profile.getLastSeenMessage()
+    #                 lastSeenMessageRoom = lastSeenMessage[str(room.getId())]
+    #                 if lastSeenMessageRoom["message"]["timeSent"] != question["timeSent"]:
+    #                     profile.getNotification().append({"courseName": courseName, "notification": "new question in " + str(room.getId()), "date": datetime.datetime.utcnow()})
+    #                     saveProfile = profile.update()
+    #                     if not saveProfile.success:
+    #                         return saveProfile
+    res.success = True
+    res.message = "Successfully sent question"
+    return res
+
+def sendResponse(room, question, response, index):
+    res = DBreturn()
+    room = Room.fromDict(room)
+    senderProfile = Profile.collection.find_one({"username": question["username"]})
+    responderProfile = Profile.collection.find_one({"username": response["answerUsername"]})
+    if senderProfile is None:
+        res.message = "Sender profile not found"
+        return res
+    if responderProfile is None:
+        res.message = "Responder profile not found"
+        return res
+    if room is None:
+        res.message = "Room not found"
+        return res
+    room.getQuestions()[index] = question
+    roomSaveResult = room.update()
+    if not roomSaveResult.success:
+        return roomSaveResult
+    res.success = True
+    res.message = "Successfully sent response"
+    return res
+
+def updateQuestion(room, question, index):
+    res = DBreturn()
+    room = Room.fromDict(room)
+    senderProfile = Profile.collection.find_one({"username": question["username"]})
+    if senderProfile is None:
+        res.message = "Sender profile not found"
+        return res
+    if room is None:
+        res.message = "Room not found"
+        return res
+    room.getQuestions()[index] = question
+    roomSaveResult = room.update()
+    if not roomSaveResult.success:
+        return roomSaveResult
+    res.success = True
+    res.message = "Successfully sent question"
     return res
