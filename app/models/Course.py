@@ -51,6 +51,13 @@ class CourseMessages:
     FOREIGN_KEYS_DELETED = "Foreign keys successfully deleted"
     FOREIGN_KEYS_ERROR = "Error populating foreign keys"
 
+    QUESTIONS_INVALID = "Questions is not a list"
+    QUESTIONS_NOT_DICT = "Questions is not a dict"
+    QUESTIONS_INVALID_FORMAT_USERNAME = "Question does not contain a valid username"
+    QUESTIONS_INVALID_FORMAT_TITLE = "Question does not contain a title"
+    QUESTIONS_INVALID_FORMAT_CONTENT = "Question does not contain content"
+    QUESTIONS_INVALID_FORMAT_ANSWERED = "Question does not contain answered flag"
+
 class Course:
 
     _name: str
@@ -59,6 +66,7 @@ class Course:
     _instructor: str
     _department: str
     _semester: str
+    _questions: list[dict] #{username: str, title: str, content: str, answered: boolean, responses: {answerUsername: str, response: str}[]}
     
     #TODO:auto increment
     _memberCount: int = 0
@@ -77,7 +85,7 @@ class Course:
 
     def __init__(self, name: str, description: str, owner: str, department: str, semester: str, instructor: str = None, \
                 id: ObjectId = None, memberCount: int = None, userThread: ObjectId = None, \
-                rooms: list = [["General Room", None]], modRoom: ObjectId = None, creationDate: datetime.datetime = None):
+                rooms: list = [["General Room", None]], modRoom: ObjectId = None, questions: list[dict] = None, creationDate: datetime.datetime = None):
         #required fields
         self._name = name
         self._description = description
@@ -97,6 +105,8 @@ class Course:
         else: self._memberCount = 0
         if creationDate is not None: self._creationDate = creationDate
         else : self._creationDate = datetime.datetime.now()
+        if questions is not None: self._questions = questions
+        else: self._questions = []
 
     def fromDict(data: dict):
         newDict = {}
@@ -104,7 +114,7 @@ class Course:
             logger.warning(CourseMessages.MISSING_FIELDS)
             return None
         # reorder the dictionary to match the order of the constructor
-        for key in ('name', 'description', 'owner', 'department', 'semester', 'instructor', '_id', 'memberCount', 'userThread', 'rooms', 'modRoom', 'creationDate'):
+        for key in ('name', 'description', 'owner', 'department', 'semester', 'instructor', '_id', 'memberCount', 'userThread', 'rooms', 'modRoom', 'questions', 'creationDate'):
             item = data.get(key, None)
             newDict[key] = item
         return Course(*newDict.values())
@@ -302,6 +312,25 @@ class Course:
         if not isinstance(self._creationDate, datetime.datetime):
             errors.append(CourseMessages.CREATION_DATE_INVALID)
         return (len(errors) == 0, errors)
+    
+    def validateQuestions(self):
+        # messages must be a list of dict and must have a username, message and timeSent
+        errors = []
+        if not isinstance(self._questions, list):
+            errors.append(RoomMessages.QUESTIONS_INVALID)
+            return (False, errors)
+        for item in self._questions:
+            if not isinstance(item, dict):
+                errors.append(RoomMessages.QUESTIONS_NOT_DICT)
+            if "username" not in item:
+                errors.append(RoomMessages.QUESTIONS_INVALID_FORMAT_USERNAME)
+            if "title" not in item:
+                errors.append(RoomMessages.QUESTIONS_INVALID_FORMAT_TITLE)
+            if "content" not in item:
+                errors.append(RoomMessages.QUESTIONS_INVALID_FORMAT_CONTENT)
+            if "answered" not in item:
+                errors.append(RoomMessages.QUESTIONS_INVALID_FORMAT_ANSWERED)
+        return (len(errors) == 0, errors)
 
 
     #getters
@@ -344,7 +373,10 @@ class Course:
 
     def getCreationDate(self):
         return self._creationDate
-
+    
+    def getQuestions(self):
+        return self._questions
+    
     #setters
     def setName(self, name: str):
         self._name = name
@@ -378,6 +410,9 @@ class Course:
 
     def setCreationDate(self, creationDate: datetime.datetime):
         self._creationDate = creationDate
+
+    def setQuestions(self, questions: list[dict]):
+        self._questions = questions
 
     # other methods
     def populateForeignKeys(self):

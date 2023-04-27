@@ -167,17 +167,17 @@ def updateMessage(room, index, reaction, username, displayName):
     res.message = "Successfully sent message"
     return res
 
-def sendQuestion(room, question):
+def sendQuestion(course, question):
     res = DBreturn()
-    room = Room.fromDict(room)
+    course = Course.fromDict(course)
     senderProfile = Profile.collection.find_one({"username": question["username"]})
     if senderProfile is None:
         res.message = "Sender profile not found"
         return res
-    if room is None:
-        res.message = "Room not found"
+    if course is None:
+        res.message = "Course not found"
         return res
-    room.getQuestions().append(question)
+    course.getQuestions().append(question)
     roomSaveResult = room.update()
     if not roomSaveResult.success:
         return roomSaveResult
@@ -202,7 +202,7 @@ def sendQuestion(room, question):
     res.message = "Successfully sent question"
     return res
 
-def sendResponse(room, question, response, index):
+def sendResponse(course, question, response, index):
     res = DBreturn()
     room = Room.fromDict(room)
     senderProfile = Profile.collection.find_one({"username": question["username"]})
@@ -224,7 +224,7 @@ def sendResponse(room, question, response, index):
     res.message = "Successfully sent response"
     return res
 
-def updateQuestion(room, question, index):
+def updateQuestion(course, question, index):
     res = DBreturn()
     room = Room.fromDict(room)
     senderProfile = Profile.collection.find_one({"username": question["username"]})
