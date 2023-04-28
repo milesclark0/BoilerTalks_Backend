@@ -128,3 +128,40 @@ def removeReport(courseId):
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
+@bp.route(routePrefix + '/createPoll/<courseId>', methods=['POST'])
+@jwt_required()
+def createPoll(courseId):
+    res = DBreturn(False, 'No Poll Data Provided', None)
+    if courseId is None or courseId == '':
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
+    pollData = request.json
+    res = queries.createPoll(courseId, pollData)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
+@bp.route(routePrefix + '/getPolls/<courseId>', methods=['GET'])
+@jwt_required()
+def getPolls(courseId):
+    # Might not need dbreturn?
+    res = DBreturn(False,'No Course Provided', None) 
+    res = queries.getPolls(courseId)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
+@bp.route(routePrefix + '/pollVote/<courseId>', methods=['POST'])
+@jwt_required()
+def votePoll(courseId):
+    # Might not need dbreturn?
+    res = DBreturn(False,'No Course Provided', None)
+    if courseId is None or courseId == '':
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
+    voteData = request.json
+    print(voteData)
+    res = queries.votePoll(courseId, voteData)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+

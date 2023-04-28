@@ -249,6 +249,85 @@ def addReport(courseId: str, reportData: dict):
         res.data = str(e)
     return res
 
+def createPoll(courseId: str, pollData: dict):
+    res = DBreturn()
+    try:
+        course = CourseManagement.collection.find_one({"courseId":  ObjectId(courseId)})
+        if course is None:
+            res.message = 'get course error: no course found'
+            return res
+        user = User.collection.find_one({"username": pollData["username"]})
+        if user is None:
+            res.message = 'get user error: no user found'
+            return res
+        course = CourseManagement.fromDict(course)
+        course.getPolls().append(pollData)
+        saveReport = course.update()
+        if not saveReport.success:
+            return saveReport
+        res.success = True
+        res.message = 'Successfully added poll to list'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while adding poll to list'
+        res.data = str(e)
+    return res
+
+def votePoll(courseId: str, voteData: dict):
+    res = DBreturn()
+    try:
+        course = CourseManagement.collection.find_one({"courseId":  ObjectId(courseId)})
+        if course is None:
+            res.message = 'get course error: no course found'
+            return res
+        course = CourseManagement.fromDict(course)
+        polls = course.getPolls()
+        if polls is None:
+            res.message = 'cant vote on empty poll'
+            return res
+        user = User.collection.find_one({"username": voteData["username"]})
+        if user is None:
+            res.message = 'get user error: no user found'
+            return res
+        if voteData["option"] == 1:
+            course.getPolls()[voteData["index"]]["one_votes"] += 1
+        elif voteData["option"] == 2:
+            course.getPolls()[voteData["index"]]["two_votes"] += 1
+        elif voteData["option"] == 3:
+            course.getPolls()[voteData["index"]]["three_votes"] += 1
+        elif voteData["option"] == 4:
+            course.getPolls()[voteData["index"]]["four_votes"] += 1
+        if course.getPolls()[voteData["index"]]["voted_users"] is None:
+            course.getPolls()[voteData["index"]]["voted_users"] = [voteData["username"]]
+        else:
+            course.getPolls()[voteData["index"]]["voted_users"].append(voteData["username"])
+        print(course.getPolls()[voteData["index"]]["voted_users"])
+        saveReport = course.update()
+        if not saveReport.success:
+            return saveReport
+        res.success = True
+        res.message = 'Successfully added vote to poll'
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while adding vote to poll'
+        res.data = str(e)
+    return res
+
+def getPolls(courseId: str):
+    res = DBreturn()
+    try:
+        course = CourseManagement.collection.find_one({"courseId":  ObjectId(courseId)})
+        if course is None:
+            res.message = 'get course error: no course found'
+            return res 
+        course = CourseManagement.fromDict(course)
+        res.data = course.getPolls()
+    except Exception as e:
+        res.success = False
+        res.message = 'Error occurred while getting polls'
+        res.data = str(e)
+    return res
+
 def removeReport(courseId: str, reportData: dict):
     res = DBreturn()
     try:
@@ -271,3 +350,4 @@ def removeReport(courseId: str, reportData: dict):
         res.message = 'Error occurred while removing report from list'
         res.data = str(e)
     return res
+

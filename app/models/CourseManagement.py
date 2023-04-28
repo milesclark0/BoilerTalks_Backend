@@ -70,6 +70,7 @@ class CourseManagement:
     moderators: list[str]
     announcement: list[str]
     reports: list[dict]  # { id: str, username: str; reason: str }
+    polls: list[dict]
 
     # non mutable
     _id: ObjectId
@@ -79,7 +80,7 @@ class CourseManagement:
     collection = db.CourseManagement
 
 
-    def __init__(self, courseId: ObjectId, rules = None, bannedUsers = None, prevBannedUsers = None, warnedUsers = None, prevWarnedUsers = None, appeals = None, requests = None, moderators = None, announcements = None, reports = None, creationDate: datetime = None, id: ObjectId = None):
+    def __init__(self, courseId: ObjectId, rules = None, bannedUsers = None, prevBannedUsers = None, warnedUsers = None, prevWarnedUsers = None, appeals = None, requests = None, moderators = None, announcements = None, reports = None, polls = None, creationDate: datetime = None, id: ObjectId = None):
         self._courseId = courseId
 
         
@@ -104,6 +105,8 @@ class CourseManagement:
         else: self._announcements = []
         if reports is not None: self._reports = reports
         else: self._reports = []
+        if polls is not None: self._polls = polls
+        else: self._polls = []
 
         if id is not None: self._id = id
         if creationDate is not None: self._creationDate = creationDate 
@@ -114,7 +117,7 @@ class CourseManagement:
         if not CourseManagement.hasAllRequiredFields(data):
             logger.warning(CourseManagementMessages.MISSING_FIELDS)
             return None
-        for k in ("courseId", "rules", "bannedUsers", "prevBannedUsers", "warnedUsers", "prevWarnedUsers", "appeals", "requests", "moderators", "announcements", "reports", "creationDate", "_id"):
+        for k in ("courseId", "rules", "bannedUsers", "prevBannedUsers", "warnedUsers", "prevWarnedUsers", "appeals", "requests", "moderators", "announcements", "reports", "polls", "creationDate", "_id"):
             item = data.get(k, None)
             newDict[k] = item
         return CourseManagement(*newDict.values())
@@ -342,6 +345,9 @@ class CourseManagement:
     def getReports(self):
         return self._reports
     
+    def getPolls(self):
+        return self._polls
+    
     def getCreationDate(self):
         return self._creationDate
     
@@ -382,8 +388,8 @@ class CourseManagement:
     def setCreationDate(self, creationDate):
         self._creationDate = creationDate
 
-
-
+    def setPolls(self, creationDate):
+        self._polls = creationDate
 
 
 
