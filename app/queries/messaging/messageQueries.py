@@ -242,3 +242,11 @@ def updateQuestion(course, question, index):
     res.success = True
     res.message = "Successfully sent question"
     return res
+
+def getCourse(courseId):
+    res = DBreturn()
+    course = Course.collection.find_one({"_id": courseId})
+    if course is None:
+        res.message = "Course not found"
+        return res
+    return course

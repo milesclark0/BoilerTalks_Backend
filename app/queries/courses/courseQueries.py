@@ -63,10 +63,10 @@ def getRoom(roomId: str):
         res.data = str(e)
     return res
 
-def getCourse(name: str):
+def getCourse(id: str):
     res = DBreturn()
     try:
-        course = Course.collection.find({"name": name})
+        course = Course.collection.find_one({"_id": ObjectId(id)})
         res.data = parse_json(course)
         res.success = True
         res.message = 'Successfully retrieved course'
