@@ -208,6 +208,7 @@ class Course:
             result = getattr(self, validateFunc)()
             if not result[0]:
                 errors.extend(result[1])
+        print(errors)
         return (len(errors) == 0, errors)
 
     def validateSemester(self):
@@ -314,7 +315,6 @@ class Course:
         return (len(errors) == 0, errors)
     
     def validateQuestions(self):
-        # messages must be a list of dict and must have a username, message and timeSent
         errors = []
         if not isinstance(self._questions, list):
             errors.append(CourseMessages.QUESTIONS_INVALID)
