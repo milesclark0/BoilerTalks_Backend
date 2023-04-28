@@ -106,23 +106,6 @@ def editMessage(room, message, index):
     roomSaveResult = room.update()
     if not roomSaveResult.success:
         return roomSaveResult
-    courseName = Course.collection.find_one({"_id": room.getCourseId()})
-    courseName = courseName["name"]
-    profiles = Profile.collection.find({})
-    for profile in profiles:
-        profile = Profile.fromDict(profile)
-        if profile.getUsername() != message["username"] or profile.getDisplayName() != message["username"]:
-            notiPref = profile.getNotificationPreference()
-            if courseName in notiPref:
-                if notiPref[courseName]["messages"]:
-                    # get lastSeenMessages of room to see if it has been viewed
-                    lastSeenMessage =  profile.getLastSeenMessage()
-                    lastSeenMessageRoom = lastSeenMessage[str(room.getId())]
-                    if lastSeenMessageRoom["message"]["timeSent"] != message["timeSent"]:
-                        profile.getNotification().append({"courseName": courseName, "notification": "new message in " + str(room.getId()), "date": datetime.datetime.utcnow()})
-                        saveProfile = profile.update()
-                        if not saveProfile.success:
-                            return saveProfile
     res.success = True
     res.message = "Successfully sent message"
     return res
