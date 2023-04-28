@@ -10,11 +10,11 @@ def getAllCourses():
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
 
-@bp.route(routePrefix + '/getCourse/<name>', methods=['GET'])
+@bp.route(routePrefix + '/getCourse/<id>', methods=['GET'])
 @jwt_required()
-def getCourseByName(name):
+def getCourse(id):
     res = DBreturn(False, 'No Course Provided', None)
-    res = queries.getCourse(name)
+    res = queries.getCourse(id)
     if not res.success:
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
