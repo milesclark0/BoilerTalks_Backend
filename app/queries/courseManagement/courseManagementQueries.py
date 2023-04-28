@@ -370,10 +370,8 @@ def removeReport(courseId: str, reportData: dict):
         user = User.collection.find_one({"username": reportData["username"]})
         # remove user from warn list
         course = CourseManagement.fromDict(course)
-        course.getReports().remove(reportData)
-        for report in course.getReports():
-            if report["id"] == reportData["id"]:
-                course.getReports.remove(report)
+        newlist = [d for d in course.getReports() if d.get('id') != reportData["id"]]
+        course.setReports(newlist)
         listRes = course.update()
         if not listRes.success:
             return listRes
@@ -383,5 +381,6 @@ def removeReport(courseId: str, reportData: dict):
         res.success = False
         res.message = 'Error occurred while removing report from list'
         res.data = str(e)
+        print(res.data)
     return res
 
