@@ -270,6 +270,19 @@ def addReport(courseId: str, reportData: dict):
         saveReport = course.update()
         if not saveReport.success:
             return saveReport
+        # add notification to any profile who has appeal set on
+        courseName = Course.collection.find_one({"_id": ObjectId(courseId)})
+        courseName = courseName["name"]
+        profiles = Profile.collection.find({})
+        for profile in profiles:
+            profile = Profile.fromDict(profile)
+            for noti in profile.getNotificationPreference():
+                if noti["courseName"] == courseName:
+                    if noti["reports"]:
+                        profile.getNotification().append({"courseName": courseName, "notification": "report", "date": datetime.datetime.utcnow() })
+                        saveProfile = profile.update()
+                        if not saveProfile.success:
+                            return saveProfile
         res.success = True
         res.message = 'Successfully added report to list'
     except Exception as e:
