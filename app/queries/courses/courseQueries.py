@@ -139,8 +139,8 @@ def subscribeToCourse(courseName: str, username: str):
             return res
         user.getCourses().append(courseName)
         userSaveResult = user.update()
-        notificationPreferenceDict = {"courseName": courseName, "messages": True, "appeals": False, "reports": False}
-        profile.getNotificationPreference().append(notificationPreferenceDict)
+        notificationPreferenceDict = {"messages": True, "appeals": False, "reports": False}
+        profile.getNotificationPreference()[courseName] = notificationPreferenceDict
         profileSaveResult = profile.update()
         if not userSaveResult.success:
             print(userSaveResult.message)

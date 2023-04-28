@@ -69,7 +69,7 @@ class CourseManagement:
     requests: list[str]
     moderators: list[str]
     announcement: list[str]
-    reports: list[dict]  # { id: str, username: str; reason: str }
+    reports: list[dict]  # { id: str, username: str; reason: str, body: str , recipient?: str }
     polls: list[dict]
 
     # non mutable

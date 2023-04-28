@@ -24,6 +24,24 @@ def addCourseMods(username, courseId):
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
     return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
 
+@bp.route(routePrefix + '/getPrevBannedUsers/<courseId>', methods=['GET'])
+@jwt_required()
+def getPrevBannedUsers(courseId):
+    res = DBreturn(False, 'No course Provided', None)
+    res = queries.getPrevBannedUsers(courseId)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
+@bp.route(routePrefix + '/getPrevWarnedUsers/<courseId>', methods=['GET'])
+@jwt_required()
+def getPrevWarnedUsers(courseId):
+    res = DBreturn(False, 'No course Provided', None)
+    res = queries.getPrevWarnedUsers(courseId)
+    if not res.success:
+        return jsonify({'data': res.data, 'statusCode': HTTPStatus.INTERNAL_SERVER_ERROR, 'message': res.message})
+    return jsonify({'data': res.data, 'statusCode': HTTPStatus.OK, 'message': res.message})
+
 @bp.route(routePrefix + '/getCourseMods/<courseId>', methods=['GET'])
 @jwt_required()
 def getCourseMods( courseId):
