@@ -360,6 +360,8 @@ def getPolls(courseId: str):
 def removeReport(courseId: str, reportData: dict):
     res = DBreturn()
     try:
+        print("hello")
+        print(reportData)
         course = CourseManagement.collection.find_one({"courseId":  ObjectId(courseId)})
         if course is None:
             res.message = 'get course error: no course found'
@@ -369,6 +371,9 @@ def removeReport(courseId: str, reportData: dict):
         # remove user from warn list
         course = CourseManagement.fromDict(course)
         course.getReports().remove(reportData)
+        for report in course.getReports():
+            if report["id"] == reportData["id"]:
+                course.getReports.remove(report)
         listRes = course.update()
         if not listRes.success:
             return listRes

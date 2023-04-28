@@ -139,6 +139,7 @@ def addReport(courseId):
 @jwt_required()
 def removeReport(courseId):
     res = DBreturn(False, 'No Course Provided', None)
+    print("removeroute")
     if courseId is None or courseId == '':
         return jsonify({'data': res.data, 'statusCode': HTTPStatus.BAD_REQUEST, 'message': res.message})
     reportData = request.json
