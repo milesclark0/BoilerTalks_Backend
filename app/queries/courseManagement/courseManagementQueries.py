@@ -108,13 +108,13 @@ def addAppealforCourse(courseId: str, appeal: dict):
         profiles = Profile.collection.find({})
         for profile in profiles:
             profile = Profile.fromDict(profile)
-            for noti in profile.getNotificationPreference():
-                if noti["courseName"] == courseName:
-                    if noti["appeals"]:
-                        profile.getNotification().append({"courseName": courseName, "notification": "appeal", "date": datetime.datetime.utcnow() })
-                        saveProfile = profile.update()
-                        if not saveProfile.success:
-                            return saveProfile
+            profileNotiPref = profile.getNotificationPreference()
+            if courseName in profileNotiPref:
+                if profileNotiPref[courseName]["appeals"]:
+                    profile.getNotification().append({"courseName": courseName, "notification": "appeal", "date": datetime.datetime.utcnow() })
+                    saveProfile = profile.update()
+                    if not saveProfile.success:
+                        return saveProfile
         res.success = True
         res.message = 'Successfully added appeal to course'
     except Exception as e:
@@ -276,13 +276,13 @@ def addReport(courseId: str, reportData: dict):
         profiles = Profile.collection.find({})
         for profile in profiles:
             profile = Profile.fromDict(profile)
-            for noti in profile.getNotificationPreference():
-                if noti["courseName"] == courseName:
-                    if noti["reports"]:
-                        profile.getNotification().append({"courseName": courseName, "notification": "report", "date": datetime.datetime.utcnow() })
-                        saveProfile = profile.update()
-                        if not saveProfile.success:
-                            return saveProfile
+            profileNotiPref = profile.getNotificationPreference()
+            if courseName in profileNotiPref:
+                if profileNotiPref[courseName]["reports"]:
+                    profile.getNotification().append({"courseName": courseName, "notification": "report", "date": datetime.datetime.utcnow() })
+                    saveProfile = profile.update()
+                    if not saveProfile.success:
+                        return saveProfile
         res.success = True
         res.message = 'Successfully added report to list'
     except Exception as e:
