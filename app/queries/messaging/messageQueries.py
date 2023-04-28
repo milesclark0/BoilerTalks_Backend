@@ -170,6 +170,7 @@ def updateMessage(room, index, reaction, username, displayName):
 def sendQuestion(course, question):
     res = DBreturn()
     course = Course.fromDict(course)
+    print(course)
     senderProfile = Profile.collection.find_one({"username": question["username"]})
     if senderProfile is None:
         res.message = "Sender profile not found"
@@ -241,3 +242,11 @@ def updateQuestion(course, question, index):
     res.success = True
     res.message = "Successfully sent question"
     return res
+
+def getCourse(courseId):
+    res = DBreturn()
+    course = Course.collection.find_one({"_id": courseId})
+    if course is None:
+        res.message = "Course not found"
+        return res
+    return course

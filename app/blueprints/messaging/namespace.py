@@ -138,7 +138,7 @@ class MyCustomNamespace(Namespace):
     def on_send_question(self, data):
         question = data['question']
         # print(f"sending question {question} to course {data['course']}")
-        course = data['course']
+        course = queries.getCourse(data['courseId'])
         res = queries.sendQuestion(course, question)
         if res.success:
             emit("send_question", question, broadcast=True, to='Q&A')
@@ -147,8 +147,8 @@ class MyCustomNamespace(Namespace):
     
     def on_update_question(self, data):
         question = data['question']
-        print(f"updating question {question} to course {data['course']}")
-        course = data['course']
+        print(f"updating question {question} to course {data['courseId']}")
+        course = queries.getCourse(data['courseId'])
         index = data['index']
         res = queries.updateQuestion(course, question, index)
         if res.success:
@@ -160,7 +160,7 @@ class MyCustomNamespace(Namespace):
         question = data['question']
         print(f"updating question {question} to course {data['course']}")
         index = data['index']
-        course = data['course']
+        course = queries.getCourse(data['courseId'])
         res = queries.sendResponse(course, question, index)
         if res.success:
             emit("send_response", question, broadcast=True, to='Q&A')
