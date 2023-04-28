@@ -178,7 +178,7 @@ def sendQuestion(course, question):
         res.message = "Course not found"
         return res
     course.getQuestions().append(question)
-    roomSaveResult = room.update()
+    roomSaveResult = course.update()
     if not roomSaveResult.success:
         return roomSaveResult
     # courseName = Course.collection.find_one({"_id": room.getCourseId()})
@@ -204,7 +204,7 @@ def sendQuestion(course, question):
 
 def sendResponse(course, question, response, index):
     res = DBreturn()
-    room = Room.fromDict(room)
+    course = Course.fromDict(course)
     senderProfile = Profile.collection.find_one({"username": question["username"]})
     responderProfile = Profile.collection.find_one({"username": response["answerUsername"]})
     if senderProfile is None:
@@ -213,11 +213,11 @@ def sendResponse(course, question, response, index):
     if responderProfile is None:
         res.message = "Responder profile not found"
         return res
-    if room is None:
-        res.message = "Room not found"
+    if course is None:
+        res.message = "Course not found"
         return res
-    room.getQuestions()[index] = question
-    roomSaveResult = room.update()
+    course.getQuestions()[index] = question
+    roomSaveResult = course.update()
     if not roomSaveResult.success:
         return roomSaveResult
     res.success = True
@@ -226,16 +226,16 @@ def sendResponse(course, question, response, index):
 
 def updateQuestion(course, question, index):
     res = DBreturn()
-    room = Room.fromDict(room)
+    course = Course.fromDict(course)
     senderProfile = Profile.collection.find_one({"username": question["username"]})
     if senderProfile is None:
         res.message = "Sender profile not found"
         return res
-    if room is None:
-        res.message = "Room not found"
+    if course is None:
+        res.message = "Course not found"
         return res
-    room.getQuestions()[index] = question
-    roomSaveResult = room.update()
+    course.getQuestions()[index] = question
+    roomSaveResult = course.update()
     if not roomSaveResult.success:
         return roomSaveResult
     res.success = True
