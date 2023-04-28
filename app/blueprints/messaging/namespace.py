@@ -137,35 +137,32 @@ class MyCustomNamespace(Namespace):
     
     def on_send_question(self, data):
         question = data['question']
-        print(f"sending question {question} to room {data['roomID']}")
-        roomId = data['roomID']
-        room = queries.getRoom(roomId)
-        res = queries.sendQuestion(room, question)
+        # print(f"sending question {question} to course {data['course']}")
+        course = data['course']
+        res = queries.sendQuestion(course, question)
         if res.success:
-            emit("send_question", question, broadcast=True, to=roomId)
+            emit("send_question", question, broadcast=True, to='Q&A')
         else:
             print(res.message)
     
     def on_update_question(self, data):
         question = data['question']
-        print(f"updating question {question} to room {data['roomID']}")
-        roomId = data['roomID']
+        print(f"updating question {question} to course {data['course']}")
+        course = data['course']
         index = data['index']
-        room = queries.getRoom(roomId)
-        res = queries.updateQuestion(room, question, index)
+        res = queries.updateQuestion(course, question, index)
         if res.success:
-            emit("update_question", question, broadcast=True, to=roomId)
+            emit("update_question", question, broadcast=True, to='Q&A')
         else:
             print(res.message)
 
     def on_send_response(self, data):
         question = data['question']
-        print(f"updating question {question} to room {data['roomID']}")
-        roomId = data['roomID']
+        print(f"updating question {question} to course {data['course']}")
         index = data['index']
-        room = queries.getRoom(roomId)
-        res = queries.sendResponse(room, question, index)
+        course = data['course']
+        res = queries.sendResponse(course, question, index)
         if res.success:
-            emit("update_question", question, broadcast=True, to=roomId)
+            emit("send_response", question, broadcast=True, to='Q&A')
         else:
             print(res.message)

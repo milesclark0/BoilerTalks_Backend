@@ -178,9 +178,9 @@ def sendQuestion(course, question):
         res.message = "Course not found"
         return res
     course.getQuestions().append(question)
-    roomSaveResult = course.update()
-    if not roomSaveResult.success:
-        return roomSaveResult
+    courseSaveResult = course.update()
+    if not courseSaveResult.success:
+        return courseSaveResult
     # courseName = Course.collection.find_one({"_id": room.getCourseId()})
     # courseName = courseName["name"]
     # profiles = Profile.collection.find({})

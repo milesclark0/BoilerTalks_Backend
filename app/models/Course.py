@@ -317,19 +317,19 @@ class Course:
         # messages must be a list of dict and must have a username, message and timeSent
         errors = []
         if not isinstance(self._questions, list):
-            errors.append(RoomMessages.QUESTIONS_INVALID)
+            errors.append(CourseMessages.QUESTIONS_INVALID)
             return (False, errors)
         for item in self._questions:
             if not isinstance(item, dict):
-                errors.append(RoomMessages.QUESTIONS_NOT_DICT)
+                errors.append(CourseMessages.QUESTIONS_NOT_DICT)
             if "username" not in item:
-                errors.append(RoomMessages.QUESTIONS_INVALID_FORMAT_USERNAME)
+                errors.append(CourseMessages.QUESTIONS_INVALID_FORMAT_USERNAME)
             if "title" not in item:
-                errors.append(RoomMessages.QUESTIONS_INVALID_FORMAT_TITLE)
+                errors.append(CourseMessages.QUESTIONS_INVALID_FORMAT_TITLE)
             if "content" not in item:
-                errors.append(RoomMessages.QUESTIONS_INVALID_FORMAT_CONTENT)
+                errors.append(CourseMessages.QUESTIONS_INVALID_FORMAT_CONTENT)
             if "answered" not in item:
-                errors.append(RoomMessages.QUESTIONS_INVALID_FORMAT_ANSWERED)
+                errors.append(CourseMessages.QUESTIONS_INVALID_FORMAT_ANSWERED)
         return (len(errors) == 0, errors)
 
 
