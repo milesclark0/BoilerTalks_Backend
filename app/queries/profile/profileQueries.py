@@ -212,14 +212,8 @@ def updateNotificationPreference(username: str, notificationData: dict):
         if profile is None:
             res.message = 'get profile error: no profile found'
             return res
-        # newNotificationData = {}
         notiPref = profile.getNotificationPreference()
         notiPref[notificationData["courseName"]] = notificationData["data"]
-        # for courseNoti in notiPref:
-        #     if courseNoti["roomId"] == notificationData["roomId"]:
-        #         courseNoti = notificationData
-        #     newNotificationData.append(courseNoti)
-        # profile.setNotificationPreference(newNotificationData)
         saveNotificationPref = profile.update()
         if not saveNotificationPref.success:
             return saveNotificationPref
